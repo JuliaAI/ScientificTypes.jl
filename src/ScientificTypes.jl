@@ -25,7 +25,9 @@ end
 # Explanation: For example, if Tables.jl is loaded and one does
 # `TRAIT_FUNCTION_GIVEN_NAME[:table] = Tables.is_table` then
 # `trait(X)` returns `:table` on any Tables.jl table, and `:other`
-# otherwise.
+# otherwise. There is an understanding here that no two trait
+# functions added to the dictionary values can be simultaneously true
+# on two julia objects.
 
 
 # ## CONVENTIONS
