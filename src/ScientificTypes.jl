@@ -169,8 +169,8 @@ Base.propertynames(sch::Schema) = (:names, :types, :scitypes)
 
 _as_named_tuple(s::Schema) = NamedTuple{(:names, :types, :scitypes)}((s.names, s.types, s.scitypes))
 
-function Base.show(io::IO, s::Schema)
-    show(io, _as_named_tuple(s))
+function Base.show(io::IO, ::MIME"text/plain", s::Schema)
+    show(io, MIME("text/plain"), _as_named_tuple(s))
 end
 
 

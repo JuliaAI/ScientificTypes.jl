@@ -20,8 +20,10 @@ end
 @testset "Tables" begin
 
     X = (x=rand(5), y=rand(Int, 5),
-      z=categorical(collect("asdfa")), w=rand(5))
-    @test schema(X).scitypes == (Continuous, Count, Multiclass{4}, Continuous)
+         z=categorical(collect("asdfa")), w=rand(5))
+    s = schema(X)
+    @test s.scitypes == (Continuous, Count, Multiclass{4}, Continuous)
+    @test s.types == (Float64, Int64, CategoricalValue{Char,UInt32}, Float64)
 
     @test_throws ArgumentError schema([:x, :y])
 
