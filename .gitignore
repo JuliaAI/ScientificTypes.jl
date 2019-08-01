@@ -1,4 +1,9 @@
-*.jl.cov
-*.jl.*.cov
-*.jl.mem
-deps/deps.jl
+/Manifest.toml
+/docs/Manifest.toml
+.ipynb_checkpoints
+*~
+#*
+*.bu
+.DS_Store
+sandbox/
+docs/build
