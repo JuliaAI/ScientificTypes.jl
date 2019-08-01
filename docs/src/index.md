@@ -122,9 +122,9 @@ scitype(Xfixed) <: Table(Continuous, Union{Finite, Missing})
 ### Notes
 
 - We regard the built-in julia type `Missing` as a scientific
-  type. The new scientific types introduce here are all rooted in
-  the abstract type `Found` (see tree above) and we export the alias
-  `Scientific = Union{Missing, Found}`.
+  type. The new scientific types introduced in the current package
+  are rooted in the abstract type `Found` (see tree above) and we
+  export the alias `Scientific = Union{Missing, Found}`.
 
 - `Finite{N}`, `Muliticlass{N}` and `OrderedFactor{N}` are all
   parameterized by an integer `N`. We export the alias `Binary =
