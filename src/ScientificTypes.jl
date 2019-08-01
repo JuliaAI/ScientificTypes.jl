@@ -1,6 +1,6 @@
 module ScientificTypes
 
-export Found, Unknown, Finite, Infinite
+export Scientific, Found, Unknown, Finite, Infinite
 export OrderedFactor, Multiclass, Count, Continuous
 export Binary, Table, ColorImage, GrayImage
 export scitype, scitype_union, scitypes, coerce, schema
@@ -60,6 +60,40 @@ struct ColorImage <: Image end
 const Binary = Multiclass{2}
 const Scientific = Union{Missing,Found}
 
+"""
+    MLJBase.Table{K}
+
+The scientific type for tabular data (a containter `X` for which
+`Tables.is_table(X)=true`).
+
+If `X` has columns `c1, c2, ..., cn`, then, by definition, 
+
+    scitype(X) = Table{Union{scitype(c1), scitype(c2), ..., scitype(cn)}}
+
+A special constructor of `Table` types exists: 
+
+    `Table(T1, T2, T3, ..., Tn) <: Table` 
+
+has the property that
+
+    scitype(X) <: Table(T1, T2, T3, ..., Tn)
+
+if and only if `X` is a table *and*, for every column `col` of `X`,
+`scitype(col) <: Tj`, for some `j` between `1` and `n`. Note that this
+constructor constructs a *type* not an instance; `Table` instances
+play no role in MLJ.
+
+    julia> X = (x1 = [10.0, 20.0, missing],
+                x2 = [1.0, 2.0, 3.0],
+                x3 = [4, 5, 6])
+
+    julia> scitype(X) <: MLJBase.Table(Continuous, Count)
+    false
+
+    julia> scitype(X) <: MLJBase.Table(Union{Continuous, Missing}, Count)
+    true
+
+"""
 struct Table{K} <: Known end
 function Table(Ts...)
     Union{Ts...} <: Scientific ||

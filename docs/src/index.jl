@@ -62,6 +62,15 @@ scitype(Xfixed) <: Table(Continuous, Union{Finite, Missing})
 
 # ### Notes
 
+# - We regard the built-in julia type `Missing` as a scientific
+#   type. The new scientific types introduced in the current package
+#   are rooted in the abstract type `Found` (see tree above) and we
+#   export the alias `Scientific = Union{Missing, Found}`.
+
+# - `Finite{N}`, `Muliticlass{N}` and `OrderedFactor{N}` are all
+#   parameterized by an integer `N`. We export the alias `Binary =
+#   Multiclass{2}`.
+
 # - The function `scitype` has the fallback value `Unknown`.
 
 # - Since Tables is an optional dependency, the `scitype` of a
@@ -110,8 +119,12 @@ scitype(w)
 
 #-
 
+using Tables
+T = (x1=rand(10), x2=rand(10), x3=rand(10))
+scitype(T)
+
+#-
 using DataFrames
-using Tables # needed!
 X = DataFrame(name=["Siri", "Robo", "Alexa", "Cortana"],
               height=[152, missing, 148, 163],
               rating=[1, 5, 2, 1]);
@@ -170,7 +183,7 @@ scitype(X)
 
 scitype(X) <: Table(Continuous, Finite)
 
-# For details run `?Table`.
+# For more details on the `Table` type and its constructor, do `?Table`.
 
 # Detailed inspection of column scientific types is included in an extended form of Tables.schema:
 
