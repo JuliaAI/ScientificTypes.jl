@@ -104,7 +104,7 @@ schema(Xfixed)
 
 
 
-Testing if each column of a table has a scientific type sub-typing
+Testing if each column of a table has a scientific type that subtypes
 one of a specified list of scientific types:
 
 
@@ -325,7 +325,7 @@ scitype(Xfixed) <: Table(Union{Continuous, Missing}, Finite)
 
 
 
-### Compositional properties of scientific types
+### The scientific type  of tuples, arrays and tables
 
 Note that under any convention, the scitype of a tuple is a `Tuple`
 type parameterized by scientific types:
@@ -379,8 +379,17 @@ scitype(X)
 
 
 
-A special constructor for the `Table` scientific type allows for
-convenient checking of the scientific types of the columns:
+Specifically, if `X` has columns `c1, c2, ..., cn`, then, by definition,
+
+   scitype(X) = Table{Union{scitype(c1), scitype(c2), ..., scitype(cn)}}
+
+With this definition, it is possible to define a `Table(...)` type
+constructor such that
+
+   scitype(X) <: Table(T1, T2, T3, ..., Tn)
+
+if and only if `X` is a table *and*, for every column `col` of `X`,
+`scitype(col) <: Tj`, for some `j` between `1` and `n`:
 
 
 ```julia
@@ -394,9 +403,11 @@ scitype(X) <: Table(Continuous, Finite)
 
 
 
-For more details on the `Table` type and its constructor, do `?Table`.
+Note that `Table(Continuous, Finite)` is a *type* union and not a
+`Table` *instance*.
 
-Detailed inspection of column scientific types is included in an extended form of Tables.schema:
+Detailed inspection of column scientific types is included in an
+extended form of Tables.schema:
 
 
 ```julia

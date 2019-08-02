@@ -82,8 +82,8 @@ has the property that
 
 if and only if `X` is a table *and*, for every column `col` of `X`,
 `scitype(col) <: Tj`, for some `j` between `1` and `n`. Note that this
-constructor constructs a *type* not an instance; `Table` instances
-play no role in MLJ.
+constructor constructs a *type* not an instance, as instances of
+scientific types play no role (except for missing).
 
     julia> X = (x1 = [10.0, 20.0, missing],
                 x2 = [1.0, 2.0, 3.0],
