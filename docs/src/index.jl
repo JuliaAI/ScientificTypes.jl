@@ -72,7 +72,7 @@ schema(Xfixed).scitypes
 # Testing if each column of a table has an element scientific type
 # that subtypes types from a specified list:
 
-scitype(Xfixed) <: Table(Continuous, Finite)
+scitype(Xfixed) <: Table(Union{Missing,Continuous}, Finite)
 
 # ### Notes
 

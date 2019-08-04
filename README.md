@@ -148,13 +148,13 @@ that subtypes types from a specified list:
 
 
 ```julia
-scitype(Xfixed) <: Table(Continuous, Finite)
+scitype(Xfixed) <: Table(Union{Missing,Continuous}, Finite)
 ```
 
 
 
 
-    false
+    true
 
 
 
