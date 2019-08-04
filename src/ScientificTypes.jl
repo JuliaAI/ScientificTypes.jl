@@ -81,9 +81,9 @@ has the property that
     scitype(X) <: Table(T1, T2, T3, ..., Tn)
 
 if and only if `X` is a table *and*, for every column `col` of `X`,
-`scitype(col) <: Tj`, for some `j` between `1` and `n`. Note that this
-constructor constructs a *type* not an instance, as instances of
-scientific types play no role (except for missing).
+`scitype(col) <: AbstractVector{<:Tj}`, for some `j` between `1` and
+`n`. Note that this constructor constructs a *type* not an instance,
+as instances of scientific types play no role (except for missing).
 
     julia> X = (x1 = [10.0, 20.0, missing],
                 x2 = [1.0, 2.0, 3.0],

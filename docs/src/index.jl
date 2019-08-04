@@ -1,6 +1,6 @@
 # ## ScientificTypes
 
-# A light-weight interface for implementing conventions about the
+# A light-weight julia interface for implementing conventions about the
 # scientific interpretation of data, and for performing type coercions
 # enforcing those conventions.
 
@@ -46,19 +46,33 @@ scitype(3.14)
 # #### Typical type coercion work-flow for tabular data
 
 using CategoricalArrays, DataFrames, Tables
-X = DataFrame(x1=1:5, x2=6:10, x3=11:15, x4=[16, 17, missing, 19, 20])
+X = DataFrame(name=["Siri", "Robo", "Alexa", "Cortana"],
+              height=[152, missing, 148, 163],
+              rating=[1, 5, 2, 1])
 
 #-
 
-fix = Dict(:x1=>Continuous, :x2=>Continuous, :x3=>Multiclass, :x4=>OrderedFactor);
-Xfixed = coerce(fix, X);
-schema(Xfixed)
+schema(X)
 
-# Testing if each column of a table has a scientific type that subtypes
-# one of a specified list of scientific types:
+#-
 
-scitype(Xfixed) <: Table(Continuous, Union{Finite, Missing})
+schema(X).scitypes
 
+#-
+
+fix = Dict(:name=>Multiclass,
+           :height=>Continuous,
+           :rating=>OrderedFactor);
+Xfixed = coerce(fix, X)
+
+#-
+
+schema(Xfixed).scitypes
+
+# Testing if each column of a table has an element scientific type
+# that subtypes types from a specified list:
+
+scitype(Xfixed) <: Table(Continuous, Finite)
 
 # ### Notes
 
@@ -124,10 +138,9 @@ T = (x1=rand(10), x2=rand(10), x3=rand(10))
 scitype(T)
 
 #-
+
 using DataFrames
-X = DataFrame(name=["Siri", "Robo", "Alexa", "Cortana"],
-              height=[152, missing, 148, 163],
-              rating=[1, 5, 2, 1]);
+X = DataFrame(x1=1:5, x2=6:10, x3=11:15, x4=[16, 17, missing, 19, 20]);
 
 #-
 
@@ -139,10 +152,9 @@ schema(X)
 
 #-
 
-fix = Dict(:name=>Multiclass,
-           :height=>Continuous,
-           :rating=>OrderedFactor);
-Xfixed = coerce(fix, X);
+fix = Dict(:x1=>Continuous, :x2=>Continuous,
+           :x3=>Multiclass, :x4=>OrderedFactor)
+fixed = coerce(fix, X);
 scitype(Xfixed)
 
 #-
@@ -151,7 +163,7 @@ scitype(Xfixed) <: Table(Continuous, Finite)
 
 #-
 
-scitype(Xfixed) <: Table(Union{Continuous, Missing}, Finite)
+scitype(Xfixed) <: Table(Continuous, Union{Finite, Missing})
 
 
 # ### The scientific type  of tuples, arrays and tables
@@ -180,15 +192,28 @@ scitype(X)
 
 # Specifically, if `X` has columns `c1, c2, ..., cn`, then, by definition, 
 
-#    scitype(X) = Table{Union{scitype(c1), scitype(c2), ..., scitype(cn)}}
+# ```julia
+# scitype(X) = Table{Union{scitype(c1), scitype(c2), ..., scitype(cn)}}
+# ```
 
-# With this definition, it is possible to define a `Table(...)` type
-# constructor such that
+# With this definition, we can perform common type checks associaed
+# with tables. For example, to check that each column of `X` has an
+# element scitype subtying either `Continuous` or `Finite` (but not
+# `Union{Continuous, Finite}`!), we check
 
-#    scitype(X) <: Table(T1, T2, T3, ..., Tn)
+# ```julia
+# scitype(X) <: Table{Union{AbstractVector{Continous}, AbstractVector{<:Finite}}
+# ```
 
-# if and only if `X` is a table *and*, for every column `col` of `X`,
-# `scitype(col) <: Tj`, for some `j` between `1` and `n`:
+# A built-in `Table` type constructor provides `Table(Continuous, Finite)` as
+# shorthand for the right-hand side. More generally, 
+
+# ```julia
+# scitype(X) <: Table(T1, T2, T3, ..., Tn)
+#  ```
+
+# if and only if `X` is a table and, for every column `col` of `X`,
+# `scitype(col) <: AbstractVector{<:Tj}`, for some `j` between `1` and `n`:
 
 scitype(X) <: Table(Continuous, Finite)
 
@@ -219,13 +244,13 @@ typeof(schema(X))
 # `Missing`                         | `Missing`                                                                   |
 # `AbstractFloat`                   | `Continuous`                                                                | 
 # `Integer`                         |  `Count`                                                                    |
-# `CategoricalValue`                | `Multiclass{N}` where `N = nlevels(x)`, provided `x.pool.ordered == false`  | CategoricalArrays.jl
-# `CategoricalString`               | `Multiclass{N}` where `N = nlevels(x)`, provided `x.pool.ordered == false`  | CategoricalArrays.jl
-# `CategoricalValue`                | `OrderedFactor{N}` where `N = nlevels(x)`, provided `x.pool.ordered == true`| CategoricalArrays.jl
-# `CategoricalString`               | `OrderedFactor{N}` where `N = nlevels(x)` provided `x.pool.ordered == true` | CategoricalArrays.jl
-# `AbstractArray{<:Gray,2}`         | `GrayImage`                                                                 | ColorTypes.jl
+# `CategoricalValue`                | `Multiclass{N}` where `N = nlevels(x)`, provided `x.pool.ordered == false`  | CategoricalArrays
+# `CategoricalString`               | `Multiclass{N}` where `N = nlevels(x)`, provided `x.pool.ordered == false`  | CategoricalArrays
+# `CategoricalValue`                | `OrderedFactor{N}` where `N = nlevels(x)`, provided `x.pool.ordered == true`| CategoricalArrays
+# `CategoricalString`               | `OrderedFactor{N}` where `N = nlevels(x)` provided `x.pool.ordered == true` | CategoricalArrays
+# `AbstractArray{<:Gray,2}`         | `GrayImage`                                                                 | ColorTypes
 # `AbstractArrray{<:AbstractRGB,2}` | `ColorImage`                                                                | ColorTypes
-# any table type `T` supported by Tables.jl | `Table{K}` where `K=Union{column_scitypes...}`                      | Tables.jl
+# any table type `T` supported by Tables.jl | `Table{K}` where `K=Union{column_scitypes...}`                      | Tables
 
 # Here `nlevels(x) = length(levels(x.pool))`.
 
