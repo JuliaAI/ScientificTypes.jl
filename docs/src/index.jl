@@ -27,7 +27,7 @@ ScientificTypes.tree()
 
 # - A `schema` method for tabular data, based on the optional Tables
 #   dependency, for inspecting the machine and scientific types of
-#   tabular data.
+#   tabular data, in addition to column names and number of rows
 
 # The only core dependencies of ScientificTypes are Requires and
 # InteractiveUtils (from the standard library).

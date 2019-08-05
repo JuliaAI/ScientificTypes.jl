@@ -46,7 +46,7 @@ ScientificTypes.tree()
 
 - A `schema` method for tabular data, based on the optional Tables
   dependency, for inspecting the machine and scientific types of
-  tabular data.
+  tabular data, in addition to column names and number of rows
 
 The only core dependencies of ScientificTypes are Requires and
 InteractiveUtils (from the standard library).
@@ -95,7 +95,7 @@ schema(X)
 
 
 
-    (names = (:name, :height, :rating), types = (String, Union{Missing, Int64}, Int64), scitypes = (ScientificTypes.Unknown, Union{Missing, Count}, ScientificTypes.Count))
+    (names = (:name, :height, :rating), types = (String, Union{Missing, Int64}, Int64), scitypes = (ScientificTypes.Unknown, Union{Missing, Count}, ScientificTypes.Count), nrows = 4)
 
 
 
@@ -313,7 +313,7 @@ schema(X)
 
 
 
-    (names = (:x1, :x2, :x3, :x4), types = (Int64, Int64, Int64, Union{Missing, Int64}), scitypes = (ScientificTypes.Count, ScientificTypes.Count, ScientificTypes.Count, Union{Missing, Count}))
+    (names = (:x1, :x2, :x3, :x4), types = (Int64, Int64, Int64, Union{Missing, Int64}), scitypes = (ScientificTypes.Count, ScientificTypes.Count, ScientificTypes.Count, Union{Missing, Count}), nrows = 5)
 
 
 
@@ -421,13 +421,13 @@ Specifically, if `X` has columns `c1, c2, ..., cn`, then, by definition,
 scitype(X) = Table{Union{scitype(c1), scitype(c2), ..., scitype(cn)}}
 ```
 
-With this definition, we can perform common type checks associaed
+With this definition, we can perform common type checks associated
 with tables. For example, to check that each column of `X` has an
 element scitype subtying either `Continuous` or `Finite` (but not
 `Union{Continuous, Finite}`!), we check
 
 ```julia
-scitype(X) <: Table{Union{AbstractVector{Continous}, AbstractVector{<:Finite}}
+scitype(X) <: Table{Union{AbstractVector{Continuous}, AbstractVector{<:Finite}}
 ```
 
 A built-in `Table` type constructor provides `Table(Continuous, Finite)` as
@@ -466,7 +466,7 @@ schema(X)
 
 
 
-    (names = (:x1, :x2, :x3, :x4), types = (Float64, Float64, CategoricalArrays.CategoricalValue{Char,UInt32}, CategoricalArrays.CategoricalValue{Char,UInt32}), scitypes = (ScientificTypes.Continuous, ScientificTypes.Continuous, ScientificTypes.Multiclass{3}, ScientificTypes.Multiclass{2}))
+    (names = (:x1, :x2, :x3, :x4), types = (Float64, Float64, CategoricalArrays.CategoricalValue{Char,UInt32}, CategoricalArrays.CategoricalValue{Char,UInt32}), scitypes = (ScientificTypes.Continuous, ScientificTypes.Continuous, ScientificTypes.Multiclass{3}, ScientificTypes.Multiclass{2}), nrows = 10)
 
 
 
@@ -490,7 +490,7 @@ typeof(schema(X))
 
 
 
-    ScientificTypes.Schema{(:x1, :x2, :x3, :x4),Tuple{Float64,Float64,CategoricalArrays.CategoricalValue{Char,UInt32},CategoricalArrays.CategoricalValue{Char,UInt32}},Tuple{ScientificTypes.Continuous,ScientificTypes.Continuous,ScientificTypes.Multiclass{3},ScientificTypes.Multiclass{2}}}
+    ScientificTypes.Schema{(:x1, :x2, :x3, :x4),Tuple{Float64,Float64,CategoricalArrays.CategoricalValue{Char,UInt32},CategoricalArrays.CategoricalValue{Char,UInt32}},Tuple{ScientificTypes.Continuous,ScientificTypes.Continuous,ScientificTypes.Multiclass{3},ScientificTypes.Multiclass{2}},10}
 
 
 
