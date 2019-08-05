@@ -148,26 +148,28 @@ function coerce end
 
 # ## TABLE SCHEMA
 
-struct Schema{names, types, scitypes} end
+struct Schema{names, types, scitypes, nrows} end
 
-Schema(names::Tuple{Vararg{Symbol}}, types::Type{T}, scitypes::Type{S}) where {T<:Tuple,S<:Tuple} = Schema{names, T, S}()
-Schema(names, types, scitypes) = Schema{Tuple(Base.map(Symbol, names)), Tuple{types...}, Tuple{scitypes...}}()
+Schema(names::Tuple{Vararg{Symbol}}, types::Type{T}, scitypes::Type{S}, nrows::Integer) where {T<:Tuple,S<:Tuple} = Schema{names, T, S, nrows}()
+Schema(names, types, scitypes, nrows) = Schema{Tuple(Base.map(Symbol, names)), Tuple{types...}, Tuple{scitypes...}, nrows}()
 
-function Base.getproperty(sch::Schema{names, types, scitypes}, field::Symbol) where {names, types, scitypes}
+function Base.getproperty(sch::Schema{names, types, scitypes, nrows}, field::Symbol) where {names, types, scitypes, nrows}
     if field === :names
         return names
     elseif field === :types
         return types === nothing ? nothing : Tuple(fieldtype(types, i) for i = 1:fieldcount(types))
     elseif field === :scitypes
         return scitypes === nothing ? nothing : Tuple(fieldtype(scitypes, i) for i = 1:fieldcount(scitypes))
+    elseif field === :nrows
+        return nrows === nothing ? nothing : nrows
     else
         throw(ArgumentError("unsupported property for ScientificTypes.Schema"))
     end
 end
 
-Base.propertynames(sch::Schema) = (:names, :types, :scitypes)
+Base.propertynames(sch::Schema) = (:names, :types, :scitypes, :nrows)
 
-_as_named_tuple(s::Schema) = NamedTuple{(:names, :types, :scitypes)}((s.names, s.types, s.scitypes))
+_as_named_tuple(s::Schema) = NamedTuple{(:names, :types, :scitypes, :nrows)}((s.names, s.types, s.scitypes, s.nrows))
 
 function Base.show(io::IO, ::MIME"text/plain", s::Schema)
     show(io, MIME("text/plain"), _as_named_tuple(s))

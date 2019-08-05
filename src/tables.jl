@@ -11,6 +11,16 @@ function scitype(X, ::Val, ::Val{:table})
     return Table{Union{types...}}
 end
 
+function _nrows(X)
+    if !Tables.columnaccess(X)
+        return length(collect(X))
+    else
+        cols = Tables.columntable(X)
+        !isempty(cols) || return 0
+        return length(cols[1])
+    end
+end
+
 function schema(X, ::Val{:table})
     s = Tables.schema(X)
     Xcol = Tables.columntable(X)
@@ -18,7 +28,7 @@ function schema(X, ::Val{:table})
     types = Tuple{s.types...}
     scitypes = Tuple{[scitype_union(getproperty(Xcol, name))
                               for name in names]...}
-    return Schema(names, types, scitypes)
+    return Schema(names, types, scitypes, _nrows(X))
 end
 
 
