@@ -196,13 +196,13 @@ scitype(X)
 # scitype(X) = Table{Union{scitype(c1), scitype(c2), ..., scitype(cn)}}
 # ```
 
-# With this definition, we can perform common type checks associaed
+# With this definition, we can perform common type checks associated
 # with tables. For example, to check that each column of `X` has an
 # element scitype subtying either `Continuous` or `Finite` (but not
 # `Union{Continuous, Finite}`!), we check
 
 # ```julia
-# scitype(X) <: Table{Union{AbstractVector{Continous}, AbstractVector{<:Finite}}
+# scitype(X) <: Table{Union{AbstractVector{Continuous}, AbstractVector{<:Finite}}
 # ```
 
 # A built-in `Table` type constructor provides `Table(Continuous, Finite)` as
