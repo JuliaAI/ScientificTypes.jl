@@ -1,0 +1,39 @@
+## Documentation: http://docs.travis-ci.com/user/languages/julia/
+language: julia
+os:
+  - linux
+  - osx
+julia:
+  - 1.0
+  - 1.1
+  - nightly
+notifications:
+  email: false
+git:
+  depth: 99999999
+
+## uncomment the following lines to allow failures on nightly julia
+## (tests will run but not make your overall status red)
+matrix:
+  allow_failures:
+  - julia: nightly
+
+after_success:
+ - julia -e 'import Pkg; Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder()); Codecov.submit(process_folder())'
+
+## uncomment following lines to deploy documentation
+## jobs:
+##   include:
+##     - stage: "Documentation"
+##       julia: 1.1
+##       os: linux
+##       # disable global before_script in order not to install Compose twice
+##       before_script:
+##       script:
+##         - |
+##           julia --color=yes --project=docs/ -e'
+##             using Pkg
+##             Pkg.add(PackageSpec(name="MLJBase", rev="master"));Pkg.add(PackageSpec(name="MLJModels", rev="master"));Pkg.develop(PackageSpec(path=pwd()))
+##             Pkg.instantiate()
+##             include("docs/make.jl")
+          '
