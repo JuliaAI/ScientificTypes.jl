@@ -5,6 +5,8 @@ A light-weight julia interface for implementing conventions about the
 scientific interpretation of data, and for performing type coercions
 enforcing those conventions.
 
+[![Build Status](https://travis-ci.com/alan-turing-institute/ScientificTypes.jl.svg?branch=master)](https://travis-ci.com/alan-turing-institute/ScientificTypes.jl)
+
 ScientificTypes provides:
 
 - A hierarchy of new julia types representing scientific data types
