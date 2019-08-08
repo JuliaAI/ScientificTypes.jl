@@ -59,7 +59,7 @@ struct GrayImage <: Image end
 struct ColorImage <: Image end
 
 # aliases:
-const Binary = Multiclass{2}
+const Binary = Finite{2}
 const Scientific = Union{Missing,Found}
 
 """

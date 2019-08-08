@@ -83,7 +83,7 @@ scitype(Xfixed) <: Table(Union{Missing,Continuous}, Finite)
 
 # - `Finite{N}`, `Muliticlass{N}` and `OrderedFactor{N}` are all
 #   parameterized by an integer `N`. We export the alias `Binary =
-#   Multiclass{2}`.
+#   Finite{2}`.
 
 # - The function `scitype` has the fallback value `Unknown`.
 
