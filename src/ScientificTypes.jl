@@ -217,9 +217,9 @@ function __init__()
 
     # :mlj conventions requiring external packages
     @require(CategoricalArrays="324d7699-5711-5eae-9e2f-1d82baa6b597",
-             include("conventions/mlj/mlj_finite.jl"))
+             include("conventions/mlj/finite.jl"))
     @require(ColorTypes="3da002f7-5984-5a60-b8a6-cbb66c0b333f",
-             include("conventions/mlj/mlj_images.jl"))
+             include("conventions/mlj/images.jl"))
     
 end
 
