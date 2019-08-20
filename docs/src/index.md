@@ -423,7 +423,7 @@ scitype(X) = Table{Union{scitype(c1), scitype(c2), ..., scitype(cn)}}
 
 With this definition, we can perform common type checks associated
 with tables. For example, to check that each column of `X` has an
-element scitype subtying either `Continuous` or `Finite` (but not
+element scitype subtyping either `Continuous` or `Finite` (but not
 `Union{Continuous, Finite}`!), we check
 
 ```julia
