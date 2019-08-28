@@ -54,9 +54,9 @@ abstract type Finite{N} <: Known end
 struct Multiclass{N} <: Finite{N} end
 struct OrderedFactor{N} <: Finite{N} end
 
-abstract type Image <: Known end
-struct GrayImage <: Image end
-struct ColorImage <: Image end
+abstract type Image{W,H} <: Known end
+struct  GrayImage{W,H} <: Image{W,H} end
+struct ColorImage{W,H} <: Image{W,H} end
 
 # aliases:
 const Binary = Finite{2}

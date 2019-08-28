@@ -57,12 +57,12 @@ end
 
 @testset "Images" begin
     black = RGB(0, 0, 0)
-    color_image = fill(black, (10, 10))
-    @test scitype(color_image) == ColorImage
+    color_image = fill(black, (10, 20))
+    @test scitype(color_image) == ColorImage{10,20}
 
     white = Gray(1.0)
-    gray_image = fill(white, (10, 10))
-    @test scitype(gray_image) == GrayImage
+    gray_image = fill(white, (10, 20))
+    @test scitype(gray_image) == GrayImage{10,20}
 end
 
 @testset "Type coercion" begin
