@@ -5,8 +5,6 @@ A light-weight julia interface for implementing conventions about the
 scientific interpretation of data, and for performing type coercions
 enforcing those conventions.
 
-[![Build Status](https://travis-ci.com/alan-turing-institute/ScientificTypes.jl.svg?branch=master)](https://travis-ci.com/alan-turing-institute/ScientificTypes.jl)
-
 ScientificTypes provides:
 
 - A hierarchy of new julia types representing scientific data types
@@ -510,8 +508,8 @@ scientific types:
 `CategoricalString`               | `Multiclass{N}` where `N = nlevels(x)`, provided `x.pool.ordered == false`  | CategoricalArrays
 `CategoricalValue`                | `OrderedFactor{N}` where `N = nlevels(x)`, provided `x.pool.ordered == true`| CategoricalArrays
 `CategoricalString`               | `OrderedFactor{N}` where `N = nlevels(x)` provided `x.pool.ordered == true` | CategoricalArrays
-`AbstractArray{<:Gray,2}`         | `GrayImage`                                                                 | ColorTypes
-`AbstractArrray{<:AbstractRGB,2}` | `ColorImage`                                                                | ColorTypes
+`AbstractArray{<:Gray,2}`         | `GrayImage{W,H}` where `(W, H) = size(x)`                                   | ColorTypes
+`AbstractArrray{<:AbstractRGB,2}` | `ColorImage{W,H}` where `(W, H) = size(x)`                                  | ColorTypes
 any table type `T` supported by Tables.jl | `Table{K}` where `K=Union{column_scitypes...}`                      | Tables
 
 Here `nlevels(x) = length(levels(x.pool))`.
