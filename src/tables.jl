@@ -61,10 +61,13 @@ function coerce(types::Dict, X; verbosity=1)
     return Tables.materializer(X)(coltable)
 end
 
+
+# code removed because some tables are AbstractVector:
+
 # Attempt to coerce a vector using a dictionary with a single key (corner case):
-function coerce(types::Dict, v::AbstractVector; verbosity=1)
-    kys = keys(types)
-    length(kys) == 1 || error("Cannot coerce a vector using a multi-keyed dictionary of types. ")
-    key = first(kys)
-    return coerce(types[key], v; verbosity=verbosity)
-end
+# function coerce(types::Dict, v::AbstractVector; verbosity=1)
+#     kys = keys(types)
+#     length(kys) == 1 || error("Cannot coerce a vector using a multi-keyed dictionary of types. ")
+#     key = first(kys)
+#     return coerce(types[key], v; verbosity=verbosity)
+# end
