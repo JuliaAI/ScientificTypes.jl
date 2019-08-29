@@ -1,9 +1,11 @@
-
+notes
 ## ScientificTypes
 
 A light-weight julia interface for implementing conventions about the
 scientific interpretation of data, and for performing type coercions
 enforcing those conventions.
+
+[![Build Status](https://travis-ci.com/alan-turing-institute/ScientificTypes.jl.svg?branch=master)](https://travis-ci.com/alan-turing-institute/ScientificTypes.jl)
 
 ScientificTypes provides:
 
@@ -166,8 +168,11 @@ scitype(Xfixed) <: Table(Union{Missing,Continuous}, Finite)
   export the alias `Scientific = Union{Missing, Found}`.
 
 - `Finite{N}`, `Muliticlass{N}` and `OrderedFactor{N}` are all
-  parameterized by an integer `N`. We export the alias `Binary =
-  Finite{2}`.
+  parameterized by the number of levels `N`. We export the alias
+  `Binary = Finite{2}`.
+  
+- `Image{W,H}`, `GrayImage{W,H}` and `ColorImage{W,H}` are all
+  parameterized by the image width and height dimensions, `(W, H)`.
 
 - The function `scitype` has the fallback value `Unknown`.
 
