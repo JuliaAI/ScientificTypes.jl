@@ -4,6 +4,9 @@
 # scientific interpretation of data, and for performing type coercions
 # enforcing those conventions.
 
+# [![Build
+# Status](https://travis-ci.com/alan-turing-institute/ScientificTypes.jl.svg?branch=master)](https://travis-ci.com/alan-turing-institute/ScientificTypes.jl)
+
 # ScientificTypes provides:
 
 # - A hierarchy of new julia types representing scientific data types
@@ -32,7 +35,6 @@ ScientificTypes.tree()
 # The only core dependencies of ScientificTypes are Requires and
 # InteractiveUtils (from the standard library).
 
-
 # ### Quick start
 
 # Install with `using Pkg; add ScientificTypes`.
@@ -60,11 +62,9 @@ schema(X).scitypes
 
 #-
 
-fix = Dict(:name=>Multiclass,
-           :height=>Continuous,
-           :rating=>OrderedFactor);
-Xfixed = coerce(fix, X)
-
+Xfixed = coerce(X, :name=>Multiclass,
+                   :height=>Continuous,
+                   :rating=>OrderedFactor);
 #-
 
 schema(Xfixed).scitypes
@@ -82,8 +82,11 @@ scitype(Xfixed) <: Table(Union{Missing,Continuous}, Finite)
 #   export the alias `Scientific = Union{Missing, Found}`.
 
 # - `Finite{N}`, `Muliticlass{N}` and `OrderedFactor{N}` are all
-#   parameterized by an integer `N`. We export the alias `Binary =
-#   Finite{2}`.
+#   parameterized by the number of levels `N`. We export the alias
+#   `Binary = Finite{2}`.
+  
+# - `Image{W,H}`, `GrayImage{W,H}` and `ColorImage{W,H}` are all
+#   parameterized by the image width and height dimensions, `(W, H)`.
 
 # - The function `scitype` has the fallback value `Unknown`.
 
@@ -128,7 +131,7 @@ scitype(v)
 
 #-
 
-w = coerce(Multiclass, v);
+w = coerce(v, Multiclass);
 scitype(w)
 
 #-
@@ -152,9 +155,10 @@ schema(X)
 
 #-
 
-fix = Dict(:x1=>Continuous, :x2=>Continuous,
-           :x3=>Multiclass, :x4=>OrderedFactor)
-fixed = coerce(fix, X);
+Xfixed = coerce(X, :x1=>Continuous,
+                   :x2=>Continuous,
+                   :x3=>Multiclass,
+                   :x4=>OrderedFactor)
 scitype(Xfixed)
 
 #-
@@ -233,23 +237,22 @@ schema(X).scitypes
 
 typeof(schema(X))
 
-
 # ### The *mlj* convention
 
 # The table below summarizes the *mlj* convention for representing
 # scientific types:
 
-# `T`                               | `scitype(x)` for `x::T`                                                     | requires package 
+# `T`                               | `scitype(x)` for `x::T`                                                     | requires package
 # ----------------------------------|:----------------------------------------------------------------------------|:------------------------
 # `Missing`                         | `Missing`                                                                   |
-# `AbstractFloat`                   | `Continuous`                                                                | 
+# `AbstractFloat`                   | `Continuous`                                                                |
 # `Integer`                         |  `Count`                                                                    |
 # `CategoricalValue`                | `Multiclass{N}` where `N = nlevels(x)`, provided `x.pool.ordered == false`  | CategoricalArrays
 # `CategoricalString`               | `Multiclass{N}` where `N = nlevels(x)`, provided `x.pool.ordered == false`  | CategoricalArrays
 # `CategoricalValue`                | `OrderedFactor{N}` where `N = nlevels(x)`, provided `x.pool.ordered == true`| CategoricalArrays
 # `CategoricalString`               | `OrderedFactor{N}` where `N = nlevels(x)` provided `x.pool.ordered == true` | CategoricalArrays
-# `AbstractArray{<:Gray,2}`         | `GrayImage`                                                                 | ColorTypes
-# `AbstractArrray{<:AbstractRGB,2}` | `ColorImage`                                                                | ColorTypes
+# `AbstractArray{<:Gray,2}`         | `GrayImage{W,H}` where `(W, H) = size(x)`                                   | ColorTypes
+# `AbstractArrray{<:AbstractRGB,2}` | `ColorImage{W,H}` where `(W, H) = size(x)`                                  | ColorTypes
 # any table type `T` supported by Tables.jl | `Table{K}` where `K=Union{column_scitypes...}`                      | Tables
 
 # Here `nlevels(x) = length(levels(x.pool))`.

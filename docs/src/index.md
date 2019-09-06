@@ -1,10 +1,12 @@
+
 ## ScientificTypes
 
 A light-weight julia interface for implementing conventions about the
 scientific interpretation of data, and for performing type coercions
 enforcing those conventions.
 
-[![Build Status](https://travis-ci.com/alan-turing-institute/ScientificTypes.jl.svg?branch=master)](https://travis-ci.com/alan-turing-institute/ScientificTypes.jl)
+[![Build
+Status](https://travis-ci.com/alan-turing-institute/ScientificTypes.jl.svg?branch=master)](https://travis-ci.com/alan-turing-institute/ScientificTypes.jl)
 
 ScientificTypes provides:
 
@@ -23,12 +25,12 @@ ScientificTypes.tree()
     │  ├─ Finite
     │  │  ├─ Multiclass
     │  │  └─ OrderedFactor
-    │  ├─ Image
-    │  │  ├─ ColorImage
-    │  │  └─ GrayImage
     │  ├─ Infinite
     │  │  ├─ Continuous
     │  │  └─ Count
+    │  ├─ Image
+    │  │  ├─ ColorImage
+    │  │  └─ GrayImage
     │  └─ Table
     └─ Unknown
 
@@ -67,7 +69,7 @@ scitype(3.14)
 
 
 
-    ScientificTypes.Continuous
+    Continuous
 
 
 
@@ -96,7 +98,7 @@ schema(X)
 
 
 
-    (names = (:name, :height, :rating), types = (String, Union{Missing, Int64}, Int64), scitypes = (ScientificTypes.Unknown, Union{Missing, Count}, ScientificTypes.Count), nrows = 4)
+    (names = (:name, :height, :rating), types = (String, Union{Missing, Int64}, Int64), scitypes = (Unknown, Union{Missing, Count}, Count), nrows = 4)
 
 
 
@@ -108,28 +110,20 @@ schema(X).scitypes
 
 
 
-    (ScientificTypes.Unknown, Union{Missing, Count}, ScientificTypes.Count)
+    (Unknown, Union{Missing, Count}, Count)
 
 
 
 
 ```julia
-fix = Dict(:name=>Multiclass,
-           :height=>Continuous,
-           :rating=>OrderedFactor);
-Xfixed = coerce(fix, X)
+Xfixed = coerce(X, :name=>Multiclass,
+                   :height=>Continuous,
+                   :rating=>OrderedFactor);
 ```
 
-    ┌ Warning: Missing values encountered coercing scitype to ScientificTypes.Continuous.
-    │ Coerced to Union{Missing,ScientificTypes.Continuous} instead. 
+    ┌ Warning: Missing values encountered coercing scitype to Continuous.
+    │ Coerced to Union{Missing,Continuous} instead. 
     └ @ ScientificTypes /Users/anthony/Dropbox/Julia7/MLJ/ScientificTypes/src/conventions/mlj/mlj.jl:5
-
-
-
-
-
-<table class="data-frame"><thead><tr><th></th><th>name</th><th>height</th><th>rating</th></tr><tr><th></th><th>Categorical…</th><th>Float64⍰</th><th>Categorical…</th></tr></thead><tbody><p>4 rows × 3 columns</p><tr><th>1</th><td>Siri</td><td>152.0</td><td>1</td></tr><tr><th>2</th><td>Robo</td><td>missing</td><td>5</td></tr><tr><th>3</th><td>Alexa</td><td>148.0</td><td>2</td></tr><tr><th>4</th><td>Cortana</td><td>163.0</td><td>1</td></tr></tbody></table>
-
 
 
 
@@ -140,7 +134,7 @@ schema(Xfixed).scitypes
 
 
 
-    (ScientificTypes.Multiclass{4}, Union{Missing, Continuous}, ScientificTypes.OrderedFactor{3})
+    (Multiclass{4}, Union{Missing, Continuous}, OrderedFactor{3})
 
 
 
@@ -169,7 +163,7 @@ scitype(Xfixed) <: Table(Union{Missing,Continuous}, Finite)
 - `Finite{N}`, `Muliticlass{N}` and `OrderedFactor{N}` are all
   parameterized by the number of levels `N`. We export the alias
   `Binary = Finite{2}`.
-  
+
 - `Image{W,H}`, `GrayImage{W,H}` and `ColorImage{W,H}` are all
   parameterized by the image width and height dimensions, `(W, H)`.
 
@@ -204,7 +198,7 @@ scitype(3.142)
 
 
 
-    ScientificTypes.Continuous
+    Continuous
 
 
 
@@ -216,7 +210,7 @@ scitype((2.718, 42))
 
 
 
-    Tuple{ScientificTypes.Continuous,ScientificTypes.Count}
+    Tuple{Continuous,Count}
 
 
 
@@ -230,7 +224,7 @@ scitype(v[1])
 
 
 
-    ScientificTypes.OrderedFactor{3}
+    OrderedFactor{3}
 
 
 
@@ -261,12 +255,12 @@ scitype(v)
 
 
 ```julia
-w = coerce(Multiclass, v);
+w = coerce(v, Multiclass);
 scitype(w)
 ```
 
-    ┌ Warning: Missing values encountered coercing scitype to ScientificTypes.Multiclass.
-    │ Coerced to Union{Missing,ScientificTypes.Multiclass} instead. 
+    ┌ Warning: Missing values encountered coercing scitype to Multiclass.
+    │ Coerced to Union{Missing,Multiclass} instead. 
     └ @ ScientificTypes /Users/anthony/Dropbox/Julia7/MLJ/ScientificTypes/src/conventions/mlj/mlj.jl:5
 
 
@@ -287,7 +281,7 @@ scitype(T)
 
 
 
-    ScientificTypes.Table{AbstractArray{ScientificTypes.Continuous,1}}
+    Table{AbstractArray{Continuous,1}}
 
 
 
@@ -305,7 +299,7 @@ scitype(X)
 
 
 
-    ScientificTypes.Table{Union{AbstractArray{Count,1}, AbstractArray{Union{Missing, Count},1}}}
+    Table{Union{AbstractArray{Count,1}, AbstractArray{Union{Missing, Count},1}}}
 
 
 
@@ -317,27 +311,28 @@ schema(X)
 
 
 
-    (names = (:x1, :x2, :x3, :x4), types = (Int64, Int64, Int64, Union{Missing, Int64}), scitypes = (ScientificTypes.Count, ScientificTypes.Count, ScientificTypes.Count, Union{Missing, Count}), nrows = 5)
+    (names = (:x1, :x2, :x3, :x4), types = (Int64, Int64, Int64, Union{Missing, Int64}), scitypes = (Count, Count, Count, Union{Missing, Count}), nrows = 5)
 
 
 
 
 ```julia
-fix = Dict(:x1=>Continuous, :x2=>Continuous,
-           :x3=>Multiclass, :x4=>OrderedFactor)
-fixed = coerce(fix, X);
+Xfixed = coerce(X, :x1=>Continuous,
+                   :x2=>Continuous,
+                   :x3=>Multiclass,
+                   :x4=>OrderedFactor)
 scitype(Xfixed)
 ```
 
-    ┌ Warning: Missing values encountered coercing scitype to ScientificTypes.OrderedFactor.
-    │ Coerced to Union{Missing,ScientificTypes.OrderedFactor} instead. 
+    ┌ Warning: Missing values encountered coercing scitype to OrderedFactor.
+    │ Coerced to Union{Missing,OrderedFactor} instead. 
     └ @ ScientificTypes /Users/anthony/Dropbox/Julia7/MLJ/ScientificTypes/src/conventions/mlj/mlj.jl:5
 
 
 
 
 
-    ScientificTypes.Table{Union{AbstractArray{Multiclass{4},1}, AbstractArray{Union{Missing, Continuous},1}, AbstractArray{OrderedFactor{3},1}}}
+    Table{Union{AbstractArray{Continuous,1}, AbstractArray{Multiclass{5},1}, AbstractArray{Union{Missing, OrderedFactor{4}},1}}}
 
 
 
@@ -361,7 +356,7 @@ scitype(Xfixed) <: Table(Continuous, Union{Finite, Missing})
 
 
 
-    false
+    true
 
 
 
@@ -378,7 +373,7 @@ scitype((1, 4.5))
 
 
 
-    Tuple{ScientificTypes.Count,ScientificTypes.Continuous}
+    Tuple{Count,Continuous}
 
 
 
@@ -415,7 +410,7 @@ scitype(X)
 
 
 
-    ScientificTypes.Table{Union{AbstractArray{Continuous,1}, AbstractArray{Multiclass{3},1}, AbstractArray{Multiclass{2},1}}}
+    Table{Union{AbstractArray{Continuous,1}, AbstractArray{Multiclass{3},1}, AbstractArray{Multiclass{2},1}}}
 
 
 
@@ -427,7 +422,7 @@ scitype(X) = Table{Union{scitype(c1), scitype(c2), ..., scitype(cn)}}
 
 With this definition, we can perform common type checks associated
 with tables. For example, to check that each column of `X` has an
-element scitype subtyping either `Continuous` or `Finite` (but not
+element scitype subtying either `Continuous` or `Finite` (but not
 `Union{Continuous, Finite}`!), we check
 
 ```julia
@@ -470,7 +465,7 @@ schema(X)
 
 
 
-    (names = (:x1, :x2, :x3, :x4), types = (Float64, Float64, CategoricalArrays.CategoricalValue{Char,UInt32}, CategoricalArrays.CategoricalValue{Char,UInt32}), scitypes = (ScientificTypes.Continuous, ScientificTypes.Continuous, ScientificTypes.Multiclass{3}, ScientificTypes.Multiclass{2}), nrows = 10)
+    (names = (:x1, :x2, :x3, :x4), types = (Float64, Float64, CategoricalValue{Char,UInt32}, CategoricalValue{Char,UInt32}), scitypes = (Continuous, Continuous, Multiclass{3}, Multiclass{2}), nrows = 10)
 
 
 
@@ -482,7 +477,7 @@ schema(X).scitypes
 
 
 
-    (ScientificTypes.Continuous, ScientificTypes.Continuous, ScientificTypes.Multiclass{3}, ScientificTypes.Multiclass{2})
+    (Continuous, Continuous, Multiclass{3}, Multiclass{2})
 
 
 
@@ -494,7 +489,7 @@ typeof(schema(X))
 
 
 
-    ScientificTypes.Schema{(:x1, :x2, :x3, :x4),Tuple{Float64,Float64,CategoricalArrays.CategoricalValue{Char,UInt32},CategoricalArrays.CategoricalValue{Char,UInt32}},Tuple{ScientificTypes.Continuous,ScientificTypes.Continuous,ScientificTypes.Multiclass{3},ScientificTypes.Multiclass{2}},10}
+    ScientificTypes.Schema{(:x1, :x2, :x3, :x4),Tuple{Float64,Float64,CategoricalValue{Char,UInt32},CategoricalValue{Char,UInt32}},Tuple{Continuous,Continuous,Multiclass{3},Multiclass{2}},10}
 
 
 

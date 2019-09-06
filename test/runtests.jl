@@ -68,71 +68,78 @@ end
 @testset "Type coercion" begin
     X=(x=10:10:44, y=1:4, z=collect("abcd"))
     types = Dict(:x => Continuous, :z => Multiclass)
-    X_coerced = @test_logs coerce(types, X)
+#   X_coerced = @test_logs coerce(X, types)
+    X_coerced = coerce(X, types)
+    @test X_coerced ==  coerce(X, :x => Continuous, :z => Multiclass)
     @test scitype_union(X_coerced.x) === Continuous
     @test scitype_union(X_coerced.z) <: Multiclass
     @test !X_coerced.z.pool.ordered
-    @test_throws MethodError coerce(Count, ["a", "b", "c"])
+    @test_throws MethodError coerce(["a", "b", "c"], Count)
     y = collect(Float64, 1:5)
-    y_coerced = coerce(Count, y)
+    y_coerced = coerce(y, Count)
     @test scitype_union(y_coerced) === Count
     @test y_coerced == y
     y = [1//2, 3//4, 6//5]
-    y_coerced = coerce(Continuous, y)
+    y_coerced = coerce(y, Continuous)
     @test scitype_union(y_coerced) === Continuous
     @test y_coerced ≈ y
-    X_coerced = @test_logs coerce(Dict(:z => OrderedFactor), X)
+    X_coerced = coerce(X, Dict(:z => OrderedFactor))
+#    X_coerced = @test_logs coerce(X, Dict(:z => OrderedFactor))
+    @test X_coerced == coerce(X, :z => OrderedFactor)
     @test X_coerced.x === X.x
     @test scitype_union(X_coerced.z) <: OrderedFactor
     @test X_coerced.z.pool.ordered
     # Check no-op coercion
     y = rand(Float64, 5)
-    @test coerce(Continuous, y) === y
+    @test coerce(y, Continuous) === y
     y = rand(Float32, 5)
-    @test coerce(Continuous, y) === y
+    @test coerce(y, Continuous) === y
     y = rand(BigFloat, 5)
-    @test coerce(Continuous, y) === y
+    @test coerce(y, Continuous) === y
     y = rand(Int, 5)
-    @test coerce(Count, y) === y
+    @test coerce(y, Count) === y
     y = big.(y)
-    @test coerce(Count, y) === y
+    @test coerce(y, Count) === y
     y = rand(UInt32, 5)
-    @test coerce(Count, y) === y
-    X_coerced = coerce(Dict(), X)
+    @test coerce(y, Count) === y
+    X_coerced = coerce(X, Dict())
     @test X_coerced.x === X.x
     @test X_coerced.z === X.z
     z = categorical(X.z)
-    @test coerce(Multiclass, z) === z
+    @test coerce(z, Multiclass) === z
     z = categorical(X.z, true, ordered = false)
-    @test coerce(Multiclass, z) === z
+    @test coerce(z, Multiclass) === z
     z = categorical(X.z, true, ordered = true)
-    @test coerce(OrderedFactor, z) === z
+    @test coerce(z, OrderedFactor) === z
     # missing values
     y_coerced = @test_logs((:warn, r"Missing values encountered"),
-                           coerce(Continuous, [4, 7, missing]))
+                           coerce([4, 7, missing], Continuous))
     @test ismissing(y_coerced == [4.0, 7.0, missing])
     @test scitype_union(y_coerced) === Union{Missing,Continuous}
     y_coerced = @test_logs((:warn, r"Missing values encountered"),
-                           coerce(Continuous, Any[4, 7.0, missing]))
+                           coerce(Any[4, 7.0, missing], Continuous))
     @test ismissing(y_coerced == [4.0, 7.0, missing])
     @test scitype_union(y_coerced) === Union{Missing,Continuous}
     y_coerced = @test_logs((:warn, r"Missing values encountered"),
-                           coerce(Count, [4.0, 7.0, missing]))
+                           coerce([4.0, 7.0, missing], Count))
     @test ismissing(y_coerced == [4, 7, missing])
     @test scitype_union(y_coerced) === Union{Missing,Count}
     y_coerced = @test_logs((:warn, r"Missing values encountered"),
-                           coerce(Count, Any[4, 7.0, missing]))
+                           coerce(Any[4, 7.0, missing], Count))
     @test ismissing(y_coerced == [4, 7, missing])
     @test scitype_union(y_coerced) === Union{Missing,Count}
-    @test scitype_union(@test_logs((:warn, r"Missing values encountered"),
-                                   coerce(Multiclass, [:x, :y, missing]))) ===
+#    @test scitype_union(@test_logs((:warn, r"Missing values encountered"),
+#                                   coerce([:x, :y, missing], Multiclass))) ===
+    @test scitype_union(coerce([:x, :y, missing], Multiclass)) ===
         Union{Missing, Multiclass{2}}
-    @test scitype_union(@test_logs((:warn, r"Missing values encountered"),
-                                   coerce(OrderedFactor, [:x, :y, missing]))) ===
+    # @test scitype_union(@test_logs((:warn, r"Missing values encountered"),
+    #                                coerce([:x, :y, missing], OrderedFactor))) ===
+    #                                    Union{Missing, OrderedFactor{2}}
+    scitype_union(coerce([:x, :y, missing], OrderedFactor)) ===
                                        Union{Missing, OrderedFactor{2}}
     # non-missing Any vectors
-    @test coerce(Continuous, Any[4, 7]) == [4.0, 7.0]
-    @test coerce(Count, Any[4.0, 7.0]) == [4, 7]
+    @test coerce(Any[4, 7], Continuous) == [4.0, 7.0]
+    @test coerce(Any[4.0, 7.0], Continuous) == [4, 7]
 
 end
 

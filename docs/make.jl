@@ -5,8 +5,11 @@ srcdir = joinpath(@__DIR__(), "src")
 using Literate
 Literate.notebook(joinpath(srcdir, "index.jl"), srcdir)
 
+# currently getting markdown by exported from notebook, as I can't get
+# documeter to work.
+
 # Literate.markdown(joinpath(srcdir, "index.jl"), srcdir,
-#                    codefence = "```@repl scitypes" => "```")
+#                   codefence = "```@repl scitypes" => "```")
 
 # using Documenter
 # using ScientificTypes

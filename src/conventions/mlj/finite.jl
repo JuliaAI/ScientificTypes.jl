@@ -10,7 +10,7 @@ scitype(c::CategoricalString, ::Val{:mlj}) =
 
 # coerce vector to Multiclass or OrderedFactor
 for (T, ordered) in ((Multiclass, false), (OrderedFactor, true))
-    @eval function coerce(::Type{$T}, y; verbosity=1)
+    @eval function coerce(y, ::Type{$T}; verbosity=1)
         su = scitype_union(y)
         if su >: Missing
             verbosity > 0 && _coerce_missing_warn($T)
