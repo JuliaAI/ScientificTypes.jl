@@ -13,7 +13,7 @@ _coerce_missing_warn(T) =
 
 Coerce the julia types of elements of `v` to ensure the returned
 vector has `T` or `Union{Missing,T}` as the union of its element
-scitypes. 
+scitypes.
 
 A warning is issued if missing values are encountered, unless
 `verbosity` is `0` or less.
@@ -68,3 +68,5 @@ function coerce(y::V, T::Type{Count}; verbosity=1) where {S,
     end
     return _int.(y)
 end
+
+include("auto_types.jl")

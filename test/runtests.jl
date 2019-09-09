@@ -4,6 +4,7 @@ using ScientificTypes
 using CategoricalArrays
 using Tables
 using ColorTypes
+using Random
 
 @testset "Finite and Infinite" begin
     cv = categorical([:x, :y])
@@ -143,3 +144,33 @@ end
 
 end
 
+@testset "auto-types (mlj)" begin
+    Random.seed!(5)
+    n = 5
+    X = (book=["red", "white", "blue", "blue", "white"],
+         number=[0, 1, 1, 0, 1, 0],
+         gender=['M', 'F', 'F', 'M', 'F'],
+         random=[Random.randstring(4) for i in 1:n])
+    sugg_types = auto_types(X)
+    @test sugg_types[:book]   == Multiclass{3}
+    @test sugg_types[:number] == Multiclass{2}
+    @test sugg_types[:gender] == Multiclass{2}
+    @test sugg_types[:random] == Unknown
+
+    n = 10
+    X = (
+        a = ['M', 'M', 'F', missing, 'F', 'F', 'M', 'F', missing, 'M'],
+        b = randn(n),
+        c = abs.(Int.(floor.(5*randn(n)))),
+        d = ["aaa", "bbb", "bbb", "ccc", "ddd", "ddd", "ccc", "aaa"],
+        e = [1, 2, 3, 4, 4, 3, 2, 2, 1, 2],
+        f = [1, 2, 3, 3, 2, 1, 2, 3, 1, 2],
+        )
+    sugg_types = auto_types(X)
+    @test sugg_types[:a] == Multiclass{2}
+    @test sugg_types[:b] == Continuous
+    @test sugg_types[:c] == Count
+    @test sugg_types[:d] == Multiclass{4}
+    @test sugg_types[:e] == OrderedFactor{4}
+    @test sugg_types[:f] == Multiclass{3}
+end
