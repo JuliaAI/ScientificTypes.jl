@@ -4,7 +4,7 @@ export auto_types
 suggest_scitype(type, col, nrows)
 
 For a column `col` with element type `type` and `nrows` rows, try to suggest an appropriate
-scitype in cases which would otherwise be typed as "unknown" namely when there are few
+scitype in cases which would otherwise be typed as `Unknown` namely when there are few
 unique values as compared to the total number of rows.
 
 The heuristic used is as follows:
