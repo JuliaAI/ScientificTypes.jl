@@ -64,6 +64,7 @@ X = DataFrame(name=["Siri", "Robo", "Alexa", "Cortana"],
 coerce(X, :name=>Multiclass, :height=>Continuous, :rating=>OrderedFactor)
 
 See also [`scitype`](@ref), [`schema`](@ref).
+```
 
 """
 function coerce(X, pairs::Pair{Symbol}...; verbosity=1)
