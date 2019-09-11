@@ -46,7 +46,6 @@ function coerce(y::AbstractVector{S}, T::Type{Continuous}; verbosity=1) where S
     return float.(y)
 end
 
-
 ## COERCE VECTOR TO COUNT
 
 _int(::Missing) = missing

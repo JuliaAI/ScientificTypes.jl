@@ -23,11 +23,13 @@ for (T, ordered) in ((Multiclass, false), (OrderedFactor, true))
     end
 end
 
-# 
-# function coerce(v::AbstractVector{<:Real}, T::Type{OrderedFactor{N}}) where N
-#     su = scitype_union(y)
-#     if su >: Missing
-#         verbosity > 0 && _coerce_missing_warn(OrderedFactor{N})
-#     end
-#     if su <: OrderedFactor
-# end
+function coerce(v::AbstractVector, ::Type{OrderedFactor}; verbosity=1)
+    su = scitype_union(v)
+    if su >: Missing
+        verbosity > 0 && _coerce_missing_warn(OrderedFactor)
+    end
+    if su <: OrderedFactor
+        return v
+    end
+    return categorical(v, true, ordered=true)
+end

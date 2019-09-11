@@ -23,11 +23,11 @@ function suggest_scitype(type, col, nrows)
    nunique_vals = length(unique_vals)
    # Heuristic 1
    if nunique_vals ≤ 3 && nrows ≥ 5
-      return Multiclass{nunique_vals}
+      return Multiclass
    # Heuristic 2
    elseif nunique_vals ≤ max(min(0.1*nrows, 100), 4)
-      type <: Real && return OrderedFactor{nunique_vals}
-      return Multiclass{nunique_vals}
+      type <: Real && return OrderedFactor
+      return Multiclass
    else
       type <: AbstractFloat  && return Continuous
       type <: Integer        && return Count
