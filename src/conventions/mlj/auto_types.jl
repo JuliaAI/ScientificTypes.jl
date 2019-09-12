@@ -64,6 +64,7 @@ Return a dictionary of suggested types for each column of `X`.
 See also [`suggest_scitype`](@ref).
 """
 function auto_types(X)
+   @assert istable(X) "auto_types only works with tabular data."
    sch = schema(X)
    suggested_types = Dict{Symbol,Type{<:Union{Missing,Found}}}()
    for (name, type, col) in zip(sch.names, sch.types, Tables.eachcolumn(X))
