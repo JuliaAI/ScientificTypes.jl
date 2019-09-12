@@ -172,7 +172,7 @@ end
         b = randn(n),
         c = abs.(Int.(floor.(5*randn(n)))),
         d = ["aaa", "bbb", "bbb", "ccc", "ddd", "ddd", "ccc", "aaa"],
-        e = [1, 2, 3, 4, 4, 3, 2, 2, 1, 2],
+        e = [1, 2, 3, 4, 4, 3, 2, 2, 1, missing],
         f = [1, 2, 3, 3, 2, 1, 2, 3, 1, 2],
         )
     nobj_a = 2
@@ -181,18 +181,24 @@ end
     nobj_f = 3
 
     sugg_types = auto_types(X)
-    @test sugg_types[:a] == Multiclass
+    @test sugg_types[:a] == Union{Missing,Multiclass}
     @test sugg_types[:b] == Continuous
     @test sugg_types[:c] == Count
     @test sugg_types[:d] == Multiclass
-    @test sugg_types[:e] == OrderedFactor
+    @test sugg_types[:e] == Union{Missing,OrderedFactor}
     @test sugg_types[:f] == Multiclass
 
     Xc = coerce(X, auto_types(X))
-    @test schema(X).scitypes == (Union{Missing, Unknown},
-                                 Continuous, Count,
-                                 Unknown, Count, Count)
-    @test schema(Xc).scitypes == (Union{Missing, Multiclass{nobj_a}},
-                                 Continuous, Count,
-                                 Multiclass{nobj_d}, OrderedFactor{nobj_e}, Multiclass{nobj_f})
+    @test schema(X).scitypes == (Union{Missing, Unknown},   # a
+                                 Continuous,                # b
+                                 Count,                     # c
+                                 Unknown,                   # d
+                                 Union{Missing, Count},     # e
+                                 Count)                     # f
+    @test schema(Xc).scitypes == (Union{Missing, Multiclass{nobj_a}},  # a*
+                                 Continuous,                           # b
+                                 Count,                                # c
+                                 Multiclass{nobj_d},                   # d*
+                                 Union{Missing,OrderedFactor{nobj_e}}, # e*
+                                 Multiclass{nobj_f})                   # f*
 end

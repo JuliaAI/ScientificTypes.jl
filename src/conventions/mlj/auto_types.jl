@@ -1,5 +1,18 @@
 export auto_types
 
+_get_nonmissing_type(::Type{Union{Missing, T}}) where T = T
+
+function _sugg_finite(::Type{T}) where T
+   T <: Real && return OrderedFactor
+   return Multiclass
+end
+
+function _sugg_infinite(::Type{T}) where T
+   T <: AbstractFloat && return Continuous
+   T <: Integer       && return Count
+   return Unknown
+end
+
 """
 suggest_scitype(type, col, nrows)
 
@@ -23,15 +36,24 @@ function suggest_scitype(type, col, nrows)
    nunique_vals = length(unique_vals)
    # Heuristic 1
    if nunique_vals ≤ 3 && nrows ≥ 5
-      return Multiclass
+      if type >: Missing
+         return Union{Missing, Multiclass}
+      else
+         return Multiclass
+      end
    # Heuristic 2
    elseif nunique_vals ≤ max(min(0.1*nrows, 100), 4)
-      type <: Real && return OrderedFactor
-      return Multiclass
+      if type >: Missing
+         return Union{Missing, _sugg_finite(_get_nonmissing_type(type))}
+      else
+         return _sugg_finite(type)
+      end
    else
-      type <: AbstractFloat  && return Continuous
-      type <: Integer        && return Count
-      return Unknown
+      if type >: Missing
+         return Union{Missing, _sugg_infinite(_get_non_missing_type(type))}
+      else
+         return _sugg_infinite(type)
+      end
    end
 end
 
@@ -43,7 +65,7 @@ See also [`suggest_scitype`](@ref).
 """
 function auto_types(X)
    sch = schema(X)
-   suggested_types = Dict{Symbol,Type{<:Found}}()
+   suggested_types = Dict{Symbol,Type{<:Union{Missing,Found}}}()
    for (name, type, col) in zip(sch.names, sch.types, Tables.eachcolumn(X))
       suggested_types[name] = suggest_scitype(type, col, sch.nrows)
    end
