@@ -8,7 +8,7 @@ scitype(c::CategoricalValue, ::Val{:mlj}) =
 scitype(c::CategoricalString, ::Val{:mlj}) =
     c.pool.ordered ? OrderedFactor{nlevels(c)} : Multiclass{nlevels(c)}
 
-function coerce(v::AbstractVector, ::Type{T2}; verbosity=1) where T2 <: Union{Missing, Finite}
+function coerce(v, ::Type{T2}; verbosity=1) where T2 <: Union{Missing, Finite}
     su = scitype_union(v)
     if su >: Missing && !(T2 >: Missing)
         verbosity > 0 && _coerce_missing_warn(T2)
