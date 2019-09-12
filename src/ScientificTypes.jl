@@ -213,9 +213,7 @@ function __init__()
 
     # the scitype and schema of tabular data:
     @require(Tables="bd369af6-aec1-5ad0-b16a-f7cc5008161c",
-             include("tables.jl"))
-    @require(Tables="bd369af6-aec1-5ad0-b16a-f7cc5008161c",
-             include("conventions/mlj/auto_types.jl"))
+             (include("tables.jl"); include("conventions/mlj/auto_types.jl")))
 
     # :mlj conventions requiring external packages
     @require(CategoricalArrays="324d7699-5711-5eae-9e2f-1d82baa6b597",

@@ -67,5 +67,3 @@ function coerce(y::V, T::Type{Count}; verbosity=1) where {S,
     end
     return _int.(y)
 end
-
-include("auto_types.jl")
