@@ -1,7 +1,5 @@
 export auto_types
 
-_get_nonmissing_type(::Type{Union{Missing, T}}) where T = T
-
 function _sugg_finite(::Type{T}) where T
    T <: Real && return OrderedFactor
    return Multiclass
@@ -31,7 +29,6 @@ The heuristic used is as follows:
 Otherwise fall back to the default typing.
 """
 function suggest_scitype(type, col, nrows)
-   # TODO: deal with missing/union (?)
    unique_vals  = unique(skipmissing(col))
    nunique_vals = length(unique_vals)
    # Heuristic 1
@@ -64,7 +61,7 @@ Return a dictionary of suggested types for each column of `X`.
 See also [`suggest_scitype`](@ref).
 """
 function auto_types(X)
-   @assert istable(X) "auto_types only works with tabular data."
+   @assert Tables.istable(X) "auto_types only works with tabular data."
    sch = schema(X)
    suggested_types = Dict{Symbol,Type{<:Union{Missing,Found}}}()
    for (name, type, col) in zip(sch.names, sch.types, Tables.eachcolumn(X))
