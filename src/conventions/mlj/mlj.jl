@@ -30,8 +30,8 @@ A warning is issued if missing values are encountered, unless
 See also [`scitype`](@ref), [`scitype_union`](@ref).
 
 """
-coerce(y::AbstractVector{<:Number}, T::Type{Continuous}; verbosity=1) = float(y)
-function coerce(y::V, T::Type{Continuous}; verbosity=1) where {N<:Number,
+coerce(y::AbstractVector{<:Real}, T::Type{Continuous}; verbosity=1) = float(y)
+function coerce(y::V, T::Type{Continuous}; verbosity=1) where {N<:Real,
                                          V<:AbstractVector{Union{N,Missing}}}
     verbosity > 0 && _coerce_missing_warn(T)
     return float(y)
