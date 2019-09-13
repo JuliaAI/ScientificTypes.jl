@@ -1,5 +1,7 @@
 export auto_types
 
+_get_nonmissing_type(::Type{<:Union{Missing, T}}) where T = T
+
 function _sugg_finite(::Type{T}) where T
    T <: Real && return OrderedFactor
    return Multiclass

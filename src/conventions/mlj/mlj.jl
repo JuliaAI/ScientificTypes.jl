@@ -5,8 +5,6 @@ _coerce_missing_warn(T) =
     @warn "Missing values encountered coercing scitype to $T.\n"*
           "Coerced to Union{Missing,$T} instead. "
 
-_get_nonmissing_type(::Type{<:Union{Missing, T}}) where T = T
-
 ## COERCE VECTOR TO CONTINUOUS
 
 """
@@ -60,8 +58,9 @@ end
 
 ## COERCE VECTOR TO COUNT
 
-_int(::Missing) = missing
-_int(x) = Int(x)
+_int(::Missing)  = missing
+_int(x::Integer) = x
+_int(x) = Int(x) # may throw InexactError
 
 # no-op case
 function coerce(y::AbstractVector{<:Union{Missing,Integer}}, T::Type{Count}; verbosity=1)
