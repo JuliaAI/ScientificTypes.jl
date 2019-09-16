@@ -160,7 +160,7 @@ end
          number=[0, 1, 1, 0, 1, 0],
          gender=['M', 'F', 'F', 'M', 'F'],
          random=[Random.randstring(4) for i in 1:n])
-    sugg_types = auto_types(X)
+    sugg_types = autotype(X)
     @test sugg_types[:book]   == Multiclass
     @test sugg_types[:number] == Multiclass
     @test sugg_types[:gender] == Multiclass
@@ -180,7 +180,7 @@ end
     nobj_e = 4
     nobj_f = 3
 
-    sugg_types = auto_types(X)
+    sugg_types = autotype(X)
     @test sugg_types[:a] == Union{Missing,Multiclass}
     @test sugg_types[:b] == Continuous
     @test sugg_types[:c] == Count
@@ -188,7 +188,7 @@ end
     @test sugg_types[:e] == Union{Missing,OrderedFactor}
     @test sugg_types[:f] == Multiclass
 
-    Xc = coerce(X, auto_types(X))
+    Xc = coerce(X, autotype(X))
     @test schema(X).scitypes == (Union{Missing, Unknown},   # a
                                  Continuous,                # b
                                  Count,                     # c
@@ -201,4 +201,9 @@ end
                                  Multiclass{nobj_d},                   # d*
                                  Union{Missing,OrderedFactor{nobj_e}}, # e*
                                  Multiclass{nobj_f})                   # f*
+
+    sugg_types = autotype(X; only_suggestions=true)
+    @test Set(keys(sugg_types)) == Set([:a, :d, :e, :f])
+    @test sugg_types[:a] == Union{Missing,Multiclass}
+    @test sugg_types[:f] == Multiclass
 end

@@ -13,7 +13,7 @@
 #   for use in method dispatch (eg, for trait values). Instances of
 #   the types play no role:
 
-using ScientificTypes, AbstractTrees 
+using ScientificTypes, AbstractTrees
 ScientificTypes.tree()
 
 # - A single method `scitype` for articulating a convention about what
@@ -84,7 +84,7 @@ scitype(Xfixed) <: Table(Union{Missing,Continuous}, Finite)
 # - `Finite{N}`, `Muliticlass{N}` and `OrderedFactor{N}` are all
 #   parameterized by the number of levels `N`. We export the alias
 #   `Binary = Finite{2}`.
-  
+
 # - `Image{W,H}`, `GrayImage{W,H}` and `ColorImage{W,H}` are all
 #   parameterized by the image width and height dimensions, `(W, H)`.
 
@@ -147,7 +147,7 @@ X = DataFrame(x1=1:5, x2=6:10, x3=11:15, x4=[16, 17, missing, 19, 20]);
 
 #-
 
-scitype(X) 
+scitype(X)
 
 #-
 
@@ -194,7 +194,7 @@ X = (x1=rand(10),
      x4=categorical(rand("01", 10)))
 scitype(X)
 
-# Specifically, if `X` has columns `c1, c2, ..., cn`, then, by definition, 
+# Specifically, if `X` has columns `c1, c2, ..., cn`, then, by definition,
 
 # ```julia
 # scitype(X) = Table{Union{scitype(c1), scitype(c2), ..., scitype(cn)}}
@@ -210,7 +210,7 @@ scitype(X)
 # ```
 
 # A built-in `Table` type constructor provides `Table(Continuous, Finite)` as
-# shorthand for the right-hand side. More generally, 
+# shorthand for the right-hand side. More generally,
 
 # ```julia
 # scitype(X) <: Table(T1, T2, T3, ..., Tn)
@@ -258,17 +258,31 @@ typeof(schema(X))
 # Here `nlevels(x) = length(levels(x.pool))`.
 
 
+# #### Automatic type conversion
 
+# The MLJ convention comes with a `autotype` function which adds to the above rules
+# two simple heuristics for when there are few unique values in a column as compared to
+# the number of rows. This can help avoid having too many `Unknown` types and can simplify
+# the work of the users.
 
+# The function is called as:
 
+autotype(X)
 
+# which returns a dictionary of all column names along with their guessed type.
+# If the keyword `only_suggestions` is passed set to `true`, then only the column names
+# for which the heuristic has been used will be reported
 
+autotype(X; only_suggestions=true)
 
+# in a large number of case a user would simply have to check that the suggestions above make
+# sense before coercing the table to have the suggested types:
 
+X_coerced = coerce(X, autotype(X))
 
-
-
-
-
- 
-
+# The heuristic follows a simple tree:
+# * branch 1: there are less then 3 unique values for more than 5 rows
+#   * return `Multiclass` or `Union{Missing, Multiclass}`
+# * branch 2: there are fewer than 10% unique values or fewer than 100 with over 1000 rows
+#   * return `OrderedFactor` if the column has numbers, `Multiclass` otherwise (and either way,
+#   include the `Missing` type if there are missing values)
