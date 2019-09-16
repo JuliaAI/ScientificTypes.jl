@@ -173,15 +173,15 @@ _as_named_tuple(s::Schema) = NamedTuple{(:names, :types, :scitypes, :nrows)}((s.
 
 function Base.show(io::IO, ::MIME"text/plain", s::Schema)
     st = _as_named_tuple(s)
-    write(io, rpad("Column name", 15), "| ", rpad("Type", 14), "| ", rpad("SciType", 14))
+    write(io, rpad("Column name", 25), "| ", rpad("Type", 24), "| ", rpad("SciType", 24))
     write(io, "\n")
-    write(io, "-"^50)
+    write(io, "-"^75)
     write(io, "\n")
     for (name, type, scitype) in zip(st.names, st.types, st.scitypes)
-        write(io, rpad(":$name", 15), "| " * rpad(type, 14), "| " * rpad(scitype, 14))
+        write(io, rpad(":$name", 25), "| " * rpad(type, 24), "| " * rpad(scitype, 24))
         write(io, "\n")
     end
-    write(io, "-"^50)
+    write(io, "-"^75)
     write(io, "\n")
     write(io, "Number of rows: $(st.nrows)\n")
 end
