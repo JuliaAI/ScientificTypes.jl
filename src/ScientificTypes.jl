@@ -43,23 +43,24 @@ end
 
 # ## THE SCIENTIFIC TYPES
 
-abstract type Found end
-struct Unknown <: Found end
+abstract type Found          end
 abstract type Known <: Found end
-abstract type Infinite <: Known end
-struct Continuous <: Infinite end
-struct Count <: Infinite end
+struct      Unknown <: Found end
 
-abstract type Finite{N} <: Known end
-struct Multiclass{N} <: Finite{N} end
+abstract type Infinite <: Known    end
+struct      Continuous <: Infinite end
+struct           Count <: Infinite end
+
+abstract type Finite{N} <: Known     end
+struct    Multiclass{N} <: Finite{N} end
 struct OrderedFactor{N} <: Finite{N} end
 
-abstract type Image{W,H} <: Known end
-struct  GrayImage{W,H} <: Image{W,H} end
-struct ColorImage{W,H} <: Image{W,H} end
+abstract type Image{W,H} <: Known      end
+struct    GrayImage{W,H} <: Image{W,H} end
+struct   ColorImage{W,H} <: Image{W,H} end
 
 # aliases:
-const Binary = Finite{2}
+const Binary     = Finite{2}
 const Scientific = Union{Missing,Found}
 
 """
@@ -213,7 +214,7 @@ function __init__()
 
     # the scitype and schema of tabular data:
     @require(Tables="bd369af6-aec1-5ad0-b16a-f7cc5008161c",
-             (include("tables.jl"); include("conventions/mlj/auto_types.jl")))
+             (include("tables.jl"); include("autotype.jl")))
 
     # :mlj conventions requiring external packages
     @require(CategoricalArrays="324d7699-5711-5eae-9e2f-1d82baa6b597",
