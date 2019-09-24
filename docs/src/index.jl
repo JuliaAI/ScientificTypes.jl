@@ -13,7 +13,7 @@
 #   for use in method dispatch (eg, for trait values). Instances of
 #   the types play no role:
 
-using ScientificTypes, AbstractTrees 
+using ScientificTypes, AbstractTrees
 ScientificTypes.tree()
 
 # - A single method `scitype` for articulating a convention about what
@@ -84,7 +84,7 @@ scitype(Xfixed) <: Table(Union{Missing,Continuous}, Finite)
 # - `Finite{N}`, `Muliticlass{N}` and `OrderedFactor{N}` are all
 #   parameterized by the number of levels `N`. We export the alias
 #   `Binary = Finite{2}`.
-  
+
 # - `Image{W,H}`, `GrayImage{W,H}` and `ColorImage{W,H}` are all
 #   parameterized by the image width and height dimensions, `(W, H)`.
 
@@ -147,7 +147,7 @@ X = DataFrame(x1=1:5, x2=6:10, x3=11:15, x4=[16, 17, missing, 19, 20]);
 
 #-
 
-scitype(X) 
+scitype(X)
 
 #-
 
@@ -194,7 +194,7 @@ X = (x1=rand(10),
      x4=categorical(rand("01", 10)))
 scitype(X)
 
-# Specifically, if `X` has columns `c1, c2, ..., cn`, then, by definition, 
+# Specifically, if `X` has columns `c1, c2, ..., cn`, then, by definition,
 
 # ```julia
 # scitype(X) = Table{Union{scitype(c1), scitype(c2), ..., scitype(cn)}}
@@ -210,7 +210,7 @@ scitype(X)
 # ```
 
 # A built-in `Table` type constructor provides `Table(Continuous, Finite)` as
-# shorthand for the right-hand side. More generally, 
+# shorthand for the right-hand side. More generally,
 
 # ```julia
 # scitype(X) <: Table(T1, T2, T3, ..., Tn)
@@ -258,17 +258,65 @@ typeof(schema(X))
 # Here `nlevels(x) = length(levels(x.pool))`.
 
 
+# #### Automatic type conversion
 
+# The `autotype` function allows to use specific rules in order to guess appropriate
+# scientific types for the data. Such rules would typically be more precise than the
+# active convention. When `autotype` is used, a dictionary of suggested types is returned
+# for each column in the data; if none of the specified rule applies, the ambient convention
+# is used as "fallback".
+#
+# The function is called as:
 
+autotype(X)
 
+# If the keyword `only_changes` is passed set to `true`, then only the column names
+# for which the suggested type is different from that provided by the convention are
+# returned.
 
+autotype(X; only_changes=true)
 
+# To specify which rules are to be applied, use the `rules` keyword  and specify
+# a tuple of symbols referring to specific rules; the default rule is `:few_to_finite`
+# which applies a heuristic for columns which have relatively few values, these
+# columns are then encoded with an appropriate `Finite` type.
+# It is important to note that the order in which the rules are specified matters;
+# rules will be applied in that order.
 
+autotype(X; rules=(:few_to_finite,))
 
+# Available rules are:
+#
+# Rule symbol      | scitype suggestion
+# :--------------- | :---------------------------------
+# :few_to_finite   | an appropriate finite type for columns with relatively few distinct values
+# :discrete_to_continuous | Continuous type if the column type or scitype is discrete
+# :string_to_class | Multiclass for any string-like column
+#
+# Autotype can be used in conjunction with `coerce`:
 
+X_coerced = coerce(X, autotype(X))
 
+# **Examples**
+#
+# By default it only applies the :few_to_many rule
 
+n = 50
+X = (a = rand("abc", n),         # 3 values, not number        --> Multiclass
+     b = rand([1,2,3,4], n),     # 4 values, number            --> OrderedFactor
+     c = rand([true,false], n),  # 2 values, number but only 2 --> Multiclass
+     d = randn(n),               # many values                 --> unchanged
+     e = rand(collect(1:n), n))  # many values                 --> unchanged
+autotype(X, only_changes=true)
 
+# now we could first apply the `discrete_to_continuous` followed by `few_to_finite`
+# the first rule will apply on `b` and `e` but the subsequent application of the second
+# rule will mean we will get the same result apart for `e` (which will be continuous)
 
- 
+autotype(X, only_changes=true, rules=(:discrete_to_continuous, :few_to_finite))
 
+# Working out which rule to apply will depend on the use case and you may want
+# to modify the returned dictionary before using `coerce`. You will typically
+# have to take into account what kind of model you will want to use and how to
+# either recode or filter the data so that the model gets an appropriate input
+# to train on.

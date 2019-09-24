@@ -5,23 +5,16 @@ nlevels(c::CategoricalString) = length(levels(c.pool))
 
 scitype(c::CategoricalValue, ::Val{:mlj}) =
     c.pool.ordered ? OrderedFactor{nlevels(c)} : Multiclass{nlevels(c)}
-scitype(c::CategoricalString, ::Val{:mlj}) = 
+scitype(c::CategoricalString, ::Val{:mlj}) =
     c.pool.ordered ? OrderedFactor{nlevels(c)} : Multiclass{nlevels(c)}
 
-# coerce vector to Multiclass or OrderedFactor
-for (T, ordered) in ((Multiclass, false), (OrderedFactor, true))
-    @eval function coerce(y, ::Type{$T}; verbosity=1)
-        su = scitype_union(y)
-        if su >: Missing
-            verbosity > 0 && _coerce_missing_warn($T)
-        end
-        if su <: $T
-            return y
-        else
-            return categorical(y, true, ordered = $ordered)
-        end
+function coerce(v, ::Type{T2}; verbosity=1) where T2 <: Union{Missing,Finite}
+    su = scitype_union(v)
+    if su >: Missing && !(T2 >: Missing)
+        verbosity > 0 && _coerce_missing_warn(T2)
     end
+    if su <: T2
+        return v
+    end
+    return categorical(v, true, ordered=T2 <: Union{Missing,OrderedFactor})
 end
-
-
-
