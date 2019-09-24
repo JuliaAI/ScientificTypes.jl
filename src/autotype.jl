@@ -10,8 +10,10 @@ See also [`suggest_scitype`](@ref).
 
 * `only_changes=false`: if true, return only a dictionary of the names for which applying
 autotype differs from just using the ambient convention.
+* `rules=(:few_to_finite,)`: the set of rules to apply.
 """
-function autotype(X; only_changes::Bool=false, rules::NTuple{N,Symbol} where N=(:few_to_finite,))
+function autotype(X; only_changes::Bool=false,
+                  rules::NTuple{N,Symbol} where N=(:few_to_finite,))
     # check that X is a table
     @assert Tables.istable(X) "The function `autotype` requires tabular data."
     # check that the rules are recognised
@@ -64,8 +66,8 @@ few values as compared to the number of rows. The heuristic for "few" is as foll
         a. if it's a Real type, return as `OrderedFactor`
         b. if it's something else (e.g. a `String`) return as `MultiClass{N}`
 """
-function few_to_finite(type, col, nrows)
-    type <: Finite && return type
+function few_to_finite(type::Type, col, nrows::Int)
+    nonmissing(type) <: Finite && return type
     unique_vals  = unique(skipmissing(col))
     coltype      = eltype(col)
     nunique_vals = length(unique_vals)
@@ -86,11 +88,11 @@ end
 """
 discrete_to_continuous
 
-For a column with element type `<: Count` return Continuous. Note that it doesn't touch features
-already marked as `Finite`.
+For a column with element type `<: Count` or `<: Integer` return Continuous.
+Note that it doesn't touch features already marked as `Finite`.
 """
-function discrete_to_continuous(type, _, _)
-    type <: Union{Missing,Count} && return Continuous
+function discrete_to_continuous(type::Type, _, _)
+    nonmissing(type) <: Union{Count,Integer} && return T_or_Union_Missing_T(type, Continuous)
     return type
 end
 
@@ -102,23 +104,18 @@ For a column with element type `<: AbstractString` or `<: AbstractChar` return M
 irrelevant of how many unique values there are. This rule is only applied on columns which
 are still considered to be `Unknown`.
 """
-function string_to_class(type, col, _)
-    type <: Union{Missing,Unknown} || return type
-    eltype(col) <: Union{Missing,AbstractChar,AbstractString} && return Multiclass
+function string_to_class(type::Type, col, _)
+    nonmissing(type) <: Unknown || return type
+    etc = eltype(col)
+    if nonmissing(etc) <: Union{AbstractChar,AbstractString}
+        return T_or_Union_Missing_T(etc, Multiclass)
+    end
     return type
 end
 
 # ------------------------------
 # Helper functions for the rules
 # ------------------------------
-
-"""
-T_or_Union_Missing_T
-
-Helper function to return either `T` or `Union{Missing,T}`.
-"""
-T_or_Union_Missing_T(type, T) = ifelse(type >: Missing, Union{Missing, T}, T)
-
 
 """
 sugg_finite(type)
@@ -130,3 +127,21 @@ function sugg_finite(::Type{<:Union{Missing,T}}) where T
     T <: Real && return OrderedFactor
     return Multiclass
 end
+
+"""
+T_or_Union_Missing_T
+
+Helper function to return either `T` or `Union{Missing,T}`.
+"""
+T_or_Union_Missing_T(type::Type, T::Type) = ifelse(type >: Missing, Union{Missing, T}, T)
+
+if VERSION < v"1.3"
+    """
+    nonmissingtype(TT)
+
+    Return the type `T` if the type is a `Union{Missing,T}` or `T`.
+    """
+    nonmissingtype(::Type{T}) where T = T isa Union ? ifelse(T.a == Missing, T.b, T.a) : T
+    # see also discourse.julialang.org/t/get-non-missing-type-in-the-case-of-parametric-type/29109
+end
+nonmissing = nonmissingtype

@@ -1,10 +1,11 @@
-# using Revise
 using Test
 using ScientificTypes
 using CategoricalArrays
 using Tables
 using ColorTypes
 using Random
+
+const S = ScientificTypes
 
 @testset "Finite and Infinite" begin
     cv = categorical([:x, :y])

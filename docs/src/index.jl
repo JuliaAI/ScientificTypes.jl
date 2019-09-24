@@ -260,29 +260,63 @@ typeof(schema(X))
 
 # #### Automatic type conversion
 
-# The MLJ convention comes with a `autotype` function which adds to the above rules
-# two simple heuristics for when there are few unique values in a column as compared to
-# the number of rows. This can help avoid having too many `Unknown` types and can simplify
-# the work of the users.
-
+# The `autotype` function allows to use specific rules in order to guess appropriate
+# scientific types for the data. Such rules would typically be more precise than the
+# active convention. When `autotype` is used, a dictionary of suggested types is returned
+# for each column in the data; if none of the specified rule applies, the ambient convention
+# is used as "fallback".
+#
 # The function is called as:
 
 autotype(X)
 
-# which returns a dictionary of all column names along with their guessed type.
-# If the keyword `only_suggestions` is passed set to `true`, then only the column names
-# for which the heuristic has been used will be reported
+# If the keyword `only_changes` is passed set to `true`, then only the column names
+# for which the suggested type is different from that provided by the convention are
+# returned.
 
-autotype(X; only_suggestions=true)
+autotype(X; only_changes=true)
 
-# in a large number of case a user would simply have to check that the suggestions above make
-# sense before coercing the table to have the suggested types:
+# To specify which rules are to be applied, use the `rules` keyword  and specify
+# a tuple of symbols referring to specific rules; the default rule is `:few_to_finite`
+# which applies a heuristic for columns which have relatively few values, these
+# columns are then encoded with an appropriate `Finite` type.
+# It is important to note that the order in which the rules are specified matters;
+# rules will be applied in that order.
+
+autotype(X; rules=(:few_to_finite,))
+
+# Available rules are:
+#
+# Rule symbol      | scitype suggestion
+# :--------------- | :---------------------------------
+# :few_to_finite   | an appropriate finite type for columns with relatively few distinct values
+# :discrete_to_continuous | Continuous type if the column type or scitype is discrete
+# :string_to_class | Multiclass for any string-like column
+#
+# Autotype can be used in conjunction with `coerce`:
 
 X_coerced = coerce(X, autotype(X))
 
-# The heuristic follows a simple tree:
-# * branch 1: there are less then 3 unique values for more than 5 rows
-#   * return `Multiclass` or `Union{Missing, Multiclass}`
-# * branch 2: there are fewer than 10% unique values or fewer than 100 with over 1000 rows
-#   * return `OrderedFactor` if the column has numbers, `Multiclass` otherwise (and either way,
-#   include the `Missing` type if there are missing values)
+# **Examples**
+#
+# By default it only applies the :few_to_many rule
+
+n = 50
+X = (a = rand("abc", n),         # 3 values, not number        --> Multiclass
+     b = rand([1,2,3,4], n),     # 4 values, number            --> OrderedFactor
+     c = rand([true,false], n),  # 2 values, number but only 2 --> Multiclass
+     d = randn(n),               # many values                 --> unchanged
+     e = rand(collect(1:n), n))  # many values                 --> unchanged
+autotype(X, only_changes=true)
+
+# now we could first apply the `discrete_to_continuous` followed by `few_to_finite`
+# the first rule will apply on `b` and `e` but the subsequent application of the second
+# rule will mean we will get the same result apart for `e` (which will be continuous)
+
+autotype(X, only_changes=true, rules=(:discrete_to_continuous, :few_to_finite))
+
+# Working out which rule to apply will depend on the use case and you may want
+# to modify the returned dictionary before using `coerce`. You will typically
+# have to take into account what kind of model you will want to use and how to
+# either recode or filter the data so that the model gets an appropriate input
+# to train on.

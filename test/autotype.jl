@@ -1,3 +1,7 @@
+###################
+#### Basic tests
+###################
+
 Random.seed!(5)
 n = 5
 X1 = (book=["red", "white", "blue", "blue", "white"],
@@ -77,5 +81,86 @@ end
 @testset "autotype-s2c" begin
     sugg_types = autotype(X2; only_changes=true, rules=(:string_to_class,))
     @test Set(keys(sugg_types)) == Set([:a, :d])
-    @test sugg_types[:a] == Multiclass
+    @test sugg_types[:a] == Union{Missing,Multiclass}
+end
+
+#######################
+#### Detailed tests
+#######################
+
+@testset "autotype-utils" begin
+    @test S.nonmissing(Union{Missing,Real}) == Real
+    @test S.nonmissing(Real) == Real
+    @test S.nonmissing(Union{Missing,Multiclass}) == Multiclass
+    @test S.T_or_Union_Missing_T(Union{Missing,Real},Float64) == Union{Missing,Float64}
+    @test S.T_or_Union_Missing_T(Real, Float64) == Float64
+    @test S.sugg_finite(Union{Missing,Float64}) == OrderedFactor
+    @test S.sugg_finite(Union{Missing,String}) == Multiclass
+    @test S.sugg_finite(Float64) == OrderedFactor
+    @test S.sugg_finite(String) == Multiclass
+    @test S.sugg_finite(Char) == Multiclass
+    @test S.sugg_finite(Int) == OrderedFactor
+end
+
+@testset ":string_to_class" begin
+    n = nothing
+    M = Missing
+    @test S.string_to_class(Continuous, n, n) == Continuous
+    col = ('A', 'B', 'C')
+    @test S.string_to_class(Unknown, col, n) == Multiclass
+    col = ('A', 'B', 'C', missing)
+    @test S.string_to_class(Unknown, col, n) == Union{M,Multiclass}
+    col = (1, 2, 3, 4, 5)
+    @test S.string_to_class(Unknown, col, n) == Unknown
+    col = (1, 2, 3, 4, 5, missing)
+    @test S.string_to_class(Union{M,Unknown}, col, n) == Union{M,Unknown}
+    @test S.string_to_class(Unknown, col, n) == Unknown
+    col = ("aa", "bb", "cc")
+    @test S.string_to_class(Multiclass, col, n) == Multiclass
+    @test S.string_to_class(Unknown, col, n) == Multiclass
+    col = ("aa", "bb", "cc", missing)
+    @test S.string_to_class(Union{M,Unknown}, col, n) == Union{M,Multiclass}
+    @test S.string_to_class(Unknown, col, n) == Union{M,Multiclass}
+end
+
+@testset ":discrete_to_continuous" begin
+    n = nothing
+    M = Missing
+    @test S.discrete_to_continuous(Integer, n, n) == Continuous
+    @test S.discrete_to_continuous(Real, n, n) == Real
+    @test S.discrete_to_continuous(Count, n, n) == Continuous
+    @test S.discrete_to_continuous(OrderedFactor, n, n) == OrderedFactor
+    @test S.discrete_to_continuous(Union{M,Integer}, n, n) == Union{M,Continuous}
+    @test S.discrete_to_continuous(Union{M,Real}, n, n) == Union{M,Real}
+    @test S.discrete_to_continuous(Union{M,Count}, n, n) == Union{M,Continuous}
+    @test S.discrete_to_continuous(Union{M,OrderedFactor}, n, n) == Union{M,OrderedFactor}
+end
+
+@testset ":few_to_finite" begin
+    n = nothing
+    M = Missing
+    # short return
+    @test S.few_to_finite(Multiclass, n, 0) == Multiclass
+    @test S.few_to_finite(OrderedFactor, n, 1) == OrderedFactor
+    @test S.few_to_finite(Union{M,Multiclass}, n, 0) == Union{M,Multiclass}
+    @test S.few_to_finite(Union{M,OrderedFactor}, n, 1) == Union{M,OrderedFactor}
+    # apply
+    col = Random.rand("abcd", 50)
+    st  = scitype(col[1])
+    @test S.few_to_finite(st, col, length(col)) == Multiclass
+    col = Random.rand([1,2,3], 50)
+    st  = scitype(col[1])
+    @test S.few_to_finite(st, col, length(col)) == Multiclass
+    col = Random.rand([1,2,3,4], 50)
+    st = scitype(col[1])
+    @test S.few_to_finite(st, col, length(col)) == OrderedFactor
+    col = Random.rand([true, false], 50)
+    st = scitype(col[1])
+    @test S.few_to_finite(st, col, length(col)) == Multiclass
+    col = randn(50)
+    st = scitype(col[1])
+    @test S.few_to_finite(st, col, length(col)) == st
+    col = Int.(ceil.(100*randn(100)))
+    st = scitype(col[1])
+    @test S.few_to_finite(st, col, length(col)) == st
 end
