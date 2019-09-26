@@ -17,24 +17,10 @@ The package  `ScientificTypes` provides:
 
 - A hierarchy of new Julia types representing scientific data types for use in method dispatch (eg, for trait values). Instances of the types play no role:
 
-```julia
+```@example 0
 using ScientificTypes, AbstractTrees
 ScientificTypes.tree()
 ```
-
-    Found
-    ├─ Known
-    │  ├─ Finite
-    │  │  ├─ Multiclass
-    │  │  └─ OrderedFactor
-    │  ├─ Infinite
-    │  │  ├─ Continuous
-    │  │  └─ Count
-    │  ├─ Image
-    │  │  ├─ ColorImage
-    │  │  └─ GrayImage
-    │  └─ Table
-    └─ Unknown
 
 - A single method `scitype` for articulating a convention about what scientific type each Julia object can represent. For example, one might declare `scitype(::AbstractFloat) = Continuous`.
 
