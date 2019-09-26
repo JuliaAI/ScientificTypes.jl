@@ -88,13 +88,13 @@ end
 """
 discrete_to_continuous
 
-For a column with element type `<: Count` or `<: Integer` return Continuous.
-Note that it doesn't touch features already marked as `Finite`.
-"""
-function discrete_to_continuous(type::Type, _, _)
-    nonmissing(type) <: Union{Count,Integer} && return T_or_Union_Missing_T(type, Continuous)
-    return type
-end
+Assuming the column element scitype in not `Finite`, return
+`Continuous` this scitype is `Count` or the element machine type is `<:
+Integer`.
+
+""" function discrete_to_continuous(type::Type, _, _) nonmissing(type)
+<: Union{Count,Integer} && return T_or_Union_Missing_T(type,
+Continuous) return type end
 
 
 """

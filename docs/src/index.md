@@ -263,9 +263,9 @@ autotype(X; rules=(:few_to_finite,))
 
 Rule symbol               | scitype suggestion
 :------------------------ | :---------------------------------
-`:few_to_finite`          | an appropriate finite type for columns with few distinct values
-`:discrete_to_continuous` | Continuous type if the column type or scitype is discrete
-`:string_to_class`        | Multiclass for any string-like column
+`:few_to_finite`          | an appropriate `Finite` subtype for columns with few distinct values
+`:discrete_to_continuous` | if not `Finite`, then `Continuous` for any `Count` or `Integer` scitypes/types
+`:string_to_class`        | `Multiclass` for any string-like column
 
 Autotype can be used in conjunction with `coerce`:
 
@@ -288,12 +288,14 @@ X = (a = rand("abc", n),         # 3 values, not number        --> Multiclass
 autotype(X, only_changes=true)
 ```
 
-now we could first apply the `:discrete_to_continuous` followed by `:few_to_finite`
-the first rule will apply on `b` and `e` but the subsequent application of the second
-rule will mean we will get the same result apart for `e` (which will be continuous)
+For example, we could first apply the `:discrete_to_continuous` rule, 
+followed by `:few_to_finite` rule. The first rule will apply to `b` and `e`
+but the subsequent application of the second rule will mean we will
+get the same result apart for `e` (which will be `Continuous`)
 
 ```@example auto
 autotype(X, only_changes=true, rules=(:discrete_to_continuous, :few_to_finite))
 ```
 
-Working out which rule to apply will depend on the use case and you may want to modify the returned dictionary before using `coerce`. You will typically have to take into account what kind of model you will want to use and how to either recode or filter the data so that the model gets an appropriate input to train on.
+One should check and possibly modify the returned dictionary
+before passing to `coerce`. 
