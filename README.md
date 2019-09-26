@@ -1,4 +1,3 @@
-
 ## ScientificTypes
 
 A light-weight julia interface for implementing conventions about the

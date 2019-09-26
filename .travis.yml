@@ -2,7 +2,6 @@
 language: julia
 os:
   - linux
-  - osx
 julia:
   - 1.0
   - 1.1
@@ -21,19 +20,13 @@ matrix:
 after_success:
   - julia -e 'using Pkg; pkg"add Coverage"; using Coverage; Codecov.submit(Codecov.process_folder())'
 
-## uncomment following lines to deploy documentation
-## jobs:
-##   include:
-##     - stage: "Documentation"
-##       julia: 1.1
-##       os: linux
-##       # disable global before_script in order not to install Compose twice
-##       before_script:
-##       script:
-##         - |
-##           julia --color=yes --project=docs/ -e'
-##             using Pkg
-##             Pkg.add(PackageSpec(name="MLJBase", rev="master"));Pkg.add(PackageSpec(name="MLJModels", rev="master"));Pkg.develop(PackageSpec(path=pwd()))
-##             Pkg.instantiate()
-##             include("docs/make.jl")
-##          '
+jobs:
+  include:
+    - stage: "Documentation"
+      julia: 1.2
+      os: linux
+      script:
+        - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd()));
+                                               Pkg.instantiate()'
+        - julia --project=docs/ docs/make.jl
+      after_success: skip

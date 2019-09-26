@@ -1,9 +1,11 @@
-# using Revise
 using Test
 using ScientificTypes
 using CategoricalArrays
 using Tables
 using ColorTypes
+using Random
+
+const S = ScientificTypes
 
 @testset "Finite and Infinite" begin
     cv = categorical([:x, :y])
@@ -143,3 +145,13 @@ end
 
 end
 
+@testset "coerce R->OF (mlj)" begin
+    v = [0.1, 0.2, 0.2, 0.3, missing, 0.1]
+    w = [0.1, 0.2, 0.2, 0.3, 0.1]
+    cv = coerce(v, OrderedFactor)
+    cw = coerce(w, OrderedFactor)
+    @test all(skipmissing(unique(cv)) .== [0.1, 0.2, 0.3])
+    @test all(unique(cw) .== [0.1, 0.2, 0.3])
+end
+
+include("autotype.jl")
