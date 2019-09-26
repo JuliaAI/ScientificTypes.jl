@@ -265,7 +265,7 @@ Rule symbol               | scitype suggestion
 :------------------------ | :---------------------------------
 `:few_to_finite`          | an appropriate `Finite` subtype for columns with few distinct values
 `:discrete_to_continuous` | if not `Finite`, then `Continuous` for any `Count` or `Integer` scitypes/types
-`:string_to_class`        | `Multiclass` for any string-like column
+`:string_to_multiclass`        | `Multiclass` for any string-like column
 
 Autotype can be used in conjunction with `coerce`:
 
