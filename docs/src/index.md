@@ -248,3 +248,66 @@ Type `T`        | `scitype(x)` for `x::T`           | package required
 any table type `T` supported by Tables.jl | `Table{K}` where `K=Union{column_scitypes...}`                      | Tables
 
 Here `nlevels(x) = length(levels(x.pool))`.
+
+
+## Automatic type conversion
+
+The `autotype` function allows to use specific rules in order to guess appropriate scientific types for the data. Such rules would typically be more constraining than the ones implied by the active convention. When `autotype` is used, a dictionary of suggested types is returned for each column in the data; if none of the specified rule applies, the ambient convention is used as "fallback".
+
+The function is called as:
+
+```julia
+autotype(X)
+```
+
+If the keyword `only_changes` is passed set to `true`, then only the column names for which the suggested type is different from that provided by the convention are returned.
+
+```julia
+autotype(X; only_changes=true)
+```
+
+To specify which rules are to be applied, use the `rules` keyword  and specify a tuple of symbols referring to specific rules; the default rule is `:few_to_finite` which applies a heuristic for columns which have relatively few values, these columns are then encoded with an appropriate `Finite` type.
+It is important to note that the order in which the rules are specified matters; rules will be applied in that order.
+
+```julia
+autotype(X; rules=(:few_to_finite,))
+```
+
+### Available rules
+
+Rule symbol               | scitype suggestion
+:------------------------ | :---------------------------------
+`:few_to_finite`          | an appropriate finite type for columns with few distinct values
+`:discrete_to_continuous` | Continuous type if the column type or scitype is discrete
+`:string_to_class`        | Multiclass for any string-like column
+
+Autotype can be used in conjunction with `coerce`:
+
+```
+X_coerced = coerce(X, autotype(X))
+```
+
+### Examples
+
+By default it only applies the `:few_to_many` rule
+
+```@example auto
+using ScientificTypes, Tables # hide
+n = 50
+X = (a = rand("abc", n),         # 3 values, not number        --> Multiclass
+     b = rand([1,2,3,4], n),     # 4 values, number            --> OrderedFactor
+     c = rand([true,false], n),  # 2 values, number but only 2 --> Multiclass
+     d = randn(n),               # many values                 --> unchanged
+     e = rand(collect(1:n), n))  # many values                 --> unchanged
+autotype(X, only_changes=true)
+```
+
+now we could first apply the `:discrete_to_continuous` followed by `:few_to_finite`
+the first rule will apply on `b` and `e` but the subsequent application of the second
+rule will mean we will get the same result apart for `e` (which will be continuous)
+
+```@example auto
+autotype(X, only_changes=true, rules=(:discrete_to_continuous, :few_to_finite))
+```
+
+Working out which rule to apply will depend on the use case and you may want to modify the returned dictionary before using `coerce`. You will typically have to take into account what kind of model you will want to use and how to either recode or filter the data so that the model gets an appropriate input to train on.
