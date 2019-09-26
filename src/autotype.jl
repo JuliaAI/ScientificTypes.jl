@@ -3,7 +3,9 @@ export autotype
 """
 autotype(X)
 
-Return a dictionary of suggested types for each column of `X`.
+Return a dictionary of suggested scitypes for each column of a table
+`X`.
+
 See also [`suggest_scitype`](@ref).
 
 ## Kwargs

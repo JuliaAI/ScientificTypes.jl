@@ -236,7 +236,7 @@ any table type `T` supported by Tables.jl | `Table{K}` where `K=Union{column_sci
 Here `nlevels(x) = length(levels(x.pool))`.
 
 
-## Automatic type conversion
+## Automatic type conversion for tabular data
 
 The `autotype` function allows to use specific rules in order to guess appropriate scientific types for the data. Such rules would typically be more constraining than the ones implied by the active convention. When `autotype` is used, a dictionary of suggested types is returned for each column in the data; if none of the specified rule applies, the ambient convention is used as "fallback".
 
