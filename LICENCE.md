@@ -1,7 +1,7 @@
 The MLJ.jl package is licensed under the MIT "Expat" License:
 
-> Copyright (c) 2018: Edoardo Barp, Anthony Blaom, Gergö Bohner, Valentin Churavy, Harvey Devereux, Thibaut Lienart,
-Franz J Király, Mohammed Nook, Annika Stechemesser, Sebastian Vollmer; Mike Innes in partnership with Julia Computing.
+> Copyright (c) 2019: Anthony Blaom, Thibaut Lienart, Franz J Király
+> and contributors.
 > 
 > Permission is hereby granted, free of charge, to any person obtaining a copy
 > of this software and associated documentation files (the "Software"), to deal

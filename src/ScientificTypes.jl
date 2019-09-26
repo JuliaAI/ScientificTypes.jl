@@ -6,9 +6,7 @@ export Binary, Table, ColorImage, GrayImage
 export scitype, scitype_union, scitypes, coerce, schema
 export mlj
 
-using Requires
-import InteractiveUtils.subtypes
-
+using Requires, InteractiveUtils
 
 # ## FOR DEFINING SCITYPES ON OBJECTS DETECTED USING TRAITS
 

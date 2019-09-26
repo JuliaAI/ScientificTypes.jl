@@ -79,7 +79,7 @@ end
 end
 
 @testset "autotype-s2c" begin
-    sugg_types = autotype(X2; only_changes=true, rules=(:string_to_class,))
+    sugg_types = autotype(X2; only_changes=true, rules=(:string_to_multiclass,))
     @test Set(keys(sugg_types)) == Set([:a, :d])
     @test sugg_types[:a] == Union{Missing,Multiclass}
 end
@@ -102,25 +102,25 @@ end
     @test S.sugg_finite(Int) == OrderedFactor
 end
 
-@testset ":string_to_class" begin
+@testset ":string_to_multiclass" begin
     n = nothing
     M = Missing
-    @test S.string_to_class(Continuous, n, n) == Continuous
+    @test S.string_to_multiclass(Continuous, n, n) == Continuous
     col = ('A', 'B', 'C')
-    @test S.string_to_class(Unknown, col, n) == Multiclass
+    @test S.string_to_multiclass(Unknown, col, n) == Multiclass
     col = ('A', 'B', 'C', missing)
-    @test S.string_to_class(Unknown, col, n) == Union{M,Multiclass}
+    @test S.string_to_multiclass(Unknown, col, n) == Union{M,Multiclass}
     col = (1, 2, 3, 4, 5)
-    @test S.string_to_class(Unknown, col, n) == Unknown
+    @test S.string_to_multiclass(Unknown, col, n) == Unknown
     col = (1, 2, 3, 4, 5, missing)
-    @test S.string_to_class(Union{M,Unknown}, col, n) == Union{M,Unknown}
-    @test S.string_to_class(Unknown, col, n) == Unknown
+    @test S.string_to_multiclass(Union{M,Unknown}, col, n) == Union{M,Unknown}
+    @test S.string_to_multiclass(Unknown, col, n) == Unknown
     col = ("aa", "bb", "cc")
-    @test S.string_to_class(Multiclass, col, n) == Multiclass
-    @test S.string_to_class(Unknown, col, n) == Multiclass
+    @test S.string_to_multiclass(Multiclass, col, n) == Multiclass
+    @test S.string_to_multiclass(Unknown, col, n) == Multiclass
     col = ("aa", "bb", "cc", missing)
-    @test S.string_to_class(Union{M,Unknown}, col, n) == Union{M,Multiclass}
-    @test S.string_to_class(Unknown, col, n) == Union{M,Multiclass}
+    @test S.string_to_multiclass(Union{M,Unknown}, col, n) == Union{M,Multiclass}
+    @test S.string_to_multiclass(Unknown, col, n) == Union{M,Multiclass}
 end
 
 @testset ":discrete_to_continuous" begin

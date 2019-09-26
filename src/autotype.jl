@@ -19,7 +19,7 @@ function autotype(X; only_changes::Bool=false,
     # check that the rules are recognised
     for rule in rules
         @assert rule in (:few_to_finite, :discrete_to_continuous,
-                         :string_to_class) "Rule $rule not recognised."
+                         :string_to_multiclass) "Rule $rule not recognised."
     end
     # recuperate the schema of `X`
     sch = schema(X)
@@ -88,23 +88,25 @@ end
 """
 discrete_to_continuous
 
-For a column with element type `<: Count` or `<: Integer` return Continuous.
-Note that it doesn't touch features already marked as `Finite`.
+Assuming the column element scitype in not `Finite`, return
+`Continuous` this scitype is `Count` or the element machine type is `<:
+Integer`.
+
 """
 function discrete_to_continuous(type::Type, _, _)
-    nonmissing(type) <: Union{Count,Integer} && return T_or_Union_Missing_T(type, Continuous)
+    nonmissing(type)<: Union{Count,Integer} &&
+        return T_or_Union_Missing_T(type,Continuous)
     return type
 end
 
-
 """
-string_to_class
+string_to_multiclass
 
 For a column with element type `<: AbstractString` or `<: AbstractChar` return Multiclass
 irrelevant of how many unique values there are. This rule is only applied on columns which
 are still considered to be `Unknown`.
 """
-function string_to_class(type::Type, col, _)
+function string_to_multiclass(type::Type, col, _)
     nonmissing(type) <: Unknown || return type
     etc = eltype(col)
     if nonmissing(etc) <: Union{AbstractChar,AbstractString}
