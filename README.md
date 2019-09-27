@@ -19,6 +19,11 @@ The usefulness of this machinery becomes evident when the machine type does not 
 
 (For more information and examples please refer to [the doc](https://alan-turing-institute.github.io/ScientificTypes.jl/dev))
 
+This is a very quick start presenting two key functions exported by ScientificTypes:
+
+* `schema(X)` which gives an extended schema of the table `X` with the column scientific types implied by the current scitype convention,
+* `coerce(X, ...)` which allows to overwrite scientific types for specific columns to indicate their appropriate scientific interpretation.
+
 ```julia
 using ScientificTypes, DataFrames
 X = DataFrame(
@@ -44,7 +49,7 @@ will print
 :e  --  Union{Missing, Unknown}
 ```
 
-this uses the default "MLJ convention" to attribute a scitype.
+this uses the default "MLJ convention" to attribute a scitype (cf. [docs](https://alan-turing-institute.github.io/ScientificTypes.jl/dev/#The-MLJ-convention-1)).
 
 Now you could want to specify that `b` is actually a `Count`, and that `d` and `e` are `Multiclass`; this is done with the `coerce` function:
 
