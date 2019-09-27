@@ -5,7 +5,8 @@ scientific interpretation of data, and for performing type coercions
 enforcing those conventions.
 
 [![Build
-Status](https://travis-ci.com/alan-turing-institute/ScientificTypes.jl.svg?branch=master)](https://travis-ci.com/alan-turing-institute/ScientificTypes.jl)
+Status](https://travis-ci.com/alan-turing-institute/ScientificTypes.jl.svg?branch=master)](https://travis-ci.com/alan-turing-institute/ScientificTypes.jl) [![codecov.io](http://codecov.io/github/alan-turing-institute/ScientificTypes.jl/coverage.svg?branch=master)](http://codecov.io/github/alan-turing-institute/ScientificTypes.jl?branch=master)
+
 
 ScientificTypes provides:
 
