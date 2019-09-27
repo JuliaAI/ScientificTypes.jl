@@ -10,8 +10,8 @@ See also [`suggest_scitype`](@ref).
 
 ## Kwargs
 
-* `only_changes=false`: if true, return only a dictionary of the names for which applying
-autotype differs from just using the ambient convention.
+* `only_changes=false`: if true, return only a dictionary of the names for
+which applying autotype differs from just using the ambient convention.
 * `rules=(:few_to_finite,)`: the set of rules to apply.
 """
 function autotype(X; only_changes::Bool=false,
@@ -59,12 +59,13 @@ end
 """
 few_to_finite
 
-For a column `col` with element type `type` and `nrows` rows, check if there are relatively
-few values as compared to the number of rows. The heuristic for "few" is as follows:
+For a column `col` with element type `type` and `nrows` rows, check if there
+are relatively few values as compared to the number of rows. The heuristic
+for "few" is as follows:
 
-1. there's ≤ 3 unique values with more than 5 rows, use the `MultiClass{N}` type
-2. there's less than 10% unique values out of the number of rows **or** there's fewer than
-    100 unique values (whichever one is smaller):
+1. there's ≤ 3 unique values with more than 5 rows, use `MultiClass{N}` type
+2. there's less than 10% unique values out of the number of rows **or**
+    there's fewer than 100 unique values (whichever one is smaller):
         a. if it's a Real type, return as `OrderedFactor`
         b. if it's something else (e.g. a `String`) return as `MultiClass{N}`
 """
@@ -90,23 +91,21 @@ end
 """
 discrete_to_continuous
 
-Assuming the column element scitype in not `Finite`, return
-`Continuous` this scitype is `Count` or the element machine type is `<:
-Integer`.
-
+Return `Continuous` if the current type is either `Count` or `Integer`,
+otherwise return the type unchanged.
 """
 function discrete_to_continuous(type::Type, _, _)
     nonmissing(type)<: Union{Count,Integer} &&
-        return T_or_Union_Missing_T(type,Continuous)
+        return T_or_Union_Missing_T(type, Continuous)
     return type
 end
 
 """
 string_to_multiclass
 
-For a column with element type `<: AbstractString` or `<: AbstractChar` return Multiclass
-irrelevant of how many unique values there are. This rule is only applied on columns which
-are still considered to be `Unknown`.
+For a column with element type `<: AbstractString` or `<: AbstractChar` return
+Multiclass irrelevant of how many unique values there are. This rule is only
+applied on columns which are still considered to be `Unknown`.
 """
 function string_to_multiclass(type::Type, col, _)
     nonmissing(type) <: Unknown || return type
@@ -124,8 +123,8 @@ end
 """
 sugg_finite(type)
 
-Helper function to suggest a finite type corresponding to `T` when there are few unique values.
-See [`suggest_scitype`](@ref).
+Helper function to suggest a finite type corresponding to `T` when there are
+few unique values. See [`suggest_scitype`](@ref).
 """
 function sugg_finite(::Type{<:Union{Missing,T}}) where T
     T <: Real && return OrderedFactor
