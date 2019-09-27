@@ -26,8 +26,8 @@ function schema(X, ::Val{:table})
     Xcol = Tables.columntable(X)
     names = s.names
     types = Tuple{s.types...}
-    scitypes = Tuple{[scitype_union(getproperty(Xcol, name))
-                              for name in names]...}
+    scitypes = Tuple{(scitype_union(getproperty(Xcol, name))
+                              for name in names)...}
     return Schema(names, types, scitypes, _nrows(X))
 end
 
@@ -76,7 +76,7 @@ function coerce(X, pairs::Pair{Symbol}...; verbosity=1)
                                  for name in names)
     return Tables.materializer(X)(coltable)
 end
-coerce(X, types::Dict; kw_args...) = coerce(X, (p for p in types)...) 
+coerce(X, types::Dict; kw_args...) = coerce(X, (p for p in types)...)
 
 
 # code removed because some tables are AbstractVector:
