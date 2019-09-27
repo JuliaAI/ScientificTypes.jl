@@ -7,6 +7,21 @@ using Random
 
 const S = ScientificTypes
 
+@testset "Schema" begin
+    sch = S.Schema((:a, :b), (Int, Int), (Count, Count), 5)
+    @test sch.names == (:a, :b)
+    @test sch.types == (Int, Int)
+    @test sch.scitypes == (Count, Count)
+    @test sch.nrows == 5
+
+    @test_throws ArgumentError sch.something
+    @test propertynames(sch) == (:names, :types, :scitypes, :nrows)
+    snt = S._as_named_tuple(sch)
+    @test snt isa NamedTuple
+    @test propertynames(snt) == propertynames(sch)
+    @test snt.names == sch.names
+end
+
 @testset "Finite and Infinite" begin
     cv = categorical([:x, :y])
     c = cv[1]
