@@ -20,7 +20,6 @@ scitype(::B, ::Val{:mlj}) where {N,B<:A{Union{<:Integer,Missing},N}} =
     A{Union{Count,Missing},N}
 
 
-
 ## COERCE VECTOR TO CONTINUOUS
 
 """
