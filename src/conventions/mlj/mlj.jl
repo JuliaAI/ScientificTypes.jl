@@ -5,6 +5,21 @@ _coerce_missing_warn(T) =
     @warn "Missing values encountered coercing scitype to $T.\n"*
           "Coerced to Union{Missing,$T} instead. "
 
+
+## PERFORMANT SCITYPES FOR ARRAYS
+
+const A{T,N} = AbstractArray{T,N}
+
+scitype(::B, ::Val{:mlj}) where {N,B<:A{<:AbstractFloat,N}} =
+    A{Continuous,N}
+scitype(::B, ::Val{:mlj}) where {N,B<:A{Union{<:AbstractFloat,Missing},N}} =
+    A{Union{Continuous,Missing},N}
+scitype(::B, ::Val{:mlj}) where {N,B<:A{<:Integer,N}} =
+    A{Count,N}
+scitype(::B, ::Val{:mlj}) where {N,B<:A{Union{<:Integer,Missing},N}} =
+    A{Union{Count,Missing},N}
+
+
 ## COERCE VECTOR TO CONTINUOUS
 
 """

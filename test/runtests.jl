@@ -37,14 +37,52 @@ A = Any[2 4.5;
 end
 
 @testset "Arrays" begin
-    @test scitype(A) == AbstractArray{Union{Count, Continuous}, 2}
-    @test scitype([1,2,3, missing]) == AbstractVector{Union{Missing, Count}}
+    @test scitype(A) ==
+        AbstractArray{Union{Count, Continuous}, 2}
+
+    @test scitype([1, 2, 3]) ==
+        AbstractVector{Count}
+    @test scitype([1, missing, 3]) ==
+        AbstractVector{Union{Missing,Count}}
+    @test scitype(Any[1, 2, 3]) ==
+        AbstractVector{Count}
+    @test scitype(Any[1, missing, 3]) ==
+        AbstractVector{Union{Missing,Count}}
+
+    @test scitype([1.0, 2.0, 3.0]) ==
+        AbstractVector{Continuous}
+    @test scitype(Any[1.0, missing, 3.0]) ==
+        AbstractVector{Union{Missing,Continuous}}
+    @test scitype(Any[1.0, 2.0, 3.0]) ==
+        AbstractVector{Continuous}
+    @test scitype(Any[1.0, missing, 3.0]) ==
+        AbstractVector{Union{Missing,Continuous}}
+
+    @test scitype(categorical(1:4)) ==
+        AbstractVector{Multiclass{4}}
+    @test scitype(Any[categorical(1:4)...]) ==
+        AbstractVector{Multiclass{4}}
+    @test scitype(categorical([1, missing, 3])) ==
+        AbstractVector{Union{Multiclass{2},Missing}}
+
+    @test scitype(categorical(1:4, ordered=true)) ==
+        AbstractVector{OrderedFactor{4}}
+    @test scitype(Any[categorical(1:4, ordered=true)...]) ==
+        AbstractVector{OrderedFactor{4}}
+    @test scitype(categorical([1, missing, 3], ordered=true)) ==
+        AbstractVector{Union{OrderedFactor{2},Missing}}
+
 end
 
 @testset "Images" begin
     black = RGB(0, 0, 0)
     color_image = fill(black, (10, 20))
     @test scitype(color_image) == ColorImage{10,20}
+
+    color_image2 = fill(black, (5, 3))
+    v = [color_image, color_image2, color_image2]
+    @test scitype(v) ==
+        AbstractVector{Union{ColorImage{10,20},ColorImage{5,3}}}
 
     white = Gray(1.0)
     gray_image = fill(white, (10, 20))
