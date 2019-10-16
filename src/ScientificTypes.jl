@@ -136,6 +136,10 @@ scitype_union(A) = reduce((a,b)->Union{a,b}, (scitype(el) for el in A))
 # ## SCITYPES OF TUPLES AND ARRAYS
 
 scitype(t::Tuple, ::Val) = Tuple{scitype.(t)...}
+
+# The following fallback can be quite slow. Individual conventions
+# will usually be able to find more perfomant overloadings of this
+# method:
 scitype(A::B, ::Val) where {T,N,B<:AbstractArray{T,N}} =
     AbstractArray{scitype_union(A),N}
 

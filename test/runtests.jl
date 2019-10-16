@@ -38,7 +38,16 @@ end
 
 @testset "Arrays" begin
     @test scitype(A) == AbstractArray{Union{Count, Continuous}, 2}
-    @test scitype([1,2,3, missing]) == AbstractVector{Union{Missing, Count}}
+    @test scitype([1, 2, 3]) == AbstractVector{Count}
+    @test scitype([1, missing, 3]) == AbstractVector{Union{Missing,Count}}
+    @test scitype([1.0, 2.0, 3.0]) == AbstractVector{Continuous}
+    @test scitype(Any[1.0, missing, 3.0]) ==
+        AbstractVector{Union{Missing,Continuous}}
+    @test scitype(Any[1, 2, 3]) == AbstractVector{Count}
+    @test scitype(Any[1, missing, 3]) == AbstractVector{Union{Missing,Count}}
+    @test scitype(Any[1.0, 2.0, 3.0]) == AbstractVector{Continuous}
+    @test scitype(Any[1.0, missing, 3.0]) ==
+       AbstractVector{Union{Missing,Continuous}}
 end
 
 @testset "Images" begin
