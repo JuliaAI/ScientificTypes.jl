@@ -18,3 +18,18 @@ function coerce(v, ::Type{T2}; verbosity=1) where T2 <: Union{Missing,Finite}
     end
     return categorical(v, true, ordered=T2 <: Union{Missing,OrderedFactor})
 end
+
+## PERFORMANT SCITYPES FOR ARRAYS
+
+function scitype(A::B, ::Val{:mlj}) where {T,N,B<:CategoricalArray{T,N}}
+    nlevels = length(levels(A))
+    if isordered(A)
+        S = OrderedFactor{nlevels}
+    else
+        S = Multiclass{nlevels}
+    end
+    if T isa Union && Missing <: T
+        S = Union{S,Missing}
+    end
+    return AbstractArray{S, N}
+end

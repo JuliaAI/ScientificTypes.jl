@@ -7,6 +7,8 @@ using Random
 
 const S = ScientificTypes
 
+include("basic_tests.jl")
+
 @testset "Finite and Infinite" begin
     cv = categorical([:x, :y])
     c = cv[1]
@@ -16,24 +18,6 @@ const S = ScientificTypes
     @test scitype((4, 4.5, c, u, "X")) ==
     Tuple{Count,Continuous,Multiclass{2},
           OrderedFactor{2},Unknown}
-
-end
-
-@testset "Tables" begin
-
-    X = (x=rand(5), y=rand(Int, 5),
-         z=categorical(collect("asdfa")), w=rand(5))
-    s = schema(X)
-    @test s.scitypes == (Continuous, Count, Multiclass{4}, Continuous)
-    @test s.types == (Float64, Int64, CategoricalValue{Char,UInt32}, Float64)
-    @test s.nrows == 5
-
-    @test_throws ArgumentError schema([:x, :y])
-
-    t = scitype(X)
-    @test t <: ScientificTypes.Table(Continuous, Finite, Count)
-    @test t <: ScientificTypes.Table(Infinite, Multiclass)
-    @test !(t <: ScientificTypes.Table(Continuous, Union{Missing, Count}))
 
 end
 
@@ -53,14 +37,52 @@ A = Any[2 4.5;
 end
 
 @testset "Arrays" begin
-    @test scitype(A) == AbstractArray{Union{Count, Continuous}, 2}
-    @test scitype([1,2,3, missing]) == AbstractVector{Union{Missing, Count}}
+    @test scitype(A) ==
+        AbstractArray{Union{Count, Continuous}, 2}
+
+    @test scitype([1, 2, 3]) ==
+        AbstractVector{Count}
+    @test scitype([1, missing, 3]) ==
+        AbstractVector{Union{Missing,Count}}
+    @test scitype(Any[1, 2, 3]) ==
+        AbstractVector{Count}
+    @test scitype(Any[1, missing, 3]) ==
+        AbstractVector{Union{Missing,Count}}
+
+    @test scitype([1.0, 2.0, 3.0]) ==
+        AbstractVector{Continuous}
+    @test scitype(Any[1.0, missing, 3.0]) ==
+        AbstractVector{Union{Missing,Continuous}}
+    @test scitype(Any[1.0, 2.0, 3.0]) ==
+        AbstractVector{Continuous}
+    @test scitype(Any[1.0, missing, 3.0]) ==
+        AbstractVector{Union{Missing,Continuous}}
+
+    @test scitype(categorical(1:4)) ==
+        AbstractVector{Multiclass{4}}
+    @test scitype(Any[categorical(1:4)...]) ==
+        AbstractVector{Multiclass{4}}
+    @test scitype(categorical([1, missing, 3])) ==
+        AbstractVector{Union{Multiclass{2},Missing}}
+
+    @test scitype(categorical(1:4, ordered=true)) ==
+        AbstractVector{OrderedFactor{4}}
+    @test scitype(Any[categorical(1:4, ordered=true)...]) ==
+        AbstractVector{OrderedFactor{4}}
+    @test scitype(categorical([1, missing, 3], ordered=true)) ==
+        AbstractVector{Union{OrderedFactor{2},Missing}}
+
 end
 
 @testset "Images" begin
     black = RGB(0, 0, 0)
     color_image = fill(black, (10, 20))
     @test scitype(color_image) == ColorImage{10,20}
+
+    color_image2 = fill(black, (5, 3))
+    v = [color_image, color_image2, color_image2]
+    @test scitype(v) ==
+        AbstractVector{Union{ColorImage{10,20},ColorImage{5,3}}}
 
     white = Gray(1.0)
     gray_image = fill(white, (10, 20))
