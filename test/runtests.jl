@@ -79,6 +79,11 @@ end
     color_image = fill(black, (10, 20))
     @test scitype(color_image) == ColorImage{10,20}
 
+    color_image2 = fill(black, (5, 3))
+    v = [color_image, color_image2, color_image2]
+    @test scitype(v) ==
+        AbstractVector{Union{ColorImage{10,20},ColorImage{5,3}}}
+
     white = Gray(1.0)
     gray_image = fill(white, (10, 20))
     @test scitype(gray_image) == GrayImage{10,20}
