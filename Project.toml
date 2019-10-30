@@ -1,7 +1,7 @@
 name = "ScientificTypes"
 uuid = "321657f4-b219-11e9-178b-2701a2544e81"
 authors = ["Anthony D. Blaom <anthony.blaom@gmail.com>"]
-version = "0.2.2"
+version = "0.2.3"
 
 [deps]
 InteractiveUtils = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
