@@ -26,14 +26,14 @@ nobj_f = 3
     # this is just with few_to_finite
     # -------------------------------
     # no missing
-    sugg_types = autotype(X1)
+    sugg_types = autotype(X1, only_changes=false)
     @test sugg_types[:book]   == Multiclass
     @test sugg_types[:number] == Multiclass
     @test sugg_types[:gender] == Multiclass
     @test sugg_types[:random] == Unknown
 
     # now with missing values
-    sugg_types = autotype(X2)
+    sugg_types = autotype(X2, only_changes=false)
     @test sugg_types[:a] == Union{Missing,Multiclass}
     @test sugg_types[:b] == Continuous
     @test sugg_types[:c] == Count
@@ -58,19 +58,19 @@ end
                                  Multiclass{nobj_f})                   # f*
 
     # test only_changes
-    sugg_types = autotype(X2; only_changes=true)
+    sugg_types = autotype(X2)
     @test Set(keys(sugg_types)) == Set([:a, :d, :e, :f])
     @test sugg_types[:a] == Union{Missing,Multiclass}
     @test sugg_types[:f] == Multiclass
 end
 
 @testset "autotype-d2c" begin
-    sugg_types = autotype(X2; only_changes=true, rules=(:discrete_to_continuous,))
+    sugg_types = autotype(X2; rules=(:discrete_to_continuous,))
     @test Set(keys(sugg_types)) == Set([:c, :e, :f])
     @test sugg_types[:c] == Continuous
 
     # now **after** already using few_to_finite
-    sugg_types = autotype(X2; only_changes=true, rules=(:few_to_finite, :discrete_to_continuous))
+    sugg_types = autotype(X2; rules=(:few_to_finite, :discrete_to_continuous))
     @test sugg_types[:a] == Union{Missing,Multiclass}
     @test sugg_types[:c] == Continuous
     @test sugg_types[:d] == Multiclass
@@ -79,7 +79,7 @@ end
 end
 
 @testset "autotype-s2c" begin
-    sugg_types = autotype(X2; only_changes=true, rules=(:string_to_multiclass,))
+    sugg_types = autotype(X2; rules=(:string_to_multiclass,))
     @test Set(keys(sugg_types)) == Set([:a, :d])
     @test sugg_types[:a] == Union{Missing,Multiclass}
 end

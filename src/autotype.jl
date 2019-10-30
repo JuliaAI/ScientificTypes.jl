@@ -10,11 +10,12 @@ See also [`suggest_scitype`](@ref).
 
 ## Kwargs
 
-* `only_changes=false`: if true, return only a dictionary of the names for
-which applying autotype differs from just using the ambient convention.
+* `only_changes=true`: if true, return only a dictionary of the names for
+which applying autotype differs from just using the ambient convention. When
+coercing with autotype, `only_changes` should be true.
 * `rules=(:few_to_finite,)`: the set of rules to apply.
 """
-function autotype(X; only_changes::Bool=false,
+function autotype(X; only_changes::Bool=true,
                   rules::NTuple{N,Symbol} where N=(:few_to_finite,))
     # check that X is a table
     @assert Tables.istable(X) "The function `autotype` requires tabular data."
