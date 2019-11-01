@@ -18,7 +18,6 @@ include("basic_tests.jl")
     @test scitype((4, 4.5, c, u, "X")) ==
     Tuple{Count,Continuous,Multiclass{2},
           OrderedFactor{2},Unknown}
-
 end
 
 A = Any[2 4.5;
