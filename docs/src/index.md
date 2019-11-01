@@ -24,15 +24,17 @@ ScientificTypes.tree()
 
 - A single method `scitype` for articulating a convention about what scientific type each Julia object can represent. For example, one might declare `scitype(::AbstractFloat) = Continuous`.
 
-- A default convention called *mlj*, based on optional dependencies `CategoricalArrays`, `ColorTypes`, and `Tables`, which includes a convenience method `coerce` for performing scientific type coercion on `AbstractVectors` and columns of tabular data (any table implementing the [Tables.jl](https://github.com/JuliaData/Tables.jl) interface).
+- A default convention called *mlj*, based on dependencies
+  `CategoricalArrays`, `ColorTypes`, and `Tables`, which includes a
+  convenience method `coerce` for performing scientific type coercion
+  on `AbstractVectors` and columns of tabular data (any table
+  implementing the [Tables.jl](https://github.com/JuliaData/Tables.jl)
+  interface).
 
 - A `schema` method for tabular data, based on the optional Tables dependency, for inspecting the machine and scientific types of tabular data, in addition to column names and number of rows.
 
-### Dependencies
 
-The only dependencies are [`Requires.jl`](https://github.com/MikeInnes/Requires.jl) and `InteractiveUtils` (from stdlib).
-
-## Quick start
+## Getting started
 
 The package is registered and can be installed via the package manager with `add ScientificTypes`.
 
