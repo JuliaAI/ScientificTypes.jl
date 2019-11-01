@@ -6,18 +6,11 @@ _coerce_missing_warn(T) =
           "Coerced to Union{Missing,$T} instead. "
 
 
-## PERFORMANT SCITYPES FOR ARRAYS
+# ## IMPLEMENT PERFORMANCE BOOSTING FOR ARRAYS
 
-const A{T,N} = AbstractArray{T,N}
+Scitype(::Type{<:Integer}, ::Val{:mlj}) = Count
+Scitype(::Type{<:AbstractFloat}, ::Val{:mlj}) = Continuous
 
-scitype(::B, ::Val{:mlj}) where {N,B<:A{<:AbstractFloat,N}} =
-    A{Continuous,N}
-scitype(::B, ::Val{:mlj}) where {N,B<:A{Union{<:AbstractFloat,Missing},N}} =
-    A{Union{Continuous,Missing},N}
-scitype(::B, ::Val{:mlj}) where {N,B<:A{<:Integer,N}} =
-    A{Count,N}
-scitype(::B, ::Val{:mlj}) where {N,B<:A{Union{<:Integer,Missing},N}} =
-    A{Union{Count,Missing},N}
 
 
 ## COERCE VECTOR TO CONTINUOUS

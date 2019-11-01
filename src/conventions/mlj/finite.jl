@@ -21,15 +21,20 @@ end
 
 ## PERFORMANT SCITYPES FOR ARRAYS
 
-function scitype(A::B, ::Val{:mlj}) where {T,N,B<:CategoricalArray{T,N}}
+const CatArr{T,N,V} = CategoricalArray{T,N,<:Any,V}
+
+function scitype(A::CatArr{T,N,V}, ::Val{:mlj}) where {T,N,V}
     nlevels = length(levels(A))
     if isordered(A)
         S = OrderedFactor{nlevels}
     else
         S = Multiclass{nlevels}
     end
-    if T isa Union && Missing <: T
-        S = Union{S,Missing}
+    if T != V # missing values
+        Atight = broadcast(identity, A)
+        if !(Atight isa CatArr{V,N,V}) # missings remain
+            S = Union{S,Missing}
+        end
     end
-    return AbstractArray{S, N}
+    return AbstractArray{S,N}
 end
