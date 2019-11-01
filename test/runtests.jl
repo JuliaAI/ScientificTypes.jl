@@ -63,6 +63,8 @@ end
         AbstractVector{Multiclass{4}}
     @test scitype(categorical([1, missing, 3])) ==
         AbstractVector{Union{Multiclass{2},Missing}}
+    @test scitype(categorical([1, missing])[1:1]) ==
+        AbstractVector{Multiclass{1}}
 
     @test scitype(categorical(1:4, ordered=true)) ==
         AbstractVector{OrderedFactor{4}}
@@ -70,6 +72,8 @@ end
         AbstractVector{OrderedFactor{4}}
     @test scitype(categorical([1, missing, 3], ordered=true)) ==
         AbstractVector{Union{OrderedFactor{2},Missing}}
+    @test scitype(categorical([1, missing], ordered=true)[1:1]) ==
+        AbstractVector{OrderedFactor{1}}
 
 end
 
