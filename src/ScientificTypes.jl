@@ -2,11 +2,14 @@ module ScientificTypes
 
 export Scientific, Found, Unknown, Finite, Infinite
 export OrderedFactor, Multiclass, Count, Continuous
-export Binary, Table, ColorImage, GrayImage
+export Binary, Table
+export ColorImage, GrayImage
 export scitype, scitype_union, scitypes, coerce, schema
 export mlj
 
-using Requires, InteractiveUtils
+using Tables, CategoricalArrays, ColorTypes
+# using Requires
+# using InteractiveUtils
 
 # ## FOR DEFINING SCITYPES ON OBJECTS DETECTED USING TRAITS
 
@@ -118,7 +121,6 @@ scitype(X, C, ::Val{:other}) = Unknown
 
 scitype(::Missing) = Missing
 
-
 # ## CONVENIENCE METHOD FOR UNIONS OVER ELEMENTS
 
 """
@@ -205,7 +207,6 @@ function scitype(A::Arr{<:Any,N}, C::Val, ::Val{S}) where {N,S}
     end
 end
 
-
 # ## STUB FOR COERCE METHOD
 
 function coerce end
@@ -259,6 +260,8 @@ schema(X, ::Val{:other}) =
                         "an object with trait `:other`\n"*
                         "Perhaps you meant to import Tables first?"))
 
+include("tables.jl")
+include("autotype.jl")
 
 ## ACTIVATE DEFAULT CONVENTION
 
@@ -266,26 +269,7 @@ schema(X, ::Val{:other}) =
 
 mlj()
 include("conventions/mlj/mlj.jl")
-
-
-## FOR LOADING OPTIONAL DEPENDENCIES
-
-function __init__()
-
-    # for printing out the type tree:
-    @require(AbstractTrees = "1520ce14-60c1-5f80-bbc7-55ef81b5835c",
-             include("tree.jl"))
-
-    # the scitype and schema of tabular data:
-    @require(Tables="bd369af6-aec1-5ad0-b16a-f7cc5008161c",
-             (include("tables.jl"); include("autotype.jl")))
-
-    # external packages for the :mlj convention:
-    @require(CategoricalArrays="324d7699-5711-5eae-9e2f-1d82baa6b597",
-             include("conventions/mlj/finite.jl"))
-    @require(ColorTypes="3da002f7-5984-5a60-b8a6-cbb66c0b333f",
-             include("conventions/mlj/images.jl"))
-
-end
+include("conventions/mlj/finite.jl")
+include("conventions/mlj/images.jl")
 
 end # module
