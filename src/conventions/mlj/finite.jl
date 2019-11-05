@@ -1,5 +1,3 @@
-using .CategoricalArrays
-
 nlevels(c::CategoricalValue) = length(levels(c.pool))
 nlevels(c::CategoricalString) = length(levels(c.pool))
 

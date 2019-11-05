@@ -12,7 +12,6 @@ Scitype(::Type{<:Integer}, ::Val{:mlj}) = Count
 Scitype(::Type{<:AbstractFloat}, ::Val{:mlj}) = Continuous
 
 
-
 ## COERCE VECTOR TO CONTINUOUS
 
 """

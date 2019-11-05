@@ -17,9 +17,20 @@ The package  `ScientificTypes` provides:
 
 - A hierarchy of new Julia types representing scientific data types for use in method dispatch (eg, for trait values). Instances of the types play no role:
 
-```@example 0
-using ScientificTypes, AbstractTrees
-ScientificTypes.tree()
+```
+Found
+├─ Known
+│  ├─ Finite
+│  │  ├─ Multiclass
+│  │  └─ OrderedFactor
+│  ├─ Infinite
+│  │  ├─ Continuous
+│  │  └─ Count
+│  ├─ Image
+│  │  ├─ ColorImage
+│  │  └─ GrayImage
+│  └─ Table
+└─ Unknown
 ```
 
 - A single method `scitype` for articulating a convention about what scientific type each Julia object can represent. For example, one might declare `scitype(::AbstractFloat) = Continuous`.
@@ -300,7 +311,7 @@ X = (a = rand("abc", n),         # 3 values, not number        --> Multiclass
 autotype(X, only_changes=true)
 ```
 
-For example, we could first apply the `:discrete_to_continuous` rule, 
+For example, we could first apply the `:discrete_to_continuous` rule,
 followed by `:few_to_finite` rule. The first rule will apply to `b` and `e`
 but the subsequent application of the second rule will mean we will
 get the same result apart for `e` (which will be `Continuous`)
@@ -310,4 +321,4 @@ autotype(X, only_changes=true, rules=(:discrete_to_continuous, :few_to_finite))
 ```
 
 One should check and possibly modify the returned dictionary
-before passing to `coerce`. 
+before passing to `coerce`.
