@@ -179,4 +179,25 @@ end
     @test all(unique(cw) .== [0.1, 0.2, 0.3])
 end
 
+@testset "Any->Multiclass (mlj)" begin
+    v1 = categorical(Any[1,2,1,2,1,missing,2])
+    v2 = Any[collect("aksldjfalsdjkfslkjdfalksjdf")...]
+    v1c = coerce(v1, Multiclass)
+    v2c = coerce(v2, Multiclass)
+    @test scitype_union(v1c) == Union{Missing,Multiclass{2}}
+    @test scitype_union(v2c) == Multiclass{7}
+    @test eltype(v1c) == Union{Missing, CategoricalString{UInt8}}
+    @test eltype(v2c) == CategoricalString{UInt8}
+
+    # normal behaviour is unchanged
+    v1 = categorical([1,2,1,2,1,2,missing])
+    v2 = collect("aksldjfalsdjkfslkjdfalksjdf")
+    v1c = coerce(v1, Multiclass)
+    v2c = coerce(v2, Multiclass)
+    @test scitype_union(v1c) == Union{Missing,Multiclass{2}}
+    @test scitype_union(v2c) == Multiclass{7}
+    @test eltype(v1c) == Union{Missing,CategoricalValue{Int64,UInt8}}
+    @test eltype(v2c) == CategoricalValue{Char,UInt8}
+end
+
 include("autotype.jl")

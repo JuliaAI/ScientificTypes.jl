@@ -6,7 +6,21 @@ scitype(c::CategoricalValue, ::Val{:mlj}) =
 scitype(c::CategoricalString, ::Val{:mlj}) =
     c.pool.ordered ? OrderedFactor{nlevels(c)} : Multiclass{nlevels(c)}
 
-function coerce(v, ::Type{T2}; verbosity=1) where T2 <: Union{Missing,Finite}
+function coerce(v::AbstractVector, ::Type{T2};
+                verbosity=1) where T2 <: Union{Missing,Finite}
+    # check if it's a Vector of Any or a CategoricalArray of Any
+    # in which case re-interpret as String to avoid errors with MLJBase.classes
+    if eltype(v) === Any || first(skipmissing(v)) isa CategoricalValue{Any,T} where T
+        if any(ismissing, v)
+            v_  = Vector{Union{Missing,String}}(undef, length(v))
+            v_ .= string.(v)
+            v_[ismissing.(v)] .= missing
+        else
+            v_ = string.(v)
+        end
+        return categorical(v_, true, ordered=false)
+    end
+    
     su = scitype_union(v)
     if su >: Missing && !(T2 >: Missing)
         verbosity > 0 && _coerce_missing_warn(T2)
