@@ -6,7 +6,12 @@ scitype(c::CategoricalValue, ::Val{:mlj}) =
 scitype(c::CategoricalString, ::Val{:mlj}) =
     c.pool.ordered ? OrderedFactor{nlevels(c)} : Multiclass{nlevels(c)}
 
-function coerce(v, ::Type{T2}; verbosity=1) where T2 <: Union{Missing,Finite}
+# for temporary hack below:
+get_(x) = get(x)
+get_(::Missing) = missing
+
+# v is already categorical here, but may need `ordering` changed
+function _finalize_finite_coerce(v, verbosity, T2)
     su = scitype_union(v)
     if su >: Missing && !(T2 >: Missing)
         verbosity > 0 && _coerce_missing_warn(T2)
@@ -14,8 +19,38 @@ function coerce(v, ::Type{T2}; verbosity=1) where T2 <: Union{Missing,Finite}
     if su <: T2
         return v
     end
-    return categorical(v, true, ordered=T2 <: Union{Missing,OrderedFactor})
+    return categorical(v, true, ordered=T2<:Union{Missing,OrderedFactor})
 end
+
+# if v is not a CategoricalArray:
+function coerce(v::AbstractArray,
+                ::Type{T2}; verbosity=1) where T2<:Union{Missing,Finite}
+    vtight = broadcast(identity, v)
+    vcat = categorical(vtight, true, ordered=T2<:Union{Missing,OrderedFactor})
+    return _finalize_finite_coerce(vcat, verbosity, T2)
+end
+
+# if v is a CategoricalArray except CategoricalArray{Any}:
+coerce(v::CategoricalArray,
+       ::Type{T2}; verbosity=1) where T2<:Union{Missing,Finite} =
+           _finalize_finite_coerce(v, verbosity, T2)
+
+# if v is a CategoricalArray{Any}
+function coerce(v::CategoricalArray{Any},
+                ::Type{T2}; verbosity=1)  where T2<:Union{Missing,Finite}
+
+    # AFTER CategoricalArrays 0.7.2 IS RELEASED:
+    # return _finalize_finite_coerce(broadcast(identity, v), verbosity, T2)
+
+    # TEMPORARY HACK:
+    levels_ = levels(v)
+    isordered_ = isordered(v)
+    vraw = broadcast(get_, v)
+    v_ = categorical(vraw, true, ordered=isordered_)
+    levels!(v_, levels_)
+    return _finalize_finite_coerce(v_, verbosity, T2)
+end
+
 
 ## PERFORMANT SCITYPES FOR ARRAYS
 
