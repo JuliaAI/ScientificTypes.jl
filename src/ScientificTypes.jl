@@ -204,8 +204,32 @@ function scitype(A::Arr{<:Any,N}, C::Val, ::Val{S}) where {N,S}
     end
 end
 
+
 # ## STUB FOR COERCE METHOD
 
+"""
+    coerce(A::AbstractArray, T; verbosity=1)
+
+Coerce the julia types of elements of `A` to ensure the returned array
+has `T` or `Union{Missing,T}` as the union of its element scitypes,
+according to the active convention.
+
+A warning is issued if missing values are encountered, unless
+`verbosity` is `0` or less.
+
+    julia> mlj()
+    julia> v = coerce([1, missing, 5], Continuous)
+    3-element Array{Union{Missing, Float64},1}:
+     1.0
+     missing
+     5.0
+
+    julia> scitype(v)
+    AbstractArray{Union{Missing,Continuous}, 1}
+
+See also [`scitype`](@ref), [`scitype_union`](@ref).
+
+"""
 function coerce end
 
 
