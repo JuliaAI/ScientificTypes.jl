@@ -172,6 +172,16 @@ end
                                        Union{Missing, Multiclass{2}}
 end
 
+@testset "coercion works for arrays too" begin
+    A = rand(Int, 2, 3)
+    z = rand(Char, 2, 3)
+    y = Any[1.0 2; 3 4]
+    @test scitype_union(coerce(A, Continuous)) == Continuous
+    @test scitype_union(coerce(A, OrderedFactor)) <: OrderedFactor
+    @test scitype_union(coerce(z, Multiclass)) <: Multiclass
+    @test scitype_union(coerce(y, Count)) === Count
+end
+
 @testset "coerce R->OF (mlj)" begin
     v = [0.1, 0.2, 0.2, 0.3, missing, 0.1]
     w = [0.1, 0.2, 0.2, 0.3, 0.1]
