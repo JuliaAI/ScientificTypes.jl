@@ -1,10 +1,7 @@
 """
 autotype(X)
 
-Return a dictionary of suggested scitypes for each column of a table
-`X`.
-
-See also [`suggest_scitype`](@ref).
+Return a dictionary of suggested scitypes for each column of a table `X`.
 
 ## Kwargs
 
@@ -65,24 +62,24 @@ for "few" is as follows:
 1. there's ≤ 3 unique values with more than 5 rows, use `MultiClass{N}` type
 2. there's less than 10% unique values out of the number of rows **or**
     there's fewer than 100 unique values (whichever one is smaller):
-        a. if it's a Real type, return as `OrderedFactor`
-        b. if it's something else (e.g. a `String`) return as `MultiClass{N}`
+
+In both cases:
+    a. if it's a Real type, return as `OrderedFactor`
+    b. if it's something else (e.g. a `String`) return as `MultiClass{N}`
 """
 function few_to_finite(type::Type, col, nrows::Int)
     nonmissing(type) <: Finite && return type
     unique_vals  = unique(skipmissing(col))
     coltype      = eltype(col)
     nunique_vals = length(unique_vals)
-    # -----------
-    # Heuristic 1
-    if nunique_vals ≤ 3 && nrows ≥ 5
-        return T_or_Union_Missing_T(coltype, Multiclass)
-    # -----------
-    # Heuristic 2
-    elseif nunique_vals ≤ max(min(0.1 * nrows, 100), 4)
+
+    if nunique_vals ≤ 3 && nrows ≥ 5 ||             # H1
+       nunique_vals ≤ max(min(0.1 * nrows, 100), 4) # H2
+        # suggest a type
         T = sugg_finite(coltype)
         return T_or_Union_Missing_T(coltype, T)
     end
+
     return type
 end
 
@@ -123,7 +120,7 @@ end
 sugg_finite(type)
 
 Helper function to suggest a finite type corresponding to `T` when there are
-few unique values. See [`suggest_scitype`](@ref).
+few unique values.
 """
 function sugg_finite(::Type{<:Union{Missing,T}}) where T
     T <: Real && return OrderedFactor
