@@ -28,7 +28,7 @@ nobj_f = 3
     # no missing
     sugg_types = autotype(X1, only_changes=false)
     @test sugg_types[:book]   == Multiclass
-    @test sugg_types[:number] == Multiclass
+    @test sugg_types[:number] == OrderedFactor
     @test sugg_types[:gender] == Multiclass
     @test sugg_types[:random] == Unknown
 
@@ -39,7 +39,7 @@ nobj_f = 3
     @test sugg_types[:c] == Count
     @test sugg_types[:d] == Multiclass
     @test sugg_types[:e] == Union{Missing,OrderedFactor}
-    @test sugg_types[:f] == Multiclass
+    @test sugg_types[:f] == OrderedFactor
 end
 
 @testset "autotype-coercion" begin
@@ -55,13 +55,13 @@ end
                                  Count,                                # c
                                  Multiclass{nobj_d},                   # d*
                                  Union{Missing,OrderedFactor{nobj_e}}, # e*
-                                 Multiclass{nobj_f})                   # f*
+                                 OrderedFactor{nobj_f})                # f*
 
     # test only_changes
     sugg_types = autotype(X2)
     @test Set(keys(sugg_types)) == Set([:a, :d, :e, :f])
     @test sugg_types[:a] == Union{Missing,Multiclass}
-    @test sugg_types[:f] == Multiclass
+    @test sugg_types[:f] == OrderedFactor
 end
 
 @testset "autotype-d2c" begin
@@ -75,7 +75,7 @@ end
     @test sugg_types[:c] == Continuous
     @test sugg_types[:d] == Multiclass
     @test sugg_types[:e] == Union{Missing,OrderedFactor}
-    @test sugg_types[:f] == Multiclass
+    @test sugg_types[:f] == OrderedFactor
 end
 
 @testset "autotype-s2c" begin
@@ -150,17 +150,26 @@ end
     @test S.few_to_finite(st, col, length(col)) == Multiclass
     col = Random.rand([1,2,3], 50)
     st  = scitype(col[1])
-    @test S.few_to_finite(st, col, length(col)) == Multiclass
+    @test S.few_to_finite(st, col, length(col)) == OrderedFactor
     col = Random.rand([1,2,3,4], 50)
     st = scitype(col[1])
     @test S.few_to_finite(st, col, length(col)) == OrderedFactor
     col = Random.rand([true, false], 50)
     st = scitype(col[1])
-    @test S.few_to_finite(st, col, length(col)) == Multiclass
+    @test S.few_to_finite(st, col, length(col)) == OrderedFactor
     col = randn(50)
     st = scitype(col[1])
     @test S.few_to_finite(st, col, length(col)) == st
     col = Int.(ceil.(100*randn(100)))
     st = scitype(col[1])
     @test S.few_to_finite(st, col, length(col)) == st
+end
+
+
+@testset "bool->OF" begin
+    X = (v = [false, true, false, true, missing],
+         z = [0, 1, 0, 1, 0])
+    Xc = coerce(X, autotype(X))
+    @test scitype_union(Xc.v) == Union{Missing,OrderedFactor{2}}
+    @test scitype_union(Xc.z) == OrderedFactor{2}
 end
