@@ -1,10 +1,7 @@
 """
 autotype(X)
 
-Return a dictionary of suggested scitypes for each column of a table
-`X`.
-
-See also [`suggest_scitype`](@ref).
+Return a dictionary of suggested scitypes for each column of a table `X`.
 
 ## Kwargs
 
@@ -123,7 +120,7 @@ end
 sugg_finite(type)
 
 Helper function to suggest a finite type corresponding to `T` when there are
-few unique values. See [`suggest_scitype`](@ref).
+few unique values.
 """
 function sugg_finite(::Type{<:Union{Missing,T}}) where T
     T <: Real && return OrderedFactor
