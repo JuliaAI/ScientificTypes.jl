@@ -18,7 +18,6 @@ include("basic_tests.jl")
     @test scitype((4, 4.5, c, u, "X")) ==
     Tuple{Count,Continuous,Multiclass{2},
           OrderedFactor{2},Unknown}
-
 end
 
 A = Any[2 4.5;
@@ -64,6 +63,8 @@ end
         AbstractVector{Multiclass{4}}
     @test scitype(categorical([1, missing, 3])) ==
         AbstractVector{Union{Multiclass{2},Missing}}
+    @test scitype(categorical([1, missing])[1:1]) ==
+        AbstractVector{Multiclass{1}}
 
     @test scitype(categorical(1:4, ordered=true)) ==
         AbstractVector{OrderedFactor{4}}
@@ -71,6 +72,8 @@ end
         AbstractVector{OrderedFactor{4}}
     @test scitype(categorical([1, missing, 3], ordered=true)) ==
         AbstractVector{Union{OrderedFactor{2},Missing}}
+    @test scitype(categorical([1, missing], ordered=true)[1:1]) ==
+        AbstractVector{OrderedFactor{1}}
 
 end
 
@@ -152,28 +155,64 @@ end
                            coerce(Any[4, 7.0, missing], Count))
     @test ismissing(y_coerced == [4, 7, missing])
     @test scitype_union(y_coerced) === Union{Missing,Count}
-#    @test scitype_union(@test_logs((:warn, r"Missing values encountered"),
-#                                   coerce([:x, :y, missing], Multiclass))) ===
-    @test scitype_union(coerce([:x, :y, missing], Multiclass)) ===
-        Union{Missing, Multiclass{2}}
-    # @test scitype_union(@test_logs((:warn, r"Missing values encountered"),
-    #                                coerce([:x, :y, missing], OrderedFactor))) ===
-    #                                    Union{Missing, OrderedFactor{2}}
-    scitype_union(coerce([:x, :y, missing], OrderedFactor)) ===
+    @test scitype_union(@test_logs((:warn, r"Missing values encountered"),
+                                   coerce([:x, :y, missing], Multiclass))) ===
+                                       Union{Missing, Multiclass{2}}
+    @test scitype_union(@test_logs((:warn, r"Missing values encountered"),
+                                coerce([:x, :y, missing], OrderedFactor))) ===
                                        Union{Missing, OrderedFactor{2}}
     # non-missing Any vectors
     @test coerce(Any[4, 7], Continuous) == [4.0, 7.0]
     @test coerce(Any[4.0, 7.0], Continuous) == [4, 7]
 
+    # Finite conversions:
+    @test scitype_union(coerce([:x, :y], Finite)) === Multiclass{2}
+    @test scitype_union(@test_logs((:warn, r"Missing values encountered"),
+                                coerce([:x, :y, missing], Finite))) ===
+                                       Union{Missing, Multiclass{2}}
+end
+
+@testset "coercion works for arrays too" begin
+    A = rand(Int, 2, 3)
+    z = rand(Char, 2, 3)
+    y = Any[1.0 2; 3 4]
+    @test scitype_union(coerce(A, Continuous)) == Continuous
+    @test scitype_union(coerce(A, OrderedFactor)) <: OrderedFactor
+    @test scitype_union(coerce(z, Multiclass)) <: Multiclass
+    @test scitype_union(coerce(y, Count)) === Count
 end
 
 @testset "coerce R->OF (mlj)" begin
     v = [0.1, 0.2, 0.2, 0.3, missing, 0.1]
     w = [0.1, 0.2, 0.2, 0.3, 0.1]
-    cv = coerce(v, OrderedFactor)
+    @test_logs((:warn, r"Missing values encountered"),
+                   global cv = coerce(v, OrderedFactor))
     cw = coerce(w, OrderedFactor)
     @test all(skipmissing(unique(cv)) .== [0.1, 0.2, 0.3])
     @test all(unique(cw) .== [0.1, 0.2, 0.3])
+end
+
+@testset "Any->Multiclass (mlj)" begin
+    v1 = categorical(Any[1,2,1,2,1,missing,2])
+    v2 = Any[collect("aksldjfalsdjkfslkjdfalksjdf")...]
+    @test_logs((:warn, r"Missing values"),
+               global v1c = coerce(v1, Multiclass))
+    v2c = coerce(v2, Multiclass)
+    @test scitype_union(v1c) == Union{Missing,Multiclass{2}}
+    @test scitype_union(v2c) == Multiclass{7}
+    @test eltype(v1c) <: Union{Missing, CategoricalValue{Int64}}
+    @test eltype(v2c) <: CategoricalValue{Char}
+
+    # normal behaviour is unchanged
+    v1 = categorical([1,2,1,2,1,2,missing])
+    v2 = collect("aksldjfalsdjkfslkjdfalksjdf")
+    @test_logs((:warn, r"Missing values"),
+               global v1c = coerce(v1, Multiclass))
+    v2c = coerce(v2, Multiclass)
+    @test scitype_union(v1c) == Union{Missing,Multiclass{2}}
+    @test scitype_union(v2c) == Multiclass{7}
+    @test eltype(v1c) <: Union{Missing,CategoricalValue{Int64}}
+    @test eltype(v2c) <: CategoricalValue{Char}
 end
 
 include("autotype.jl")

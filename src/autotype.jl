@@ -1,5 +1,3 @@
-export autotype
-
 """
 autotype(X)
 

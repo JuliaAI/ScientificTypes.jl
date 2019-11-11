@@ -1,5 +1,3 @@
-using .Tables
-
 TRAIT_FUNCTION_GIVEN_NAME[:table] = Tables.istable
 
 function scitype(X, ::Val, ::Val{:table})

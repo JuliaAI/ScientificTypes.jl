@@ -4,25 +4,49 @@
 | :-----------: | :------: | :-----------: |
 | [![Build Status](https://travis-ci.org/alan-turing-institute/ScientificTypes.jl.svg?branch=master)](https://travis-ci.org/alan-turing-institute/ScientificTypes.jl) | [![codecov.io](http://codecov.io/github/alan-turing-institute/ScientificTypes.jl/coverage.svg?branch=master)](http://codecov.io/github/alan-turing-institute/ScientificTypes.jl?branch=master) | [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://alan-turing-institute.github.io/ScientificTypes.jl/dev) |
 
-A light-weight Julia interface for implementing conventions about the scientific interpretation of data, and for performing type coercions enforcing those conventions.
+A light-weight Julia interface for implementing conventions about the
+scientific interpretation of data, and for performing type coercions
+enforcing those conventions.
 
 The package makes the distinction between between **machine type** and **scientific type**:
 
 * the _machine type_ is a Julia type the data is currently encoded as (for instance: `Float64`)
-* the _scientific type_ is a type defined by this package which encapsulates how the data should be _interpreted_ in the rest of the code (for instance: `Continuous` or `Multiclass`)
+* the _scientific type_ is a type defined by this package which
+  encapsulates how the data should be _interpreted_ (for instance:
+  `Continuous` or `Multiclass`)
 
-As a motivating example, the data might contain a column corresponding to a _number of transactions_, the machine type in that case could be an `Int` whereas the scientific type would be a `Count`.
+The distinction is useful because the same machine type is often used
+to represent data with *differing* scientific interpretations - `Int`
+is used for product numbers (a factor) but also for a person's weight
+(a continuous variable) - while the same scientific
+type is frequently represented by *different* machine types - both
+`Int` and `Float64` are used to represent weights, for example.
 
-The usefulness of this machinery becomes evident when the machine type does not directly connect with a scientific type; taking the previous example, the data could have been encoded as a `Float64` whereas the meaning should still be a `Count`.
 
 ## Very quick start
 
-(For more information and examples please refer to [the doc](https://alan-turing-institute.github.io/ScientificTypes.jl/dev))
+For more information and examples please refer to [the
+manual](https://alan-turing-institute.github.io/ScientificTypes.jl/dev).
 
-This is a very quick start presenting two key functions exported by ScientificTypes:
+ScientificTypes.jl has three components:
 
-* `schema(X)` which gives an extended schema of the table `X` with the column scientific types implied by the current scitype convention,
-* `coerce(X, ...)` which allows to overwrite scientific types for specific columns to indicate their appropriate scientific interpretation.
+- An *interface*, for articulating a convention about the scientific
+  interpretation of data. This consists of a definition of a scientific
+  type hierarchy, and a single function `scitype` with scientific
+  types as values. Someone implementing a convention must add methods
+  to this function, while the general user just applies it to data, as
+  in `scitype(4.5)` (returning `Continuous` in the *mlj* convention).
+  
+- A built-in convention, called *mlj*, active by default.
+
+- Convenience methods for working with scientific types, the most commonly used being:
+
+    -  `schema(X)`, which gives an extended schema of any table `X`,
+       including the column scientific types implied by the active
+       convention. 
+.
+    - `coerce(X, ...)`, which coerces the machine types of `X`
+      to reflect a desired scientific type.
 
 ```julia
 using ScientificTypes, DataFrames
@@ -49,7 +73,8 @@ will print
 :e  --  Union{Missing, Unknown}
 ```
 
-this uses the default "MLJ convention" to attribute a scitype (cf. [docs](https://alan-turing-institute.github.io/ScientificTypes.jl/dev/#The-MLJ-convention-1)).
+this uses the default *mlj* convention to attribute a scitype
+(cf. [docs](https://alan-turing-institute.github.io/ScientificTypes.jl/dev/#The-MLJ-convention-1)).
 
 Now you could want to specify that `b` is actually a `Count`, and that `d` and `e` are `Multiclass`; this is done with the `coerce` function:
 

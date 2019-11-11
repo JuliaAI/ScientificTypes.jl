@@ -6,62 +6,34 @@ _coerce_missing_warn(T) =
           "Coerced to Union{Missing,$T} instead. "
 
 
-## PERFORMANT SCITYPES FOR ARRAYS
+# ## IMPLEMENT PERFORMANCE BOOSTING FOR ARRAYS
 
-const A{T,N} = AbstractArray{T,N}
-
-scitype(::B, ::Val{:mlj}) where {N,B<:A{<:AbstractFloat,N}} =
-    A{Continuous,N}
-scitype(::B, ::Val{:mlj}) where {N,B<:A{Union{<:AbstractFloat,Missing},N}} =
-    A{Union{Continuous,Missing},N}
-scitype(::B, ::Val{:mlj}) where {N,B<:A{<:Integer,N}} =
-    A{Count,N}
-scitype(::B, ::Val{:mlj}) where {N,B<:A{Union{<:Integer,Missing},N}} =
-    A{Union{Count,Missing},N}
+Scitype(::Type{<:Integer}, ::Val{:mlj}) = Count
+Scitype(::Type{<:AbstractFloat}, ::Val{:mlj}) = Continuous
 
 
-## COERCE VECTOR TO CONTINUOUS
+## COERCE ARRAY TO CONTINUOUS
 
-"""
-    coerce(v::AbstractVector, T; verbosity=1)
-
-Coerce the julia types of elements of `v` to ensure the returned
-vector has `T` or `Union{Missing,T}` as the union of its element
-scitypes.
-
-A warning is issued if missing values are encountered, unless
-`verbosity` is `0` or less.
-
-    julia> v = coerce([1, missing, 5], Continuous)
-    3-element Array{Union{Missing, Float64},1}:
-     1.0
-     missing
-     5.0
-
-    julia> scitype(v)
-    AbstractArray{Union{Missing,Continuous}, 1}
-
-See also [`scitype`](@ref), [`scitype_union`](@ref).
-
-"""
-function coerce(y::AbstractVector{<:Union{Missing,AbstractFloat}}, T::Type{<:Union{Missing,Continuous}};
+function coerce(y::AbstractArray{<:Union{Missing,AbstractFloat}},
+                T::Type{<:Union{Missing,Continuous}};
                 verbosity=1)
     eltype(y) >: Missing && verbosity > 0 && _coerce_missing_warn(T)
     return y
 end
 
-function coerce(y::AbstractVector{<:Union{Missing,Real}}, T::Type{<:Union{Missing,Continuous}}; verbosity=1)
+function coerce(y::AbstractArray{<:Union{Missing,Real}},
+                T::Type{<:Union{Missing,Continuous}}; verbosity=1)
     eltype(y) >: Missing && verbosity > 0 && _coerce_missing_warn(T)
     return float(y)
 end
 
-# NOTE: case where the data may have been badly encoded and resulted in an Any[] vector
-# a user should proceed with caution here in particular:
-# - if at one point it encounters a type for which there is no AbstractFloat such
-# as a String, it will error.
-# - if at one point it encounters a Char it will **not** error but return a float
-# corresponding to the Char (e.g. 65.0  for 'A') whence the warning
-function coerce(y::AbstractVector, T::Type{<:Union{Missing,Continuous}}; verbosity=1)
+# NOTE: case where the data may have been badly encoded and resulted
+# in an Any[] array a user should proceed with caution here in
+# particular: - if at one point it encounters a type for which there
+# is no AbstractFloat such as a String, it will error.  - if at one
+# point it encounters a Char it will **not** error but return a float
+# corresponding to the Char (e.g. 65.0 for 'A') whence the warning
+function coerce(y::AbstractArray, T::Type{<:Union{Missing,Continuous}}; verbosity=1)
     has_missings = findfirst(ismissing, y) !== nothing
     has_missings && verbosity > 0 && _coerce_missing_warn(T)
     has_chars    = findfirst(e->isa(e,Char), y) !== nothing
@@ -71,27 +43,30 @@ function coerce(y::AbstractVector, T::Type{<:Union{Missing,Continuous}}; verbosi
 end
 
 
-## COERCE VECTOR TO COUNT
+## COERCE ARRAY TO COUNT
 
 _int(::Missing)  = missing
 _int(x::Integer) = x
 _int(x) = Int(x) # may throw InexactError
 
 # no-op case
-function coerce(y::AbstractVector{<:Union{Missing,Integer}}, T::Type{<:Union{Missing,Count}}; verbosity=1)
+function coerce(y::AbstractArray{<:Union{Missing,Integer}},
+                T::Type{<:Union{Missing,Count}}; verbosity=1)
     eltype(y) >: Missing && verbosity > 0 && _coerce_missing_warn(T)
     return y
 end
 
 # NOTE: this will error if it encounters things like 1.5 or 1//2 (InexactError)
-function coerce(y::AbstractVector{<:Union{Missing,Real}}, T::Type{<:Union{Missing,Count}}; verbosity=1)
+function coerce(y::AbstractArray{<:Union{Missing,Real}},
+                T::Type{<:Union{Missing,Count}}; verbosity=1)
     eltype(y) >: Missing && verbosity > 0 && _coerce_missing_warn(T)
     return _int.(y)
 end
 
-# NOTE: case where the data may have been badly encoded and resulted in an Any[] vector
-# a user should proceed with caution here (see comment earlier)
-function coerce(y::AbstractVector, T::Type{<:Union{Missing,Count}}; verbosity=1)
+# NOTE: case where the data may have been badly encoded and resulted
+# in an Any[] array a user should proceed with caution here (see
+# comment earlier)
+function coerce(y::AbstractArray, T::Type{<:Union{Missing,Count}}; verbosity=1)
     has_missings = findfirst(ismissing, y) !== nothing
     has_missings && verbosity > 0 && _coerce_missing_warn(T)
     has_chars    = findfirst(e->isa(e,Char), y) !== nothing

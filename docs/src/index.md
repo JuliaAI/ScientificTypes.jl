@@ -17,22 +17,35 @@ The package  `ScientificTypes` provides:
 
 - A hierarchy of new Julia types representing scientific data types for use in method dispatch (eg, for trait values). Instances of the types play no role:
 
-```@example 0
-using ScientificTypes, AbstractTrees
-ScientificTypes.tree()
+```
+Found
+├─ Known
+│  ├─ Finite
+│  │  ├─ Multiclass
+│  │  └─ OrderedFactor
+│  ├─ Infinite
+│  │  ├─ Continuous
+│  │  └─ Count
+│  ├─ Image
+│  │  ├─ ColorImage
+│  │  └─ GrayImage
+│  └─ Table
+└─ Unknown
 ```
 
 - A single method `scitype` for articulating a convention about what scientific type each Julia object can represent. For example, one might declare `scitype(::AbstractFloat) = Continuous`.
 
-- A default convention called *mlj*, based on optional dependencies `CategoricalArrays`, `ColorTypes`, and `Tables`, which includes a convenience method `coerce` for performing scientific type coercion on `AbstractVectors` and columns of tabular data (any table implementing the [Tables.jl](https://github.com/JuliaData/Tables.jl) interface).
+- A default convention called *mlj*, based on dependencies
+  `CategoricalArrays`, `ColorTypes`, and `Tables`, which includes a
+  convenience method `coerce` for performing scientific type coercion
+  on `AbstractVectors` and columns of tabular data (any table
+  implementing the [Tables.jl](https://github.com/JuliaData/Tables.jl)
+  interface).
 
 - A `schema` method for tabular data, based on the optional Tables dependency, for inspecting the machine and scientific types of tabular data, in addition to column names and number of rows.
 
-### Dependencies
 
-The only dependencies are [`Requires.jl`](https://github.com/MikeInnes/Requires.jl) and `InteractiveUtils` (from stdlib).
-
-## Quick start
+## Getting started
 
 The package is registered and can be installed via the package manager with `add ScientificTypes`.
 
@@ -182,6 +195,16 @@ Similarly, the scitype of an `AbstractArray` is `AbstractArray{U}` where `U` is 
 scitype([1.3, 4.5, missing])
 ```
 
+*Performance note:* Computing type unions over large arrays is
+expensive and, depending on the convention's implementation and the
+array eltype, computing the scitype can be slow. (In the *mlj*
+convention this is mitigated with the help of the
+`ScientificTypes.Scitype` method, of which other conventions could
+make use. Do `?ScientificTypes.Scitype` for details.) An eltype `Any`
+will always be slow and you may want to consider replacing an array
+`A` with `broadcast(idenity, A)` to collapse the eltype and speed up
+the computation.
+
 Provided the [Tables.jl](https://github.com/JuliaData/Tables.jl) package is loaded, any table implementing the Tables interface has a scitype encoding the scitypes of its columns:
 
 ```@example 5
@@ -288,7 +311,7 @@ X = (a = rand("abc", n),         # 3 values, not number        --> Multiclass
 autotype(X, only_changes=true)
 ```
 
-For example, we could first apply the `:discrete_to_continuous` rule, 
+For example, we could first apply the `:discrete_to_continuous` rule,
 followed by `:few_to_finite` rule. The first rule will apply to `b` and `e`
 but the subsequent application of the second rule will mean we will
 get the same result apart for `e` (which will be `Continuous`)
@@ -298,4 +321,4 @@ autotype(X, only_changes=true, rules=(:discrete_to_continuous, :few_to_finite))
 ```
 
 One should check and possibly modify the returned dictionary
-before passing to `coerce`. 
+before passing to `coerce`.
