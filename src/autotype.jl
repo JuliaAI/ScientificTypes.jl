@@ -62,12 +62,13 @@ For a column `col` with element type `type` and `nrows` rows, check if there
 are relatively few values as compared to the number of rows. The heuristic
 for "few" is as follows:
 
-0. bool values will go to `OrderedFactor{2}`
 1. there's ≤ 3 unique values with more than 5 rows, use `MultiClass{N}` type
 2. there's less than 10% unique values out of the number of rows **or**
     there's fewer than 100 unique values (whichever one is smaller):
-        a. if it's a Real type, return as `OrderedFactor`
-        b. if it's something else (e.g. a `String`) return as `MultiClass{N}`
+
+In both cases:
+    a. if it's a Real type, return as `OrderedFactor`
+    b. if it's something else (e.g. a `String`) return as `MultiClass{N}`
 """
 function few_to_finite(type::Type, col, nrows::Int)
     nonmissing(type) <: Finite && return type
@@ -81,7 +82,7 @@ function few_to_finite(type::Type, col, nrows::Int)
         T = sugg_finite(coltype)
         return T_or_Union_Missing_T(coltype, T)
     end
-    
+
     return type
 end
 
