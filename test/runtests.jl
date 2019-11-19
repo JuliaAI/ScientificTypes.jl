@@ -222,7 +222,7 @@ end
     @test all(skipmissing(a1 .== [1, 2, 1, 2, missing]))
     a1 = coerce(a, Union{Continuous,Missing})
     @test scitype_union(a1) == Union{Missing,Continuous}
-    @test all(skipmissing(a1 .== [1., 2., 1., 2., missing])) 
+    @test all(skipmissing(a1 .== [1., 2., 1., 2., missing]))
 end
 
 include("autotype.jl")
