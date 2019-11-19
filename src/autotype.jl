@@ -1,3 +1,10 @@
+function _check_rules(rules::NTuple{N,Symbol} where N)
+    for rule in rules
+        @assert rule in (:few_to_finite, :discrete_to_continuous,
+                         :string_to_multiclass) "Rule $rule not recognised."
+    end
+end
+
 """
 autotype(X)
 
@@ -15,10 +22,7 @@ function autotype(X; only_changes::Bool=true,
     # check that X is a table
     @assert Tables.istable(X) "The function `autotype` requires tabular data."
     # check that the rules are recognised
-    for rule in rules
-        @assert rule in (:few_to_finite, :discrete_to_continuous,
-                         :string_to_multiclass) "Rule $rule not recognised."
-    end
+    _check_rules(rules)
     # recuperate the schema of `X`
     sch = schema(X)
     # dictionary to keep track of the suggested types
@@ -51,6 +55,27 @@ function autotype(X; only_changes::Bool=true,
     return suggested_types
 end
 
+function autotype(X::AbstractArray{T,M};
+                  rules::NTuple{N,Symbol} where N=(:few_to_finite,)) where {T,M}
+    # check that the rules are recognised
+    _check_rules(rules)
+    sugg_type = scitype_union(X)
+    np = prod(size(X))
+    for rule in rules
+        if rule == :few_to_finite
+            col = vec(X)
+            sugg_type = eval(:($rule($sugg_type, $col, $np)))
+        else
+            col = view(X, :, 1) # only needed for eltype
+            sugg_type = eval(:($rule($sugg_type, $col, $np)))
+        end
+    end
+    return sugg_type
+end
+
+# convenience functions to pass a single rule at the time
+autotype(X, rule::Symbol; args...) = autotype(X; rules=(rule,), args...)
+autotype(X, rules::NTuple{N,Symbol} where N; args...)  = autotype(X; rules=rules, args...)
 
 """
 few_to_finite

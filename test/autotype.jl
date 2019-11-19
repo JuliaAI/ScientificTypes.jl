@@ -173,3 +173,12 @@ end
     @test scitype_union(Xc.v) == Union{Missing,OrderedFactor{2}}
     @test scitype_union(Xc.z) == OrderedFactor{2}
 end
+
+
+@testset "Auto for Array" begin
+    X = ones(Int, 5, 5)
+    @test autotype(X, (:discrete_to_continuous,)) == Continuous
+    @test autotype(X, :discrete_to_continuous) == Continuous
+    X = reshape([3.415 for i in 1:9], 3, 3)
+    @test autotype(X) == OrderedFactor # using :few_to_finite
+end
