@@ -27,7 +27,7 @@ function coerce(y::AbstractArray{<:Union{Missing,Real}},
     return float(y)
 end
 
-_float(y::CategoricalElement) = float(y.level)
+_float(y::CategoricalElement) = float(_int(y))
 _float(y) = float(y)
 
 # NOTE: case where the data may have been badly encoded and resulted
@@ -50,7 +50,7 @@ end
 
 _int(::Missing)  = missing
 _int(x::Integer) = x
-_int(x::CategoricalElement) = x.level
+_int(x::CategoricalElement) = CategoricalArrays.order(x.pool)[x.level]
 _int(x) = Int(x) # may throw InexactError
 
 # no-op case
