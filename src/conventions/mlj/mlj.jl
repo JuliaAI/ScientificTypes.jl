@@ -1,10 +1,10 @@
 scitype(::AbstractFloat, ::Val{:mlj}) = Continuous
 scitype(::Integer, ::Val{:mlj}) = Count
 
-_coerce_missing_warn(T) =
-    @warn "Missing values encountered coercing scitype to $T.\n"*
-          "Coerced to Union{Missing,$T} instead. "
-
+function _coerce_missing_warn(::Type{T}) where T
+    T >: Missing || @warn "Missing values encountered coercing scitype to $T.\n"*
+                          "Coerced to Union{Missing,$T} instead. "
+end
 
 # ## IMPLEMENT PERFORMANCE BOOSTING FOR ARRAYS
 
