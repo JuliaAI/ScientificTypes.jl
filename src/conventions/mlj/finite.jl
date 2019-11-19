@@ -22,6 +22,19 @@ function _finalize_finite_coerce(v, verbosity, T2)
     return categorical(v, true, ordered=T2<:Union{Missing,OrderedFactor})
 end
 
+# HACK: The following method (9 lines) can be removed after resolution
+# of https://github.com/JuliaData/CategoricalArrays.jl/issues/226:
+function _finalize_finite_coerce(v::CategoricalArray, verbosity, T2)
+    su = scitype_union(v)
+    if su >: Missing && !(T2 >: Missing)
+        verbosity > 0 && _coerce_missing_warn(T2)
+    end
+    if su <: T2
+        return v
+    end
+    return ordered!(compress(v), T2<:Union{Missing,OrderedFactor})
+end
+
 # if v is not a CategoricalArray:
 function coerce(v::AbstractArray,
                 ::Type{T2}; verbosity=1) where T2<:Union{Missing,Finite}
@@ -35,14 +48,9 @@ coerce(v::CategoricalArray,
        ::Type{T2}; verbosity=1) where T2<:Union{Missing,Finite} =
            _finalize_finite_coerce(v, verbosity, T2)
 
-# if v is a CategoricalArray{Any}
+# if v is a CategoricalArray{Any} (a bit of a hack):
 function coerce(v::CategoricalArray{Any},
                 ::Type{T2}; verbosity=1)  where T2<:Union{Missing,Finite}
-
-    # AFTER CategoricalArrays 0.7.2 IS RELEASED:
-    # return _finalize_finite_coerce(broadcast(identity, v), verbosity, T2)
-
-    # TEMPORARY HACK:
     levels_ = levels(v)
     isordered_ = isordered(v)
     vraw = broadcast(get_, v)
