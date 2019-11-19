@@ -48,14 +48,9 @@ coerce(v::CategoricalArray,
        ::Type{T2}; verbosity=1) where T2<:Union{Missing,Finite} =
            _finalize_finite_coerce(v, verbosity, T2)
 
-# if v is a CategoricalArray{Any}
+# if v is a CategoricalArray{Any} (a bit of a hack):
 function coerce(v::CategoricalArray{Any},
                 ::Type{T2}; verbosity=1)  where T2<:Union{Missing,Finite}
-
-    # AFTER CategoricalArrays 0.7.2 IS RELEASED:
-    # return _finalize_finite_coerce(broadcast(identity, v), verbosity, T2)
-
-    # TEMPORARY HACK:
     levels_ = levels(v)
     isordered_ = isordered(v)
     vraw = broadcast(get_, v)
