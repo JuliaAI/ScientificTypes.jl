@@ -10,6 +10,8 @@ export autotype
 
 using Tables, CategoricalArrays, ColorTypes
 
+const CategoricalElement{U} = Union{CategoricalValue{<:Any,U},CategoricalString{U}}
+
 # ## FOR DEFINING SCITYPES ON OBJECTS DETECTED USING TRAITS
 
 # We define a "dynamically" extended function `trait`:

@@ -27,6 +27,9 @@ function coerce(y::AbstractArray{<:Union{Missing,Real}},
     return float(y)
 end
 
+_float(y::CategoricalElement) = float(y.level)
+_float(y) = float(y)
+
 # NOTE: case where the data may have been badly encoded and resulted
 # in an Any[] array a user should proceed with caution here in
 # particular: - if at one point it encounters a type for which there
@@ -39,7 +42,7 @@ function coerce(y::AbstractArray, T::Type{<:Union{Missing,Continuous}}; verbosit
     has_chars    = findfirst(e->isa(e,Char), y) !== nothing
     has_chars && verbosity > 0 && @warn "Char values will be coerced to " *
                                         "AbstractFloat (e.g. 'A' to 65.0)."
-    return float.(y)
+    return _float.(y)
 end
 
 
@@ -47,6 +50,7 @@ end
 
 _int(::Missing)  = missing
 _int(x::Integer) = x
+_int(x::CategoricalElement) = x.level
 _int(x) = Int(x) # may throw InexactError
 
 # no-op case
