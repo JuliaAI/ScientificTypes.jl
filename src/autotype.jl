@@ -1,10 +1,14 @@
+function _check_rules(rules::NTuple{N,Symbol} where N)
+    for rule in rules
+        @assert rule in (:few_to_finite, :discrete_to_continuous,
+                         :string_to_multiclass) "Rule $rule not recognised."
+    end
+end
+
 """
 autotype(X)
 
-Return a dictionary of suggested scitypes for each column of a table
-`X`.
-
-See also [`suggest_scitype`](@ref).
+Return a dictionary of suggested scitypes for each column of a table `X`.
 
 ## Kwargs
 
@@ -18,10 +22,7 @@ function autotype(X; only_changes::Bool=true,
     # check that X is a table
     @assert Tables.istable(X) "The function `autotype` requires tabular data."
     # check that the rules are recognised
-    for rule in rules
-        @assert rule in (:few_to_finite, :discrete_to_continuous,
-                         :string_to_multiclass) "Rule $rule not recognised."
-    end
+    _check_rules(rules)
     # recuperate the schema of `X`
     sch = schema(X)
     # dictionary to keep track of the suggested types
@@ -54,6 +55,27 @@ function autotype(X; only_changes::Bool=true,
     return suggested_types
 end
 
+function autotype(X::AbstractArray{T,M};
+                  rules::NTuple{N,Symbol} where N=(:few_to_finite,)) where {T,M}
+    # check that the rules are recognised
+    _check_rules(rules)
+    sugg_type = scitype_union(X)
+    np = prod(size(X))
+    for rule in rules
+        if rule == :few_to_finite
+            col = vec(X)
+            sugg_type = eval(:($rule($sugg_type, $col, $np)))
+        else
+            col = view(X, :, 1) # only needed for eltype
+            sugg_type = eval(:($rule($sugg_type, $col, $np)))
+        end
+    end
+    return sugg_type
+end
+
+# convenience functions to pass a single rule at the time
+autotype(X, rule::Symbol; args...) = autotype(X; rules=(rule,), args...)
+autotype(X, rules::NTuple{N,Symbol} where N; args...)  = autotype(X; rules=rules, args...)
 
 """
 few_to_finite
@@ -65,24 +87,24 @@ for "few" is as follows:
 1. there's ≤ 3 unique values with more than 5 rows, use `MultiClass{N}` type
 2. there's less than 10% unique values out of the number of rows **or**
     there's fewer than 100 unique values (whichever one is smaller):
-        a. if it's a Real type, return as `OrderedFactor`
-        b. if it's something else (e.g. a `String`) return as `MultiClass{N}`
+
+In both cases:
+    a. if it's a Real type, return as `OrderedFactor`
+    b. if it's something else (e.g. a `String`) return as `MultiClass{N}`
 """
 function few_to_finite(type::Type, col, nrows::Int)
     nonmissing(type) <: Finite && return type
     unique_vals  = unique(skipmissing(col))
     coltype      = eltype(col)
     nunique_vals = length(unique_vals)
-    # -----------
-    # Heuristic 1
-    if nunique_vals ≤ 3 && nrows ≥ 5
-        return T_or_Union_Missing_T(coltype, Multiclass)
-    # -----------
-    # Heuristic 2
-    elseif nunique_vals ≤ max(min(0.1 * nrows, 100), 4)
+
+    if nunique_vals ≤ 3 && nrows ≥ 5 ||             # H1
+       nunique_vals ≤ max(min(0.1 * nrows, 100), 4) # H2
+        # suggest a type
         T = sugg_finite(coltype)
         return T_or_Union_Missing_T(coltype, T)
     end
+
     return type
 end
 
@@ -123,7 +145,7 @@ end
 sugg_finite(type)
 
 Helper function to suggest a finite type corresponding to `T` when there are
-few unique values. See [`suggest_scitype`](@ref).
+few unique values.
 """
 function sugg_finite(::Type{<:Union{Missing,T}}) where T
     T <: Real && return OrderedFactor
