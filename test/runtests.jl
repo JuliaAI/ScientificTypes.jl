@@ -169,7 +169,16 @@ end
     @test scitype_union(coerce([:x, :y], Finite)) === Multiclass{2}
     @test scitype_union(@test_logs((:warn, r"Missing values encountered"),
                                 coerce([:x, :y, missing], Finite))) ===
-                                       Union{Missing, Multiclass{2}}
+                                    Union{Missing, Multiclass{2}}
+
+    # More finite conversions (to check resolution of #48):
+    y = categorical([1, 2, 3, missing]) # unordered
+    yc = coerce(y, OrderedFactor)
+    @test isordered(yc)
+    @test yc[1].pool.ordered
+    scitype(y) == AbstractVector{OrderedFactor{2}}
+    scitype_union(y) == OrderedFactor{2}
+
 end
 
 @testset "coercion works for arrays too" begin
