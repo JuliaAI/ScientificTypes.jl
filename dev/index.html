@@ -41,11 +41,11 @@ X = (a = rand(&quot;abc&quot;, n),         # 3 values, not number        --&gt; 
      c = rand([true,false], n),  # 2 values, number but only 2 --&gt; Multiclass
      d = randn(n),               # many values                 --&gt; unchanged
      e = rand(collect(1:n), n))  # many values                 --&gt; unchanged
-autotype(X, only_changes=true)</code></pre><pre><code class="language-none">Dict{Symbol,Type{#s14} where #s14&lt;:Union{Missing, Found}} with 3 entries:
+autotype(X, only_changes=true)</code></pre><pre><code class="language-none">Dict{Symbol,Type{#s12} where #s12&lt;:Union{Missing, Found}} with 3 entries:
   :a =&gt; Multiclass
   :b =&gt; OrderedFactor
-  :c =&gt; Multiclass</code></pre><p>For example, we could first apply the <code>:discrete_to_continuous</code> rule, followed by <code>:few_to_finite</code> rule. The first rule will apply to <code>b</code> and <code>e</code> but the subsequent application of the second rule will mean we will get the same result apart for <code>e</code> (which will be <code>Continuous</code>)</p><pre><code class="language-julia">autotype(X, only_changes=true, rules=(:discrete_to_continuous, :few_to_finite))</code></pre><pre><code class="language-none">Dict{Symbol,Type{#s14} where #s14&lt;:Union{Missing, Found}} with 4 entries:
+  :c =&gt; OrderedFactor</code></pre><p>For example, we could first apply the <code>:discrete_to_continuous</code> rule, followed by <code>:few_to_finite</code> rule. The first rule will apply to <code>b</code> and <code>e</code> but the subsequent application of the second rule will mean we will get the same result apart for <code>e</code> (which will be <code>Continuous</code>)</p><pre><code class="language-julia">autotype(X, only_changes=true, rules=(:discrete_to_continuous, :few_to_finite))</code></pre><pre><code class="language-none">Dict{Symbol,Type{#s12} where #s12&lt;:Union{Missing, Found}} with 4 entries:
   :a =&gt; Multiclass
   :b =&gt; OrderedFactor
   :e =&gt; Continuous
-  :c =&gt; Multiclass</code></pre><p>One should check and possibly modify the returned dictionary before passing to <code>coerce</code>.</p><footer><hr/></footer></article></body></html>
+  :c =&gt; OrderedFactor</code></pre><p>One should check and possibly modify the returned dictionary before passing to <code>coerce</code>.</p><footer><hr/></footer></article></body></html>
