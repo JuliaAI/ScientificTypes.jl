@@ -224,4 +224,25 @@ end
     @test eltype(v2c) <: CategoricalValue{Char}
 end
 
+@testset "Cat->Count,Continuous (mlj)" begin
+    a = categorical(["a","b","a","b",missing])
+    a1 = coerce(a, Union{Count,Missing})
+    @test scitype_union(a1) == Union{Missing,Count}
+    @test all(skipmissing(a1 .== [1, 2, 1, 2, missing]))
+    a1 = coerce(a, Union{Continuous,Missing})
+    @test scitype_union(a1) == Union{Missing,Continuous}
+    @test all(skipmissing(a1 .== [1., 2., 1., 2., missing]))
+
+    # XXX
+
+    y = categorical(1:10, ordered=true)
+    new_order = [4, 10, 9, 7, 6, 2, 8, 3, 1, 5]
+    levels!(y, new_order)
+    @test all(coerce(y, Count) .== sortperm(new_order))
+    @test all(coerce(y, Count) .== [9, 6, 8, 1, 10, 5, 4, 7, 3, 2])
+
+    y = categorical([1:10..., missing, 11], ordered=true)
+    @test all(skipmissing(coerce(y, Union{Continuous, Missing}) .== float.([1:10...,missing,11])))
+end
+
 include("autotype.jl")

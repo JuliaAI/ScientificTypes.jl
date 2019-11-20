@@ -1,10 +1,10 @@
 scitype(::AbstractFloat, ::Val{:mlj}) = Continuous
 scitype(::Integer, ::Val{:mlj}) = Count
 
-_coerce_missing_warn(T) =
-    @warn "Missing values encountered coercing scitype to $T.\n"*
-          "Coerced to Union{Missing,$T} instead. "
-
+function _coerce_missing_warn(::Type{T}) where T
+    T >: Missing || @warn "Missing values encountered coercing scitype to $T.\n"*
+                          "Coerced to Union{Missing,$T} instead. "
+end
 
 # ## IMPLEMENT PERFORMANCE BOOSTING FOR ARRAYS
 
@@ -27,6 +27,9 @@ function coerce(y::AbstractArray{<:Union{Missing,Real}},
     return float(y)
 end
 
+_float(y::CategoricalElement) = float(_int(y))
+_float(y) = float(y)
+
 # NOTE: case where the data may have been badly encoded and resulted
 # in an Any[] array a user should proceed with caution here in
 # particular: - if at one point it encounters a type for which there
@@ -39,7 +42,7 @@ function coerce(y::AbstractArray, T::Type{<:Union{Missing,Continuous}}; verbosit
     has_chars    = findfirst(e->isa(e,Char), y) !== nothing
     has_chars && verbosity > 0 && @warn "Char values will be coerced to " *
                                         "AbstractFloat (e.g. 'A' to 65.0)."
-    return float.(y)
+    return _float.(y)
 end
 
 
@@ -47,6 +50,7 @@ end
 
 _int(::Missing)  = missing
 _int(x::Integer) = x
+_int(x::CategoricalElement) = CategoricalArrays.order(x.pool)[x.level]
 _int(x) = Int(x) # may throw InexactError
 
 # no-op case
