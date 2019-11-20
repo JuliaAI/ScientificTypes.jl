@@ -37,7 +37,8 @@ function _coerce_col(X, name, types; args...)
     y = getproperty(X, name)
     if haskey(types, name)
         # HACK y isa LazyArrays.ApplyArray, see issue #49
-        if hasproperty(y, :f) && hasproperty(y, :args)
+        props = propertynames(y)
+        if :f in props && :args in props
             y = convert(Vector, y)
         end
         return coerce(y, types[name]; args...)
