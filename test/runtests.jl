@@ -229,7 +229,7 @@ end
     y = categorical(1:10, ordered=true)
     new_order = [4, 10, 9, 7, 6, 2, 8, 3, 1, 5]
     levels!(y, new_order)
-    @test_broken all(coerce(y, Count) .== new_order)
+    @test all(coerce(y, Count) .== sortperm(new_order))
     @test all(coerce(y, Count) .== [9, 6, 8, 1, 10, 5, 4, 7, 3, 2])
 
     y = categorical([1:10..., missing, 11], ordered=true)
