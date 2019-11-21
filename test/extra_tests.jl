@@ -1,3 +1,4 @@
+if VERSION ≥ v"1.3.0"
 @testset "Coerce lazyarrays" begin
    X = Tables.table(ones(1_000, 2))
    tmp = tempname()
@@ -12,6 +13,7 @@
    @test scitype(dc) == Table{AbstractArray{Continuous,1}}
 
    rm(tmp)
+end
 end
 
 @testset "In place coercion" begin
