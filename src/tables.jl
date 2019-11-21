@@ -36,9 +36,8 @@ function _coerce_col(X, name, types; args...)
     Xcol = Tables.columntable(X)
     y = getproperty(X, name)
     if haskey(types, name)
-        # HACK y isa LazyArrays.ApplyArray, see issue #49
-        props = propertynames(y)
-        if :f in props && :args in props
+        # HACK isa LazyArrays.ApplyArray, see issue #49
+        if startswith("$(typeof(y))", "LazyArrays.")
             y = convert(Vector, y)
         end
         return coerce(y, types[name]; args...)
