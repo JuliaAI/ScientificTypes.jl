@@ -162,12 +162,12 @@ end
 
     # More finite conversions (to check resolution of #48):
     y = categorical([1, 2, 3, missing]) # unordered
-    yc = coerce(y, OrderedFactor)
+    yc = coerce(y, Union{Missing,OrderedFactor})
     @test isordered(yc)
     @test yc[1].pool.ordered
-    scitype(y) == AbstractVector{OrderedFactor{2}}
-    scitype_union(y) == OrderedFactor{2}
-
+    @test scitype(yc) == AbstractVector{Union{Missing,OrderedFactor{3}}}
+    @test scitype_union(yc) == Union{Missing,OrderedFactor{3}}
+    @test scitype_union(y) == Union{Missing,Multiclass{3}}
 end
 
 @testset "coercion works for arrays too" begin

@@ -4,6 +4,7 @@ using CategoricalArrays
 using Tables
 using ColorTypes
 using Random
+using DataFrames
 using CSV
 
 const S = ScientificTypes

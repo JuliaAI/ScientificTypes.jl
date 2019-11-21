@@ -15,9 +15,10 @@ Tables = "^0.2"
 julia = "1"
 
 [extras]
-Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 
 [targets]
-test = ["Random", "Test", "CSV"]
+test = ["Random", "Test", "CSV", "DataFrames"]
