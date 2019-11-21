@@ -1,4 +1,4 @@
-if VERSION ≥ v"1.3.0"
+if VERSION ≥ v"1.3.0-"
 @testset "Coerce lazyarrays" begin
    X = Tables.table(ones(1_000, 2))
    tmp = tempname()
