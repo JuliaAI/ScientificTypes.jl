@@ -182,3 +182,18 @@ end
     X = reshape([3.415 for i in 1:9], 3, 3)
     @test autotype(X) == OrderedFactor # using :few_to_finite
 end
+
+
+@testset "elscitype" begin
+    X = randn(5, 5)
+    @test scitype(X) == AbstractArray{Continuous, 2}
+    @test elscitype(X) == Continuous
+    X = [1, 2, missing, 5]
+    @test elscitype(X) == Union{Missing,Count}
+    X = categorical([1, 2, 3, missing, 2, 1, missing])
+    @test elscitype(X) == Union{Missing,Multiclass{3}}
+    X = categorical("lksfjalksjdflkjsdlkfjasldkfj" |> collect)
+    @test elscitype(X) <: Multiclass
+    X = coerce(categorical([1,2,3,1,2,3]), OrderedFactor)
+    @test elscitype(X) <: Union{Missing,OrderedFactor}
+end

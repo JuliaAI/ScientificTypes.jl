@@ -4,7 +4,7 @@ export Scientific, Found, Unknown, Finite, Infinite
 export OrderedFactor, Multiclass, Count, Continuous
 export Binary, Table
 export ColorImage, GrayImage
-export scitype, scitype_union, scitypes, coerce, schema
+export scitype, scitype_union, scitypes, coerce, schema, elscitype
 export mlj
 export autotype
 
@@ -138,6 +138,17 @@ scitype_union(A) = reduce((a,b)->Union{a,b}, (scitype(el) for el in A))
 
 scitype(t::Tuple, ::Val) = Tuple{scitype.(t)...}
 
+
+_get_elscitype(st::Type{AbstractArray{T,N}}) where {T,N} = T
+
+"""
+elscitype(A)
+
+Return the scitype of elements of A. Unlike `scitype_union`, this does not check the scitype of
+each element, rather it takes the global scitype which is `AbstractArray{T,N}` and extracts
+the element scitype from the `T`.
+"""
+elscitype(X::AbstractArray) = scitype(X) |> _get_elscitype
 
 # ## SCITYPES OF ARRAYS
 
