@@ -66,7 +66,15 @@ function coerce_df!(df, pairs::Pair{Symbol}...; verbosity=1)
     types = Dict(pairs)
     for name in names
         name in keys(types) || continue
-        df[!, name] = coerce(df[!, name], types[name])
+        # for DataFrames >= 0.19 df[!, name] = coerce(df[!, name], types(name))
+        # but we want something that works more robustly... even for older DataFrames
+        # the only way to do this is to use the `df.name = something` but we cannot use
+        # setindex! which will throw a deprecation warning...
+        name_str = "$name"
+        ex = quote
+            $df.$name = coerce($df.$name, $types[Symbol($name_str)])
+        end
+        eval(ex)
     end
     return df
 end
