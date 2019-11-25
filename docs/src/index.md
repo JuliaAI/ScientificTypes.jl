@@ -100,19 +100,15 @@ schema(Xfixed).scitypes
 
 Note that, as it encountered missing values in `height` it coerced the type to `Union{Missing,Continuous}`.
 
+Finally there is a `coerce!` method that does in-place coercion provided the data structure allows it (at the moment only `DataFrames.DataFrame` is supported).
 
 ## Notes
 
-- We regard the built-in julia type `Missing` as a scientific type. The new scientific types introduced in the current package are rooted in the abstract type `Found` (see tree above) and you export the alias `Scientific = Union{Missing, Found}`.
-
-- `Finite{N}`, `Muliticlass{N}` and `OrderedFactor{N}` are all parameterized by the number of levels `N`. We export the alias `Binary = Finite{2}`.
-
-- `Image{W,H}`, `GrayImage{W,H}` and `ColorImage{W,H}` are all parameterized by the image width and height dimensions, `(W, H)`.
-
+- We regard the built-in Julia type `Missing` as a scientific type. The new scientific types introduced in the current package are rooted in the abstract type `Found` (see tree above) and you export the alias `Scientific = Union{Missing, Found}`.
+- `Finite{N}`, `Multiclass{N}` and `OrderedFactor{N}` are all parametrised by the number of levels `N`. We export the alias `Binary = Finite{2}`.
+- `Image{W,H}`, `GrayImage{W,H}` and `ColorImage{W,H}` are all parametrised by the image width and height dimensions, `(W, H)`.
 - The function `scitype` has the fallback value `Unknown`.
-
 - Since Tables is an optional dependency, the `scitype` of a [`Tables.jl`](https://github.com/JuliaData/Tables.jl) supported table is `Unknown` unless Tables has been imported.
-
 - Developers can define their own conventions using the code in `src/conventions/mlj/` as a template. The active convention is controlled by the value of `ScientificTypes.CONVENTION[1]`.
 
 
@@ -280,6 +276,13 @@ It is important to note that the order in which the rules are specified matters;
 
 ```julia
 autotype(X; rules=(:few_to_finite,))
+```
+
+Finally, you can also use the following shorthands:
+
+```julia
+autotype(X, :few_to_finite)
+autotype(X, (:few_to_finite, :discrete_to_continuous))
 ```
 
 ### Available rules
