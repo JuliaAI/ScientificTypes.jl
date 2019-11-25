@@ -93,3 +93,17 @@ function scitype(A::Arr{<:Any,N}, C::Val, ::Val{S}) where {N,S}
         end
     end
 end
+
+
+_get_elscitype(st::Type{AbstractArray{T,N}}) where {T,N} = T
+
+"""
+elscitype(A)
+
+Return the scitype of elements of A. Unlike `scitype_union`, this does, in
+general, not check the scitype of each element, rather it takes the global
+scitype which is `AbstractArray{T,N}` and extracts the element scitype from
+the `T`. Note however that, in some corner cases, `scitype` does check all
+elements in which case `elscitype` also will.
+"""
+elscitype(X::AbstractArray) = scitype(X) |> _get_elscitype
