@@ -247,11 +247,19 @@ end
 # issue #62
 @testset "Type=>Type coerce" begin
     X = (x=[1,2,1,2,5,1,0,7],
-         y=[0,1,0,1,0,1,0,1])
+         y=[0,1,0,1,0,1,0,1],
+         z=['a','b','a','b','a','a',missing,missing])
     Xc = coerce(X, :y=>OrderedFactor)
     Xc = coerce(Xc, Count=>Continuous)
     @test elscitype(Xc.x) == Continuous
     @test elscitype(Xc.y) == OrderedFactor{2}
     Xc = coerce(Xc, OrderedFactor=>Count)
     @test elscitype(Xc.y) == Count
+    Xc = coerce(Xc, :z=>Multiclass, verbosity=0)
+    Xc = coerce(Xc, Multiclass=>OrderedFactor)
+    @test elscitype(Xc.z) == Union{Missing,OrderedFactor{2}}
+    Xc = coerce(X, Count=>Continuous, Unknown=>Multiclass)
+    @test elscitype(Xc.x) == Continuous
+    @test elscitype(Xc.y) == Continuous
+    @test elscitype(Xc.z) == Union{Missing,Multiclass{2}}
 end
