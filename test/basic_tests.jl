@@ -234,8 +234,6 @@ end
     @test scitype_union(a1) == Union{Missing,Continuous}
     @test all(skipmissing(a1 .== [1., 2., 1., 2., missing]))
 
-    # XXX
-
     y = categorical(1:10, ordered=true)
     new_order = [4, 10, 9, 7, 6, 2, 8, 3, 1, 5]
     levels!(y, new_order)
@@ -244,4 +242,16 @@ end
 
     y = categorical([1:10..., missing, 11], ordered=true)
     @test all(skipmissing(coerce(y, Union{Continuous, Missing}) .== float.([1:10...,missing,11])))
+end
+
+# issue #62
+@testset "Type=>Type coerce" begin
+    X = (x=[1,2,1,2,5,1,0,7],
+         y=[0,1,0,1,0,1,0,1])
+    Xc = coerce(X, :y=>OrderedFactor)
+    Xc = coerce(Xc, Count=>Continuous)
+    @test elscitype(Xc.x) == Continuous
+    @test elscitype(Xc.y) == OrderedFactor{2}
+    Xc = coerce(Xc, OrderedFactor=>Count)
+    @test elscitype(Xc.y) == Count
 end
