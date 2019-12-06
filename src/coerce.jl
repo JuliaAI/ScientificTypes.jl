@@ -1,4 +1,4 @@
-function _coerce_col(X, name, types_dict; args...)
+function _coerce_col(X, name, types_dict::Dict; args...)
     y = getproperty(X, name)
     if haskey(types_dict, name)
         return coerce(y, types_dict[name]; args...)
@@ -47,7 +47,7 @@ coerce(X, types_pairs::Pair{Symbol,<:Type}...; kw...) = coerce(X, Dict(types_pai
 function coerce(X, types_pairs::Pair{<:Type,<:Type}...; kw...)
     from_types = [tp.first  for tp in types_pairs]
     to_types   = [tp.second for tp in types_pairs]
-    types_dict = Dict()
+    types_dict = Dict{Symbol,Type}()
     # retrieve the names that match the from_types
     sch = schema(X)
     for (name, st) in zip(sch.names, sch.scitypes)
