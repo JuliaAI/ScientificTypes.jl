@@ -1,15 +1,12 @@
-function _coerce_col(X, name, types; args...)
+function _coerce_col(X, name, types_dict::Dict; args...)
     y = getproperty(X, name)
-    if haskey(types, name)
-        # HACK isa LazyArrays.ApplyArray, see issue #49
-        if is_type(y, :LazyArrays, :ApplyArray)
-            y = convert(Vector, y)
-        end
-        return coerce(y, types[name]; args...)
+    if haskey(types_dict, name)
+        return coerce(y, types_dict[name]; args...)
     else
         return y
     end
 end
+
 
 """
 coerce(X, col1=>scitype1, col2=>scitype2, ... ; verbosity=1)
@@ -32,18 +29,36 @@ coerce(X, :name=>Multiclass, :height=>Continuous, :rating=>OrderedFactor)
 
 See also [`scitype`](@ref), [`schema`](@ref).
 ```
-
 """
-function coerce(X, pairs::Pair{Symbol}...; verbosity=1)
+function coerce(X, types_dict::Dict; verbosity=1)
+    isempty(types_dict) && return X
     trait(X) == :table ||
         error("Non-tabular data encountered or Tables pkg not loaded.")
-    names  = Tables.schema(X).names
-    dpairs = Dict(pairs)
+    names  = schema(X).names
     X_ct   = Tables.columntable(X)
-    ct_new = (_coerce_col(X_ct, col, dpairs; verbosity=verbosity) for col in names)
+    ct_new = (_coerce_col(X_ct, col, types_dict; verbosity=verbosity) for col in names)
     return Tables.materializer(X)(NamedTuple{names}(ct_new))
 end
-coerce(X, types::Dict; kw_args...) = coerce(X, (p for p in types)...; kw_args...)
+
+# allow passing pairs like :feature1=>Continuous
+coerce(X, types_pairs::Pair{Symbol,<:Type}...; kw...) = coerce(X, Dict(types_pairs); kw...)
+
+# allow passing rules like Count=>Continuous
+function coerce(X, types_pairs::Pair{<:Type,<:Type}...; kw...)
+    from_types = [tp.first  for tp in types_pairs]
+    to_types   = [tp.second for tp in types_pairs]
+    types_dict = Dict{Symbol,Type}()
+    # retrieve the names that match the from_types
+    sch = schema(X)
+    for (name, st) in zip(sch.names, sch.scitypes)
+        j   = findfirst(ft -> Union{Missing,ft} >: st, from_types)
+        j === nothing && continue
+        # if here then `name` is concerned by the change
+        tt = to_types[j]
+        types_dict[name] = ifelse(st >: Missing, Union{Missing,tt}, tt)
+    end
+    coerce(X, types_dict; kw...)
+end
 
 
 """
