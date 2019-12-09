@@ -14,10 +14,8 @@ coerce(X, d::AbstractDict; verbosity=1)
 Return a copy of the table `X` with the scitypes of the specified
 columns coerced to those specified, or to missing-value versions of
 these scitypes, with warnings issued (for positive `verbosity`).
+
 Alternatively, the specifications can be wrapped in a dictionary.
-
-
-### Example
 
 ```julia
 using CategoricalArrays, DataFrames, Tables
@@ -25,9 +23,22 @@ X = DataFrame(name=["Siri", "Robo", "Alexa", "Cortana"],
               height=[152, missing, 148, 163],
               rating=[1, 5, 2, 1])
 coerce(X, :name=>Multiclass, :height=>Continuous, :rating=>OrderedFactor)
+```
+
+If a scientific type `T` is specified in place of a column name, then
+*all* columns with scientific element type subtyping `Union{T,Missing}`
+will be converted to the new specified type:
+
+```julia
+X  = (x = [1, 2, 3],
+      y = rand(3),
+      z = [10, 20, 30])
+Xfixed = coerce(X, Count=>Continuous)
+schema(Xfixed).scitypes # (Continuous, Continuous, Continuous)
+```
 
 See also [`scitype`](@ref), [`schema`](@ref).
-```
+
 """
 function coerce(X, types_dict::Dict; verbosity=1)
     isempty(types_dict) && return X

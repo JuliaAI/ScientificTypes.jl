@@ -100,6 +100,16 @@ schema(Xfixed).scitypes
 
 Note that, as it encountered missing values in `height` it coerced the type to `Union{Missing,Continuous}`.
 
+One can also make a replacement based on existing scientific type, instead of feature name:
+
+```@example 2
+X  = (x = [1, 2, 3],
+      y = rand(3),
+      z = [10, 20, 30])
+Xfixed = coerce(X, Count=>Continuous)
+schema(Xfixed).scitypes
+```
+
 Finally there is a `coerce!` method that does in-place coercion provided the data structure allows it (at the moment only `DataFrames.DataFrame` is supported).
 
 ## Notes
