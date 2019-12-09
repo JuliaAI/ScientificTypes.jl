@@ -27,7 +27,7 @@ coerce(X, :name=>Multiclass, :height=>Continuous, :rating=>OrderedFactor)
 
 If a scientific type `T` is specified in place of a column name, then
 *all* columns with scientific element type subtyping `Union{T,Missing}`
-will be converted to the new specified type:
+will be coerced to the new specified scitype:
 
 ```julia
 X  = (x = [1, 2, 3],
