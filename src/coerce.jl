@@ -7,7 +7,6 @@ function _coerce_col(X, name, types_dict::Dict; args...)
     end
 end
 
-
 """
 coerce(X, col1=>scitype1, col2=>scitype2, ... ; verbosity=1)
 coerce(X, d::AbstractDict; verbosity=1)
@@ -59,7 +58,6 @@ function coerce(X, types_pairs::Pair{<:Type,<:Type}...; kw...)
     end
     coerce(X, types_dict; kw...)
 end
-
 
 """
 coerce!(X, ...)
