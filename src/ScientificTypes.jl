@@ -9,7 +9,7 @@ export info
 export mlj
 export autotype
 
-using Tables, CategoricalArrays, ColorTypes
+using Tables, CategoricalArrays, ColorTypes, PrettyTables
 
 const CategoricalElement{U} =
     Union{CategoricalValue{<:Any,U},CategoricalString{U}}

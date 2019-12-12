@@ -6,10 +6,9 @@
     @test sch.nrows == 5
 
     @test_throws ArgumentError sch.something
-    @test propertynames(sch) == (:names, :types, :scitypes, :nrows)
+    @test propertynames(sch) == (:names, :types, :scitypes, :nrows, :table)
     snt = S._as_named_tuple(sch)
     @test snt isa NamedTuple
-    @test propertynames(snt) == propertynames(sch)
     @test snt.names == sch.names
 end
 
