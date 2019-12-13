@@ -44,10 +44,11 @@ _as_named_tuple(s::Schema) =
 function Base.show(io::IO, ::MIME"text/plain", s::Schema)
     data = Tables.matrix(s.table)
     header = ["_.names", "_.types", "_.scitypes"]
+    println(io, "_.table = ")
     PrettyTables.pretty_table(data, header;
                               header_crayon=Crayon(bold=false),
                               alignment=:l)
-    println("_.nrows = $(s.nrows)")
+    println(io, "_.nrows = $(s.nrows)")
 end
 
 Base.show(io::IO, s::Schema) = print(io, "Schema{...}()")

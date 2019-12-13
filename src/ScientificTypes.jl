@@ -9,6 +9,9 @@ export info
 export mlj
 export autotype
 
+# re-export from CategoricalArrays:
+export categorical
+
 using Tables, CategoricalArrays, ColorTypes, PrettyTables
 
 const CategoricalElement{U} =
