@@ -1,3 +1,11 @@
+@testset "info" begin
+    isjunk(::Any) = false
+    isjunk(s::String) = s == "junk" ? true : false
+    ScientificTypes.TRAIT_FUNCTION_GIVEN_NAME[:junk] = isjunk
+    ScientificTypes.info(object, ::Val{:junk}) = length(object)
+    @test info("junk") == 4
+end
+
 @testset "Finite and Infinite" begin
     cv = categorical([:x, :y])
     c = cv[1]

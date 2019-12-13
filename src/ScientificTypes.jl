@@ -4,15 +4,21 @@ export Scientific, Found, Unknown, Finite, Infinite
 export OrderedFactor, Multiclass, Count, Continuous
 export Binary, Table
 export ColorImage, GrayImage
-export scitype, scitype_union, scitypes, elscitype, coerce, coerce!, schema
+export scitype, scitype_union, elscitype, coerce, coerce!, schema
+export info
 export mlj
 export autotype
 
-using Tables, CategoricalArrays, ColorTypes
+# re-export from CategoricalArrays:
+export categorical
 
-const CategoricalElement{U} = Union{CategoricalValue{<:Any,U},CategoricalString{U}}
+using Tables, CategoricalArrays, ColorTypes, PrettyTables
 
-# ## FOR DEFINING SCITYPES ON OBJECTS DETECTED USING TRAITS
+const CategoricalElement{U} =
+    Union{CategoricalValue{<:Any,U},CategoricalString{U}}
+
+
+# ## FOR DETECTING OBJECTS BASED ON TRAITS
 
 # We define a "dynamically" extended function `trait`:
 
@@ -26,10 +32,29 @@ end
 
 # Explanation: For example, if Tables.jl is loaded and one does
 # `TRAIT_FUNCTION_GIVEN_NAME[:table] = Tables.is_table` then
-# `trait(X)` returns `:table` on any Tables.jl table, and `:other`
-# otherwise. There is an understanding here that no two trait
-# functions added to the dictionary values can be simultaneously true
-# on two julia objects.
+# `trait(X)` returns `:table` on any Tables.jl table. There is an
+# understanding here that no two trait functions added to the
+# dictionary values can be simultaneously true on two julia objects.
+
+# External packages should extend the dictionary
+# TRAIT_FUNCTION_GIVEN_NAME in their __init__ function.
+
+
+"""
+
+    info(object)
+
+Returns metadata associated with some object, typically a named tuple
+keyed on a set of object traits.
+
+*Notes on overloading:* If the class of objects is detected by its
+type, `info` can be overloaded in the usual way.  If the class of
+objects is detected by the value of `ScientificTypes.trait(object)` -
+say if this value is `:some_symbol` - then one should define a method
+`info(object, ::Val{:some_symbol})`.
+
+"""
+info(object) = info(object, Val(ScientificTypes.trait(object)))
 
 
 # ## CONVENTIONS

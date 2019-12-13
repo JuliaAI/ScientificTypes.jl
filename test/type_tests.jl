@@ -6,10 +6,9 @@
     @test sch.nrows == 5
 
     @test_throws ArgumentError sch.something
-    @test propertynames(sch) == (:names, :types, :scitypes, :nrows)
+    @test propertynames(sch) == (:names, :types, :scitypes, :nrows, :table)
     snt = S._as_named_tuple(sch)
     @test snt isa NamedTuple
-    @test propertynames(snt) == propertynames(sch)
     @test snt.names == sch.names
 end
 
@@ -21,6 +20,7 @@ end
         w = rand(5)
         )
     s = schema(X)
+    @test info(X) == schema(X)
     @test s.scitypes == (Continuous, Count, Multiclass{4}, Continuous)
     @test s.types == (Float64, Int64, CategoricalValue{Char,UInt32}, Float64)
     @test s.nrows == 5
