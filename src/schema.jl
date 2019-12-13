@@ -53,6 +53,7 @@ end
 
 Base.show(io::IO, s::Schema) = print(io, "Schema{...}()")
 
+info(object, ::Val{:table}) = schema(object)
 
 """
     schema(X)
