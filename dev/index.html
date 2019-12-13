@@ -16,7 +16,16 @@ X = DataFrame(
      name=[&quot;Siri&quot;, &quot;Robo&quot;, &quot;Alexa&quot;, &quot;Cortana&quot;],
      height=[152, missing, 148, 163],
      rating=[1, 5, 2, 1])
-schema(X)</code></pre><pre><code class="language-none">(names = (:name, :height, :rating), types = (String, Union{Missing, Int64}, Int64), scitypes = (Unknown, Union{Missing, Count}, Count), nrows = 4)</code></pre><p>inspecting the scitypes:</p><pre><code class="language-julia">schema(X).scitypes</code></pre><pre><code class="language-none">(Unknown, Union{Missing, Count}, Count)</code></pre><p>but in this case you may want to map the names to <code>Multiclass</code>, the height to <code>Continuous</code> and the ratings to <code>OrderedFactor</code>; to do so:</p><pre><code class="language-julia">Xfixed = coerce(X, :name=&gt;Multiclass,
+schema(X)</code></pre><pre><code class="language-none">_.table = 
+┌─────────┬───────────────────────┬───────────────────────┐
+│ _.names │ _.types               │ _.scitypes            │
+├─────────┼───────────────────────┼───────────────────────┤
+│ name    │ String                │ Unknown               │
+│ height  │ Union{Missing, Int64} │ Union{Missing, Count} │
+│ rating  │ Int64                 │ Count                 │
+└─────────┴───────────────────────┴───────────────────────┘
+_.nrows = 4
+</code></pre><p>inspecting the scitypes:</p><pre><code class="language-julia">schema(X).scitypes</code></pre><pre><code class="language-none">(Unknown, Union{Missing, Count}, Count)</code></pre><p>but in this case you may want to map the names to <code>Multiclass</code>, the height to <code>Continuous</code> and the ratings to <code>OrderedFactor</code>; to do so:</p><pre><code class="language-julia">Xfixed = coerce(X, :name=&gt;Multiclass,
                    :height=&gt;Continuous,
                    :rating=&gt;OrderedFactor)
 schema(Xfixed).scitypes</code></pre><pre><code class="language-none">(Multiclass{4}, Union{Missing, Continuous}, OrderedFactor{3})</code></pre><p>Note that, as it encountered missing values in <code>height</code> it coerced the type to <code>Union{Missing,Continuous}</code>.</p><p>One can also make a replacement based on existing scientific type, instead of feature name:</p><pre><code class="language-julia">X  = (x = [1, 2, 3],
@@ -32,7 +41,16 @@ v = categorical([&#39;a&#39;, &#39;c&#39;, &#39;a&#39;, missing, &#39;b&#39;], o
 scitype(v[1])</code></pre><pre><code class="language-none">OrderedFactor{3}</code></pre><p>and</p><pre><code class="language-julia">scitype_union(v)</code></pre><pre><code class="language-none">Union{Missing, OrderedFactor{3}}</code></pre><p>you could coerce this to <code>Multiclass</code>:</p><pre><code class="language-julia">w = coerce(v, Multiclass)
 scitype_union(w)</code></pre><pre><code class="language-none">Union{Missing, Multiclass{3}}</code></pre><h3><a class="nav-anchor" id="Working-with-tables-1" href="#Working-with-tables-1">Working with tables</a></h3><pre><code class="language-julia">using Tables
 data = (x1=rand(10), x2=rand(10), x3=collect(1:10))
-scitype(data)</code></pre><pre><code class="language-none">Table{Union{AbstractArray{Continuous,1}, AbstractArray{Count,1}}}</code></pre><p>you can also use <code>schema</code>:</p><pre><code class="language-julia">schema(data)</code></pre><pre><code class="language-none">(names = (:x1, :x2, :x3), types = (Float64, Float64, Int64), scitypes = (Continuous, Continuous, Count), nrows = 10)</code></pre><p>and use <code>&lt;:</code> for type checks:</p><pre><code class="language-julia">scitype(data) &lt;: Table(Continuous)</code></pre><pre><code class="language-none">false</code></pre><pre><code class="language-julia">scitype(data) &lt;: Table(Infinite)</code></pre><pre><code class="language-none">true</code></pre><p>or specify multiple types directly:</p><pre><code class="language-julia">data = (x=rand(10), y=collect(1:10), z = [1,2,3,1,2,3,1,2,3,1])
+scitype(data)</code></pre><pre><code class="language-none">Table{Union{AbstractArray{Continuous,1}, AbstractArray{Count,1}}}</code></pre><p>you can also use <code>schema</code>:</p><pre><code class="language-julia">schema(data)</code></pre><pre><code class="language-none">_.table = 
+┌─────────┬─────────┬────────────┐
+│ _.names │ _.types │ _.scitypes │
+├─────────┼─────────┼────────────┤
+│ x1      │ Float64 │ Continuous │
+│ x2      │ Float64 │ Continuous │
+│ x3      │ Int64   │ Count      │
+└─────────┴─────────┴────────────┘
+_.nrows = 10
+</code></pre><p>and use <code>&lt;:</code> for type checks:</p><pre><code class="language-julia">scitype(data) &lt;: Table(Continuous)</code></pre><pre><code class="language-none">false</code></pre><pre><code class="language-julia">scitype(data) &lt;: Table(Infinite)</code></pre><pre><code class="language-none">true</code></pre><p>or specify multiple types directly:</p><pre><code class="language-julia">data = (x=rand(10), y=collect(1:10), z = [1,2,3,1,2,3,1,2,3,1])
 data = coerce(data, :z=&gt;OrderedFactor)
 scitype(data) &lt;: Table(Continuous,Count,OrderedFactor)</code></pre><pre><code class="language-none">true</code></pre><h3><a class="nav-anchor" id="The-scientific-type-of-tuples,-arrays-and-tables-1" href="#The-scientific-type-of-tuples,-arrays-and-tables-1">The scientific type of tuples, arrays and tables</a></h3><p>Under any convention, the scitype of a tuple is a <code>Tuple</code> type parameterized by scientific types:</p><pre><code class="language-julia">scitype((1, 4.5))</code></pre><pre><code class="language-none">Tuple{Count,Continuous}</code></pre><p>Similarly, the scitype of an <code>AbstractArray</code> is <code>AbstractArray{U}</code> where <code>U</code> is the union of the element scitypes:</p><pre><code class="language-julia">scitype([1.3, 4.5, missing])</code></pre><pre><code class="language-none">AbstractArray{Union{Missing, Continuous},1}</code></pre><p><em>Performance note:</em> Computing type unions over large arrays is expensive and, depending on the convention&#39;s implementation and the array eltype, computing the scitype can be slow. (In the <em>mlj</em> convention this is mitigated with the help of the <code>ScientificTypes.Scitype</code> method, of which other conventions could make use. Do <code>?ScientificTypes.Scitype</code> for details.) An eltype <code>Any</code> will always be slow and you may want to consider replacing an array <code>A</code> with <code>broadcast(idenity, A)</code> to collapse the eltype and speed up the computation.</p><p>Provided the <a href="https://github.com/JuliaData/Tables.jl">Tables.jl</a> package is loaded, any table implementing the Tables interface has a scitype encoding the scitypes of its columns:</p><pre><code class="language-julia">using CategoricalArrays, Tables
 X = (x1=rand(10),
