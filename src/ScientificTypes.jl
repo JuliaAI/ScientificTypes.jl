@@ -4,7 +4,7 @@ export Scientific, Found, Unknown, Finite, Infinite
 export OrderedFactor, Multiclass, Count, Continuous
 export Binary, Table
 export ColorImage, GrayImage
-export scitype, scitype_union, scitypes, elscitype, coerce, coerce!, schema
+export scitype, scitype_union, elscitype, coerce, coerce!, schema
 export info
 export mlj
 export autotype
