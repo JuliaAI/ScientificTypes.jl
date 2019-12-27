@@ -6,8 +6,8 @@ if VERSION ≥ v"1.3.0-"
 
    data = CSV.read(tmp, threaded=true)
 
-   # data.Column1 and data.Column2 are LazyArrays
-   @test startswith("$(typeof(data.Column1))", "LazyArrays.")
+   # data.Column1 and data.Column2 are Column2 (as of CSV 5.19)
+   @test startswith("$(typeof(data.Column1))", "CSV.Column2")
 
    dc = coerce(data, autotype(data, :discrete_to_continuous))
    @test scitype(dc) == Table{AbstractArray{Continuous,1}}
