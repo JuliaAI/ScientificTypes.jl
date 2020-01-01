@@ -84,6 +84,13 @@ end
     @test sugg_types[:a] == Union{Missing,Multiclass}
 end
 
+@testset "autotype of a table that is also an array" begin
+    X = (x=rand(4),)
+    CSV.write("test.csv", X)
+    file = CSV.file("test.csv")
+    @test autotype(file) == autotype(X)
+end
+
 #######################
 #### Detailed tests
 #######################
