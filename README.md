@@ -39,14 +39,16 @@ ScientificTypes.jl has three components:
 
 - A built-in convention, called *mlj*, active by default.
 
-- Convenience methods for working with scientific types, the most commonly used being:
+- Convenience methods for working with scientific types, the most commonly used being
 
-    -  `schema(X)`, which gives an extended schema of any table `X`,
-       including the column scientific types implied by the active
-       convention.
-.
-    - `coerce(X, ...)`, which coerces the machine types of `X`
-      to reflect a desired scientific type.
+    - `schema(X)`, which gives an extended schema of any Tables.jl
+       compatible table `X`, including the column scientific types
+       implied by the active convention.
+	   
+	- `coerce(X, ...)`, which coerces the machine types of `X` to
+       reflect a desired scientific type.
+
+For example,
 
 ```julia
 using ScientificTypes, DataFrames
@@ -58,40 +60,51 @@ X = DataFrame(
     e = ['M', 'F', missing, 'M', 'F'],
     )
 sch = schema(X) # schema is overloaded in Scientifictypes
-for (name, scitype) in zip(sch.names, sch.scitypes)
-    println(":$name  --  $scitype")
-end
 ```
 
 will print
 
 ```
-:a  --  Continuous
-:b  --  Union{Missing, Continuous}
-:c  --  Count
-:d  --  Count
-:e  --  Union{Missing, Unknown}
+_.table = 
+┌─────────┬─────────────────────────┬────────────────────────────┐
+│ _.names │ _.types                 │ _.scitypes                 │
+├─────────┼─────────────────────────┼────────────────────────────┤
+│ a       │ Float64                 │ Continuous                 │
+│ b       │ Union{Missing, Float64} │ Union{Missing, Continuous} │
+│ c       │ Int64                   │ Count                      │
+│ d       │ Int64                   │ Count                      │
+│ e       │ Union{Missing, Char}    │ Union{Missing, Unknown}    │
+└─────────┴─────────────────────────┴────────────────────────────┘
+_.nrows = 5
 ```
 
-this uses the default *mlj* convention to attribute a scitype
-(cf. [docs](https://alan-turing-institute.github.io/ScientificTypes.jl/dev/#The-MLJ-convention-1)).
+Here the default *mlj* convention is being applied ((cf. [docs](https://alan-turing-institute.github.io/ScientificTypes.jl/dev/#The-MLJ-convention-1)). Detail is obtained in the obvious way; for example:
+
+```julia
+julia> sch.names
+(:a, :b, :c, :d, :e)
+```
 
 Now you could want to specify that `b` is actually a `Count`, and that `d` and `e` are `Multiclass`; this is done with the `coerce` function:
 
 ```julia
 Xc = coerce(X, :b=>Count, :d=>Multiclass, :e=>Multiclass)
-sch = schema(Xc)
-for (name, scitype) in zip(sch.names, sch.scitypes)
-    println(":$name  --  $scitype")
-end
+schema(Xc)
 ```
 
-will print
+which prints
 
 ```
-:a  --  Continuous
-:b  --  Union{Missing, Count}
-:c  --  Count
-:d  --  Multiclass{2}
-:e  --  Union{Missing, Multiclass{2}}
+_.table = 
+┌─────────┬──────────────────────────────────────────────┬───────────────────────────────┐
+│ _.names │ _.types                                      │ _.scitypes                    │
+├─────────┼──────────────────────────────────────────────┼───────────────────────────────┤
+│ a       │ Float64                                      │ Continuous                    │
+│ b       │ Union{Missing, Int64}                        │ Union{Missing, Count}         │
+│ c       │ Int64                                        │ Count                         │
+│ d       │ CategoricalValue{Int64,UInt8}                │ Multiclass{2}                 │
+│ e       │ Union{Missing, CategoricalValue{Char,UInt8}} │ Union{Missing, Multiclass{2}} │
+└─────────┴──────────────────────────────────────────────┴───────────────────────────────┘
+_.nrows = 5
+
 ```
