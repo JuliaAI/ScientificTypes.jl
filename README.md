@@ -45,7 +45,7 @@ ScientificTypes.jl has three components:
        compatible table `X`, including the column scientific types
        implied by the active convention.
 	   
-	   - `coerce(X, ...)`, which coerces the machine types of `X` to
+	- `coerce(X, ...)`, which coerces the machine types of `X` to
        reflect a desired scientific type.
 
 For example,
