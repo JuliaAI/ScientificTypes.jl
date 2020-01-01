@@ -39,13 +39,14 @@ ScientificTypes.jl has three components:
 
 - A built-in convention, called *mlj*, active by default.
 
-- Convenience methods for working with scientific types, the most commonly used being:
+- Convenience methods for working with scientific types, the most commonly used being
 
     - `schema(X)`, which gives an extended schema of any Tables.jl
        compatible table `X`, including the column scientific types
-       implied by the active convention.  .  - `coerce(X, ...)`, which
-       coerces the machine types of `X` to reflect a desired
-       scientific type.
+       implied by the active convention.
+	   
+	   - `coerce(X, ...)`, which coerces the machine types of `X` to
+       reflect a desired scientific type.
 
 For example,
 
@@ -77,8 +78,7 @@ _.table =
 _.nrows = 5
 ```
 
-using the default *mlj* convention to attribute scitypes
-(cf. [docs](https://alan-turing-institute.github.io/ScientificTypes.jl/dev/#The-MLJ-convention-1)). Detail is obtained in the obvious way; for example:
+Here the default *mlj* convention is being applied ((cf. [docs](https://alan-turing-institute.github.io/ScientificTypes.jl/dev/#The-MLJ-convention-1)). Detail is obtained in the obvious way; for example:
 
 ```julia
 julia> sch.names
@@ -95,7 +95,6 @@ schema(Xc)
 which prints
 
 ```
-julia> schema(Xc)
 _.table = 
 ┌─────────┬──────────────────────────────────────────────┬───────────────────────────────┐
 │ _.names │ _.types                                      │ _.scitypes                    │
