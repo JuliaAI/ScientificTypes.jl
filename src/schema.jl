@@ -101,7 +101,7 @@ function schema(X, ::Val{:table})
     Xcol = Tables.columntable(X)
     names = s.names
     types = Tuple{s.types...}
-    scitypes = Tuple{(scitype_union(getproperty(Xcol, name))
+    scitypes = Tuple{(elscitype(getproperty(Xcol, name))
                               for name in names)...}
     return Schema(names, types, scitypes, _nrows(X))
 end
