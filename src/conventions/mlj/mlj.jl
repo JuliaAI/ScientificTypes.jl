@@ -10,6 +10,7 @@ end
 
 Scitype(::Type{<:Integer}, ::Val{:mlj}) = Count
 Scitype(::Type{<:AbstractFloat}, ::Val{:mlj}) = Continuous
+Scitype(::Type{<:AbstractString}, ::Val{:mlj}) = Unknown
 
 
 ## COERCE ARRAY TO CONTINUOUS
