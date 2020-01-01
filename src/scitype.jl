@@ -61,7 +61,7 @@ Scitype(::Type{Any}, C::Val) = nothing # b/s `Any` isa `Union{<:Any, Missing}`
 
 # For all such `T` we can also get almost the same speed-up in the case that
 # `T` is replaced by `Union{T, Missing}`, which we detect by wrapping
-# the answer:
+# the answer as a Val:
 
 Scitype(MT::Type{Union{T, Missing}}, C::Val) where T = Val(Scitype(T, C))
 
@@ -70,20 +70,20 @@ Scitype(MT::Type{Union{T, Missing}}, C::Val) where T = Val(Scitype(T, C))
 const Arr{T,N} = AbstractArray{T,N}
 
 # the dispatcher:
-scitype(A::Arr{T}, C) where T = scitype(A, C, Scitype(T, C))
+scitype(A::Arr{T}, C, ::Val{:other}) where T = arr_scitype(A, C, Scitype(T, C))
 
 # the slow fallback:
-scitype(A::Arr{<:Any,N}, ::Val, ::Nothing) where N =
+arr_scitype(A::Arr{<:Any,N}, ::Val, ::Nothing) where N =
     AbstractArray{scitype_union(A),N}
 
 # the speed-up:
-scitype(::Arr{<:Any,N}, ::Val, S) where N = Arr{S,N}
+arr_scitype(::Arr{<:Any,N}, ::Val, S) where N = Arr{S,N}
 
 # partial speed-up for missing types, because broadcast is faster than
 # computing scitype_union:
-function scitype(A::Arr{<:Any,N}, C::Val, ::Val{S}) where {N,S}
+function arr_scitype(A::Arr{<:Any,N}, C::Val, ::Val{S}) where {N,S}
     if S == nothing
-        return scitype(A, C, S)
+        return arr_scitype(A, C, S)
     else
         Atight = broadcast(identity, A)
         if typeof(A) == typeof(Atight)
