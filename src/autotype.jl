@@ -60,7 +60,7 @@ function _autotype(X::AbstractArray{T,M}, ::Val{:other};
                   rules::NTuple{N,Symbol} where N=(:few_to_finite,)) where {T,M}
     # check that the rules are recognised
     _check_rules(rules)
-    sugg_type = scitype_union(X) # TODO: make this elscitype(X)?
+    sugg_type = elscitype(X)
     np = prod(size(X))
     for rule in rules
         if rule == :few_to_finite
