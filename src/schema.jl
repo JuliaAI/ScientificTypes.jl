@@ -97,11 +97,10 @@ function _nrows(X)
 end
 
 function schema(X, ::Val{:table})
-    s = Tables.schema(X)
-    Xcol = Tables.columntable(X)
-    names = s.names
-    types = Tuple{s.types...}
-    scitypes = Tuple{(elscitype(getproperty(Xcol, name))
-                              for name in names)...}
+    sch      = Tables.schema(X)
+    Xcol     = Tables.columntable(X)
+    names    = sch.names
+    types    = Tuple{sch.types...}
+    scitypes = Tuple{(elscitype(getproperty(Xcol, name)) for name in names)...}
     return Schema(names, types, scitypes, _nrows(X))
 end

@@ -14,7 +14,7 @@ end
 
     @test scitype((4, 4.5, c, u, "X")) ==
     Tuple{Count,Continuous,Multiclass{2},
-          OrderedFactor{2},Unknown}
+          OrderedFactor{2},Textual}
 end
 
 A = Any[2 4.5;
@@ -27,7 +27,7 @@ A = Any[2 4.5;
     @test scitype_union(1) == Count
     @test scitype_union([1]) == Count
     @test scitype_union(Any[1]) == Count
-    @test scitype_union([1, 2.0, "3"]) == Union{Continuous, Count, Unknown}
+    @test scitype_union([1, 2.0, "3"]) == Union{Continuous, Count, Textual}
 end
 
 @testset "elscitype" begin

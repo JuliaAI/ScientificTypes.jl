@@ -30,7 +30,7 @@ nobj_f = 3
     @test sugg_types[:book]   == Multiclass
     @test sugg_types[:number] == OrderedFactor
     @test sugg_types[:gender] == Multiclass
-    @test sugg_types[:random] == Unknown
+    @test sugg_types[:random] == Textual
 
     # now with missing values
     sugg_types = autotype(X2, only_changes=false)
@@ -44,10 +44,10 @@ end
 
 @testset "autotype-coercion" begin
     X2c = coerce(X2, autotype(X2))
-    @test schema(X2).scitypes == (Union{Missing, Unknown},   # a
+    @test schema(X2).scitypes == (Union{Missing, Unknown},  # a
                                  Continuous,                # b
                                  Count,                     # c
-                                 Unknown,                   # d
+                                 Textual,                   # d
                                  Union{Missing, Count},     # e
                                  Count)                     # f
     @test schema(X2c).scitypes == (Union{Missing, Multiclass{nobj_a}},  # a*
@@ -86,8 +86,9 @@ end
 
 @testset "autotype of a table that is also an array" begin
     X = (x=rand(4),)
-    CSV.write("test.csv", X)
-    file = CSV.file("test.csv")
+    f = mkpath()
+    CSV.write(f, X)
+    file = CSV.file(f)
     @test autotype(file) == autotype(X)
 end
 
@@ -114,20 +115,20 @@ end
     M = Missing
     @test S.string_to_multiclass(Continuous, n, n) == Continuous
     col = ('A', 'B', 'C')
-    @test S.string_to_multiclass(Unknown, col, n) == Multiclass
+    @test S.string_to_multiclass(Textual, col, n) == Multiclass
     col = ('A', 'B', 'C', missing)
-    @test S.string_to_multiclass(Unknown, col, n) == Union{M,Multiclass}
+    @test S.string_to_multiclass(Textual, col, n) == Union{M,Multiclass}
     col = (1, 2, 3, 4, 5)
-    @test S.string_to_multiclass(Unknown, col, n) == Unknown
+    @test S.string_to_multiclass(Textual, col, n) == Textual
     col = (1, 2, 3, 4, 5, missing)
-    @test S.string_to_multiclass(Union{M,Unknown}, col, n) == Union{M,Unknown}
-    @test S.string_to_multiclass(Unknown, col, n) == Unknown
+    @test S.string_to_multiclass(Union{M,Textual}, col, n) == Union{M,Textual}
+    @test S.string_to_multiclass(Textual, col, n) == Textual
     col = ("aa", "bb", "cc")
     @test S.string_to_multiclass(Multiclass, col, n) == Multiclass
-    @test S.string_to_multiclass(Unknown, col, n) == Multiclass
+    @test S.string_to_multiclass(Textual, col, n) == Multiclass
     col = ("aa", "bb", "cc", missing)
-    @test S.string_to_multiclass(Union{M,Unknown}, col, n) == Union{M,Multiclass}
-    @test S.string_to_multiclass(Unknown, col, n) == Union{M,Multiclass}
+    @test S.string_to_multiclass(Union{M,Textual}, col, n) == Union{M,Multiclass}
+    @test S.string_to_multiclass(Textual, col, n) == Union{M,Multiclass}
 end
 
 @testset ":discrete_to_continuous" begin

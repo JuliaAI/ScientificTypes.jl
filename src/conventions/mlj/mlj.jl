@@ -1,17 +1,17 @@
-scitype(::AbstractFloat, ::MLJ) = Continuous
-scitype(::Integer, ::MLJ) = Count
+scitype(::AbstractFloat,  ::MLJ) = Continuous
+scitype(::Integer,        ::MLJ) = Count
+scitype(::AbstractString, ::MLJ) = Textual
 
 function _coerce_missing_warn(::Type{T}) where T
-    T >: Missing || @warn "Missing values encountered coercing scitype to $T.\n"*
-                          "Coerced to Union{Missing,$T} instead. "
+    T >: Missing || @warn "Missing values encountered coercing scitype " *
+                          "to $T.\nCoerced to Union{Missing,$T} instead."
 end
 
 # ## IMPLEMENT PERFORMANCE BOOSTING FOR ARRAYS
 
-Scitype(::Type{<:Integer}, ::MLJ) = Count
-Scitype(::Type{<:AbstractFloat}, ::MLJ) = Continuous
-Scitype(::Type{<:AbstractString}, ::MLJ) = Unknown
-
+Scitype(::Type{<:Integer}, ::MLJ)        = Count
+Scitype(::Type{<:AbstractFloat}, ::MLJ)  = Continuous
+Scitype(::Type{<:AbstractString}, ::MLJ) = Textual
 
 ## COERCE ARRAY TO CONTINUOUS
 

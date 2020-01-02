@@ -39,7 +39,8 @@ end
 
 @testset "scitype of a table that is also an array" begin
     X = (x=rand(4),)
-    CSV.write("test.csv", X)
-    file = CSV.file("test.csv")
+    f = mkpath()
+    CSV.write(f, X)
+    file = CSV.file(f)
     @test scitype(file) == scitype(X)
 end
