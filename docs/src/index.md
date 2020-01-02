@@ -35,7 +35,7 @@ Found
 
 - A single method `scitype` for articulating a convention about what scientific type each Julia object can represent. For example, one might declare `scitype(::AbstractFloat) = Continuous`.
 
-- A default convention called *mlj*, based on dependencies
+- A default convention called *MLJ*, based on dependencies
   `CategoricalArrays`, `ColorTypes`, and `Tables`, which includes a
   convenience method `coerce` for performing scientific type coercion
   on `AbstractVectors` and columns of tabular data (any table
@@ -122,12 +122,24 @@ Finally there is a `coerce!` method that does in-place coercion provided the dat
 - Developers can define their own conventions using the code in `src/conventions/mlj/` as a template. The active convention is controlled by the value of `ScientificTypes.CONVENTION[1]`.
 
 
+## Special note on binary data
+
+ScientificTypes does not define a separate "binary" scientific
+type. Rather, when binary data has an intrinsic "true" class (for example
+pass/fail in a product test), then it should be assigned an
+`OrderedFactor{2}` scitype, while data with no such class (e.g., gender)
+should be assigned a `Multiclass{2}` scitype. In the former case
+we recommend that the "true" class come after "false" in the ordering
+(corresponding to the usual assignment "false=0" and "true=1"). Of
+course, `Finite{2}` covers both cases of binary data.
+
+
 ## Detailed usage examples
 
 ```@example 3
 using ScientificTypes
 # activate a convention
-mlj() # redundant as it's the default
+ScientificTypes.set_convention(MLJ) # redundant as it's the default
 
 scitype((2.718, 42))
 ```
@@ -203,12 +215,12 @@ scitype([1.3, 4.5, missing])
 
 *Performance note:* Computing type unions over large arrays is
 expensive and, depending on the convention's implementation and the
-array eltype, computing the scitype can be slow. (In the *mlj*
+array eltype, computing the scitype can be slow. (In the *MLJ*
 convention this is mitigated with the help of the
 `ScientificTypes.Scitype` method, of which other conventions could
 make use. Do `?ScientificTypes.Scitype` for details.) An eltype `Any`
 will always be slow and you may want to consider replacing an array
-`A` with `broadcast(idenity, A)` to collapse the eltype and speed up
+`A` with `broadcast(identity, A)` to collapse the eltype and speed up
 the computation.
 
 Provided the [Tables.jl](https://github.com/JuliaData/Tables.jl) package is loaded, any table implementing the Tables interface has a scitype encoding the scitypes of its columns:
@@ -246,7 +258,7 @@ Note that `Table(Continuous,Finite)` is a *type* union and not a `Table` *instan
 
 ## The MLJ convention
 
-The table below summarizes the *mlj* convention for representing
+The table below summarizes the *MLJ* convention for representing
 scientific types:
 
 Type `T`        | `scitype(x)` for `x::T`           | package required

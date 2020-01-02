@@ -200,7 +200,7 @@ end
     @test scitype_union(coerce(y, Count)) === Count
 end
 
-@testset "coerce R->OF (mlj)" begin
+@testset "coerce R->OF (MLJ)" begin
     v = [0.1, 0.2, 0.2, 0.3, missing, 0.1]
     w = [0.1, 0.2, 0.2, 0.3, 0.1]
     @test_logs((:warn, r"Missing values encountered"),
@@ -210,7 +210,7 @@ end
     @test all(unique(cw) .== [0.1, 0.2, 0.3])
 end
 
-@testset "Any->Multiclass (mlj)" begin
+@testset "Any->Multiclass (MLJ)" begin
     v1 = categorical(Any[1,2,1,2,1,missing,2])
     v2 = Any[collect("aksldjfalsdjkfslkjdfalksjdf")...]
     @test_logs((:warn, r"Missing values"),
@@ -233,7 +233,7 @@ end
     @test eltype(v2c) <: CategoricalValue{Char}
 end
 
-@testset "Cat->Count,Continuous (mlj)" begin
+@testset "Cat->Count,Continuous (MLJ)" begin
     a = categorical(["a","b","a","b",missing])
     a1 = coerce(a, Union{Count,Missing})
     @test scitype_union(a1) == Union{Missing,Count}

@@ -17,7 +17,8 @@ which applying autotype differs from just using the ambient convention. When
 coercing with autotype, `only_changes` should be true.
 * `rules=(:few_to_finite,)`: the set of rules to apply.
 """
-function autotype(X; only_changes::Bool=true,
+autotype(X; kwargs...) = _autotype(X, Val(trait(X)); kwargs...)
+function _autotype(X, ::Val{:table}; only_changes::Bool=true,
                   rules::NTuple{N,Symbol} where N=(:few_to_finite,))
     # check that X is a table
     @assert Tables.istable(X) "The function `autotype` requires tabular data."
@@ -55,11 +56,11 @@ function autotype(X; only_changes::Bool=true,
     return suggested_types
 end
 
-function autotype(X::AbstractArray{T,M};
+function _autotype(X::AbstractArray{T,M}, ::Val{:other};
                   rules::NTuple{N,Symbol} where N=(:few_to_finite,)) where {T,M}
     # check that the rules are recognised
     _check_rules(rules)
-    sugg_type = scitype_union(X)
+    sugg_type = elscitype(X)
     np = prod(size(X))
     for rule in rules
         if rule == :few_to_finite
