@@ -220,7 +220,7 @@ convention this is mitigated with the help of the
 `ScientificTypes.Scitype` method, of which other conventions could
 make use. Do `?ScientificTypes.Scitype` for details.) An eltype `Any`
 will always be slow and you may want to consider replacing an array
-`A` with `broadcast(idenity, A)` to collapse the eltype and speed up
+`A` with `broadcast(identity, A)` to collapse the eltype and speed up
 the computation.
 
 Provided the [Tables.jl](https://github.com/JuliaData/Tables.jl) package is loaded, any table implementing the Tables interface has a scitype encoding the scitypes of its columns:
