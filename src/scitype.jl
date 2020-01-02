@@ -80,8 +80,6 @@ arr_scitype(A::Arr{T,N}, ::Convention, ::Nothing) where {T,N} =
 # the speed-up where `S` corresponds to an explicit `Scitype(...)`
 arr_scitype(::Arr{T,N}, ::Convention, S) where {T,N} = Arr{S,N}
 
-# partial speed-up for missing types, because broadcast is faster than
-# computing scitype_union:
 function arr_scitype(A::Arr{T,N}, C::Convention, ::Val{S}) where {T,N,S}
     # no explicit scitype available
     S === nothing && return arr_scitype(A, C, S)
