@@ -86,10 +86,10 @@ end
 
 @testset "autotype of a table that is also an array" begin
     X = (x=rand(4),)
-    f = mkpath()
-    CSV.write(f, X)
-    file = CSV.file(f)
+    CSV.write("test.csv", X)
+    file = CSV.file("test.csv")
     @test autotype(file) == autotype(X)
+    rm("test.csv")
 end
 
 #######################
