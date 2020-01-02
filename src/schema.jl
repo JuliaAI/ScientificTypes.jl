@@ -77,7 +77,7 @@ schema(X, ::Val{:other}) =
 
 TRAIT_FUNCTION_GIVEN_NAME[:table] = Tables.istable
 
-function scitype(X, ::Val, ::Val{:table})
+function scitype(X, ::Convention, ::Val{:table})
     Xcol = Tables.columns(X)
     col_names = propertynames(Xcol)
     types = map(col_names) do name
@@ -101,7 +101,7 @@ function schema(X, ::Val{:table})
     Xcol = Tables.columntable(X)
     names = s.names
     types = Tuple{s.types...}
-    scitypes = Tuple{(scitype_union(getproperty(Xcol, name))
+    scitypes = Tuple{(elscitype(getproperty(Xcol, name))
                               for name in names)...}
     return Schema(names, types, scitypes, _nrows(X))
 end

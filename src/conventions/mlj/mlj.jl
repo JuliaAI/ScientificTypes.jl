@@ -1,5 +1,5 @@
-scitype(::AbstractFloat, ::Val{:mlj}) = Continuous
-scitype(::Integer, ::Val{:mlj}) = Count
+scitype(::AbstractFloat, ::MLJ) = Continuous
+scitype(::Integer, ::MLJ) = Count
 
 function _coerce_missing_warn(::Type{T}) where T
     T >: Missing || @warn "Missing values encountered coercing scitype to $T.\n"*
@@ -8,8 +8,9 @@ end
 
 # ## IMPLEMENT PERFORMANCE BOOSTING FOR ARRAYS
 
-Scitype(::Type{<:Integer}, ::Val{:mlj}) = Count
-Scitype(::Type{<:AbstractFloat}, ::Val{:mlj}) = Continuous
+Scitype(::Type{<:Integer}, ::MLJ) = Count
+Scitype(::Type{<:AbstractFloat}, ::MLJ) = Continuous
+Scitype(::Type{<:AbstractString}, ::MLJ) = Unknown
 
 
 ## COERCE ARRAY TO CONTINUOUS

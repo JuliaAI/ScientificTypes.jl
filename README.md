@@ -35,9 +35,9 @@ ScientificTypes.jl has three components:
   type hierarchy, and a single function `scitype` with scientific
   types as values. Someone implementing a convention must add methods
   to this function, while the general user just applies it to data, as
-  in `scitype(4.5)` (returning `Continuous` in the *mlj* convention).
+  in `scitype(4.5)` (returning `Continuous` in the *MLJ* convention).
 
-- A built-in convention, called *mlj*, active by default.
+- A built-in convention, called *MLJ*, active by default.
 
 - Convenience methods for working with scientific types, the most commonly used being
 
@@ -78,7 +78,7 @@ _.table =
 _.nrows = 5
 ```
 
-Here the default *mlj* convention is being applied ((cf. [docs](https://alan-turing-institute.github.io/ScientificTypes.jl/dev/#The-MLJ-convention-1)). Detail is obtained in the obvious way; for example:
+Here the default *MLJ* convention is being applied ((cf. [docs](https://alan-turing-institute.github.io/ScientificTypes.jl/dev/#The-MLJ-convention-1)). Detail is obtained in the obvious way; for example:
 
 ```julia
 julia> sch.names

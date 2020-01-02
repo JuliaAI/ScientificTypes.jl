@@ -18,7 +18,7 @@ end
         y = rand(Int, 5),
         z = categorical(collect("asdfa")),
         w = rand(5)
-        )
+    )
     s = schema(X)
     @test info(X) == schema(X)
     @test s.scitypes == (Continuous, Count, Multiclass{4}, Continuous)
@@ -35,4 +35,11 @@ end
     @test S._nrows(X) == 5
     @test S._nrows(()) == 0
     @test S._nrows((i for i in 1:7)) == 7
+end
+
+@testset "scitype of a table that is also an array" begin
+    X = (x=rand(4),)
+    CSV.write("test.csv", X)
+    file = CSV.file("test.csv")
+    @test scitype(file) == scitype(X)
 end

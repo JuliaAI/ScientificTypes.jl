@@ -6,7 +6,6 @@ export Binary, Table
 export ColorImage, GrayImage
 export scitype, scitype_union, elscitype, coerce, coerce!, schema
 export info
-export mlj
 export autotype
 
 # re-export from CategoricalArrays:
@@ -59,11 +58,14 @@ info(object) = info(object, Val(ScientificTypes.trait(object)))
 
 # ## CONVENTIONS
 
-const CONVENTION=[:unspecified]
+abstract type Convention end
+struct MLJ <: Convention end
+
+const CONVENTION=[MLJ(),]
 convention() = CONVENTION[1]
 
-function mlj()
-    CONVENTION[1] = :mlj
+function set_convention(C)
+    CONVENTION[1] = C()
     return nothing
 end
 
@@ -163,7 +165,6 @@ include("autotype.jl")
 
 # and include code not requiring optional dependencies:
 
-mlj()
 include("conventions/mlj/mlj.jl")
 include("conventions/mlj/finite.jl")
 include("conventions/mlj/images.jl")
