@@ -77,7 +77,7 @@ schema(X, ::Val{:other}) =
 
 TRAIT_FUNCTION_GIVEN_NAME[:table] = Tables.istable
 
-function scitype(X, ::Val, ::Val{:table})
+function scitype(X, ::Convention, ::Val{:table})
     Xcol = Tables.columns(X)
     col_names = propertynames(Xcol)
     types = map(col_names) do name

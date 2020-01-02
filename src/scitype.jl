@@ -3,7 +3,7 @@ scitype(X)
 
 The scientific type that `x` may represent.
 """
-scitype(X) = scitype(X, Val(convention()))
+scitype(X) = scitype(X, convention())
 scitype(X, C) = scitype(X, C, Val(trait(X)))
 scitype(X, C, ::Val{:other}) = Unknown
 
@@ -24,66 +24,69 @@ scitype_union(A) = reduce((a,b)->Union{a,b}, (scitype(el) for el in A))
 
 # ## SCITYPES OF TUPLES
 
-scitype(t::Tuple, ::Val) = Tuple{scitype.(t)...}
+scitype(t::Tuple, ::Convention) = Tuple{scitype.(t)...}
 
 
 # ## SCITYPES OF ARRAYS
 
 """
-ScientificTypes.Scitype(::Type, C::Val)
+ScientificTypes.Scitype(::Type, ::C)
 
-Method for implementers of a conventions to enable speed-up of scitype
-evaluations for large arrays.
+Method for implementers of a convention `C` to enable speed-up of
+scitype evaluations for large arrays.
 
 In general, one cannot infer the scitype of an object of type
 `AbstractArray{T, N}` from the machine type alone. For, example, this
-never holds in the *mlj* convention for a categorical array, or in the
+never holds in the *MLJ* convention for a categorical array, or in the
 following examples: `X=Any[1, 2, 3]` and `X=Union{Missing,Int64}[1, 2,
 3]`.
 
 Nevertheless, for some *restricted* machine types `U`, the statement
 `type(X) == AbstractArray{T, N}` for some `T<:U` already allows one
 deduce that `scitype(X) = AbstractArray{S,N}`, where `S` is determined
-by `U` alone. This is the case in the *mlj* convention, for example,
+by `U` alone. This is the case in the *MLJ* convention, for example,
 if `U = Integer`, in which case `S = Count`. If one explicitly declares
 
-    ScientificTypes.Scitype(::Type{<:U}, ::Val{:convention}) = S
+    ScientificTypes.Scitype(::Type{<:U}, ::C) = S
 
 in such cases, then ScientificTypes ensures a considerable speed-up in
 the computation of `scitype(X)`. There is also a partial speed-up for
 the case that `T <: Union{U, Missing}`.
 
-For example, in *mlj* one has `Scitype(::Type{<:Integer}) = Count`.
+For example, in the *MLJ* convention, one has
+`Scitype(::Type{<:Integer}, ::MLJ) = Count`.
 
 """
-Scitype(::Type, C::Val) = nothing
-Scitype(::Type{Any}, C::Val) = nothing # b/s `Any` isa `Union{<:Any, Missing}`
+Scitype(::Type, c::Convention) = nothing
+Scitype(::Type{Any}, c::Convention) =
+    nothing # b/s `Any` isa `Union{<:Any, Missing}`
 
 # For all such `T` we can also get almost the same speed-up in the case that
 # `T` is replaced by `Union{T, Missing}`, which we detect by wrapping
 # the answer as a Val:
 
-Scitype(MT::Type{Union{T, Missing}}, C::Val) where T = Val(Scitype(T, C))
+Scitype(MT::Type{Union{T, Missing}}, c::Convention) where T =
+    Val(Scitype(T, c))
 
-# For example, in *mlj* convention, Scitype(::Integer) = Count
+# For example, Scitype(::Integer, ::MLJ) = count
 
 const Arr{T,N} = AbstractArray{T,N}
 
 # the dispatcher:
-scitype(A::Arr{T}, C, ::Val{:other}) where T = arr_scitype(A, C, Scitype(T, C))
+scitype(A::Arr{T}, c, ::Val{:other}) where T = arr_scitype(A, c, Scitype(T, c))
 
 # the slow fallback:
-arr_scitype(A::Arr{<:Any,N}, ::Val, ::Nothing) where N =
+arr_scitype(A::Arr{<:Any,N}, ::Convention, ::Nothing) where N =
     AbstractArray{scitype_union(A),N}
 
 # the speed-up:
-arr_scitype(::Arr{<:Any,N}, ::Val, S) where N = Arr{S,N}
+arr_scitype(::Arr{<:Any,N}, ::Convention, S) where N = Arr{S,N}
 
 # partial speed-up for missing types, because broadcast is faster than
 # computing scitype_union:
-function arr_scitype(A::Arr{<:Any,N}, C::Val, ::Val{S}) where {N,S}
+function arr_scitype(A::Arr{<:Any,N}, c::Convention, ::Val{S}) where {N,S}
     if S == nothing
-        return arr_scitype(A, C, S)
+        return arr_scitype(A, c, S)
     else
         Atight = broadcast(identity, A)
         if typeof(A) == typeof(Atight)

@@ -1,9 +1,9 @@
 nlevels(c::CategoricalValue) = length(levels(c.pool))
 nlevels(c::CategoricalString) = length(levels(c.pool))
 
-scitype(c::CategoricalValue, ::Val{:mlj}) =
+scitype(c::CategoricalValue, ::MLJ) =
     c.pool.ordered ? OrderedFactor{nlevels(c)} : Multiclass{nlevels(c)}
-scitype(c::CategoricalString, ::Val{:mlj}) =
+scitype(c::CategoricalString, ::MLJ) =
     c.pool.ordered ? OrderedFactor{nlevels(c)} : Multiclass{nlevels(c)}
 
 # for temporary hack below:
@@ -64,7 +64,7 @@ end
 
 const CatArr{T,N,V} = CategoricalArray{T,N,<:Any,V}
 
-function scitype(A::CatArr{T,N,V}, ::Val{:mlj}) where {T,N,V}
+function scitype(A::CatArr{T,N,V}, ::MLJ) where {T,N,V}
     nlevels = length(levels(A))
     if isordered(A)
         S = OrderedFactor{nlevels}
