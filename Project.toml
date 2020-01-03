@@ -1,7 +1,7 @@
 name = "ScientificTypes"
 uuid = "321657f4-b219-11e9-178b-2701a2544e81"
 authors = ["Anthony D. Blaom <anthony.blaom@gmail.com>"]
-version = "0.3.2"
+version = "0.4"
 
 [deps]
 CategoricalArrays = "324d7699-5711-5eae-9e2f-1d82baa6b597"
