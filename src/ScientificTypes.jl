@@ -1,7 +1,7 @@
 module ScientificTypes
 
 export Scientific, Found, Unknown, Finite, Infinite
-export OrderedFactor, Multiclass, Count, Continuous
+export OrderedFactor, Multiclass, Count, Continuous, Textual
 export Binary, Table
 export ColorImage, GrayImage
 export scitype, scitype_union, elscitype, coerce, coerce!, schema
@@ -75,6 +75,8 @@ end
 abstract type Found          end
 abstract type Known <: Found end
 struct      Unknown <: Found end
+
+struct Textual <: Known end
 
 abstract type Infinite <: Known    end
 struct      Continuous <: Infinite end

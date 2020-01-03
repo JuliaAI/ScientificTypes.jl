@@ -42,4 +42,5 @@ end
     CSV.write("test.csv", X)
     file = CSV.file("test.csv")
     @test scitype(file) == scitype(X)
+    rm("test.csv")
 end
