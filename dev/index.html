@@ -20,12 +20,12 @@ schema(X)</code></pre><pre><code class="language-none">_.table =
 ┌─────────┬───────────────────────┬───────────────────────┐
 │ _.names │ _.types               │ _.scitypes            │
 ├─────────┼───────────────────────┼───────────────────────┤
-│ name    │ String                │ Unknown               │
+│ name    │ String                │ Textual               │
 │ height  │ Union{Missing, Int64} │ Union{Missing, Count} │
 │ rating  │ Int64                 │ Count                 │
 └─────────┴───────────────────────┴───────────────────────┘
 _.nrows = 4
-</code></pre><p>inspecting the scitypes:</p><pre><code class="language-julia">schema(X).scitypes</code></pre><pre><code class="language-none">(Unknown, Union{Missing, Count}, Count)</code></pre><p>but in this case you may want to map the names to <code>Multiclass</code>, the height to <code>Continuous</code> and the ratings to <code>OrderedFactor</code>; to do so:</p><pre><code class="language-julia">Xfixed = coerce(X, :name=&gt;Multiclass,
+</code></pre><p>inspecting the scitypes:</p><pre><code class="language-julia">schema(X).scitypes</code></pre><pre><code class="language-none">(Textual, Union{Missing, Count}, Count)</code></pre><p>but in this case you may want to map the names to <code>Multiclass</code>, the height to <code>Continuous</code> and the ratings to <code>OrderedFactor</code>; to do so:</p><pre><code class="language-julia">Xfixed = coerce(X, :name=&gt;Multiclass,
                    :height=&gt;Continuous,
                    :rating=&gt;OrderedFactor)
 schema(Xfixed).scitypes</code></pre><pre><code class="language-none">(Multiclass{4}, Union{Missing, Continuous}, OrderedFactor{3})</code></pre><p>Note that, as it encountered missing values in <code>height</code> it coerced the type to <code>Union{Missing,Continuous}</code>.</p><p>One can also make a replacement based on existing scientific type, instead of feature name:</p><pre><code class="language-julia">X  = (x = [1, 2, 3],
@@ -64,10 +64,10 @@ X = (a = rand(&quot;abc&quot;, n),         # 3 values, not number        --&gt; 
      c = rand([true,false], n),  # 2 values, number but only 2 --&gt; Multiclass
      d = randn(n),               # many values                 --&gt; unchanged
      e = rand(collect(1:n), n))  # many values                 --&gt; unchanged
-autotype(X, only_changes=true)</code></pre><pre><code class="language-none">Dict{Symbol,Type{#s18} where #s18&lt;:Union{Missing, Found}} with 3 entries:
+autotype(X, only_changes=true)</code></pre><pre><code class="language-none">Dict{Symbol,Type{#s19} where #s19&lt;:Union{Missing, Found}} with 3 entries:
   :a =&gt; Multiclass
   :b =&gt; OrderedFactor
-  :c =&gt; OrderedFactor</code></pre><p>For example, we could first apply the <code>:discrete_to_continuous</code> rule, followed by <code>:few_to_finite</code> rule. The first rule will apply to <code>b</code> and <code>e</code> but the subsequent application of the second rule will mean we will get the same result apart for <code>e</code> (which will be <code>Continuous</code>)</p><pre><code class="language-julia">autotype(X, only_changes=true, rules=(:discrete_to_continuous, :few_to_finite))</code></pre><pre><code class="language-none">Dict{Symbol,Type{#s18} where #s18&lt;:Union{Missing, Found}} with 4 entries:
+  :c =&gt; OrderedFactor</code></pre><p>For example, we could first apply the <code>:discrete_to_continuous</code> rule, followed by <code>:few_to_finite</code> rule. The first rule will apply to <code>b</code> and <code>e</code> but the subsequent application of the second rule will mean we will get the same result apart for <code>e</code> (which will be <code>Continuous</code>)</p><pre><code class="language-julia">autotype(X, only_changes=true, rules=(:discrete_to_continuous, :few_to_finite))</code></pre><pre><code class="language-none">Dict{Symbol,Type{#s19} where #s19&lt;:Union{Missing, Found}} with 4 entries:
   :a =&gt; Multiclass
   :b =&gt; OrderedFactor
   :e =&gt; Continuous
