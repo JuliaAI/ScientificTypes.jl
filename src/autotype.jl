@@ -127,10 +127,10 @@ string_to_multiclass
 
 For a column with element type `<: AbstractString` or `<: AbstractChar` return
 Multiclass irrelevant of how many unique values there are. This rule is only
-applied on columns which are still considered to be `Unknown`.
+applied on columns which are `Textual` or `Unknown`.
 """
 function string_to_multiclass(type::Type, col, _)
-    nonmissing(type) <: Unknown || return type
+    nonmissing(type) in (Textual, Unknown) || return type
     etc = eltype(col)
     if nonmissing(etc) <: Union{AbstractChar,AbstractString}
         return T_or_Union_Missing_T(etc, Multiclass)

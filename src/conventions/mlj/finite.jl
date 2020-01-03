@@ -12,49 +12,40 @@ get_(::Missing) = missing
 
 # v is already categorical here, but may need `ordering` changed
 function _finalize_finite_coerce(v, verbosity, T2)
-    su = scitype_union(v)
-    if su >: Missing && !(T2 >: Missing)
+    elst = elscitype(v)
+    if elst >: Missing && !(T2 >: Missing)
         verbosity > 0 && _coerce_missing_warn(T2)
     end
-    if su <: T2
+    if elst <: T2
         return v
     end
-    return categorical(v, true, ordered=T2<:Union{Missing,OrderedFactor})
-end
-
-# HACK: The following method (9 lines) can be removed after resolution
-# of https://github.com/JuliaData/CategoricalArrays.jl/issues/226:
-function _finalize_finite_coerce(v::CategoricalArray, verbosity, T2)
-    su = scitype_union(v)
-    if su >: Missing && !(T2 >: Missing)
-        verbosity > 0 && _coerce_missing_warn(T2)
-    end
-    if su <: T2
-        return v
-    end
-    return ordered!(compress(v), T2<:Union{Missing,OrderedFactor})
+    return categorical(v, true, ordered=nonmissing(T2)<:OrderedFactor)
 end
 
 # if v is not a CategoricalArray:
-function coerce(v::AbstractArray,
-                ::Type{T2}; verbosity=1) where T2<:Union{Missing,Finite}
-    vtight = broadcast(identity, v)
-    vcat = categorical(vtight, true, ordered=T2<:Union{Missing,OrderedFactor})
+function coerce(v::Arr{T}, ::Type{T2}; verbosity=1
+                ) where T where T2<:Union{Missing,Finite}
+    if T >: Missing && !(has_missings(v))
+        # if there are no true missing, form a tight `v`
+        v = identity.(v)
+    end
+    vcat = categorical(v, true, ordered=nonmissing(T2)<:OrderedFactor)
     return _finalize_finite_coerce(vcat, verbosity, T2)
 end
 
 # if v is a CategoricalArray except CategoricalArray{Any}:
-coerce(v::CategoricalArray,
-       ::Type{T2}; verbosity=1) where T2<:Union{Missing,Finite} =
-           _finalize_finite_coerce(v, verbosity, T2)
+function coerce(v::CategoricalArray, ::Type{T2}; verbosity=1
+                ) where T2<:Union{Missing,Finite}
+    return _finalize_finite_coerce(v, verbosity, T2)
+end
 
 # if v is a CategoricalArray{Any} (a bit of a hack):
-function coerce(v::CategoricalArray{Any},
-                ::Type{T2}; verbosity=1)  where T2<:Union{Missing,Finite}
-    levels_ = levels(v)
+function coerce(v::CategoricalArray{Any}, ::Type{T2}; verbosity=1
+                ) where T2<:Union{Missing,Finite}
+    levels_    = levels(v)
     isordered_ = isordered(v)
-    vraw = broadcast(get_, v)
-    v_ = categorical(vraw, true, ordered=isordered_)
+    vraw       = broadcast(get_, v)
+    v_         = categorical(vraw, true, ordered=isordered_)
     levels!(v_, levels_)
     return _finalize_finite_coerce(v_, verbosity, T2)
 end
