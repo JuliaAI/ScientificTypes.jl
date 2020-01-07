@@ -95,7 +95,7 @@ const Binary     = Finite{2}
 const Scientific = Union{Missing,Found}
 
 """
-    MLJBase.Table{K}
+    MLJScientificTypes.Table{K}
 
 The scientific type for tabular data (a container `X` for which
 `Tables.is_table(X)=true`).
