@@ -18,15 +18,19 @@ end
 # if v is an Array (not a CategoricalArray):
 # NOTE: if Arr{Any} then categorical will  have eltype Union{Missing,T} even
 # if there are no missing values
-function coerce(v::Arr{T}, ::Type{T2}; verbosity=1
+function coerce(v::Arr{T}, ::Type{T2};
+                verbosity::Int=1, tight::Bool=false
                 ) where T where T2 <: Union{Missing,Finite}
+    v = _check_tight(v, T, tight)
     vcat = categorical(v, ordered=nonmissing(T2)<:OrderedFactor)
     return _finalize_finite_coerce(vcat, verbosity, T2)
 end
 
 # if v is a CategoricalArray except CategoricalArray{Any}:
-function coerce(v::CArr{T}, ::Type{T2}; verbosity=1
+function coerce(v::CArr{T}, ::Type{T2};
+                verbosity::Int=1, tight::Bool=false
                 ) where T where T2 <: Union{Missing,Finite}
+    v = _check_tight(v, T, tight)
     return _finalize_finite_coerce(v, verbosity, T2)
 end
 

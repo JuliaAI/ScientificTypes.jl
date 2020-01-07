@@ -18,33 +18,40 @@ _int(x) = Int(x) # NOTE: may throw InexactError
 ## COERCE ARRAY TO COUNT
 
 # Arr{Int} -> {Count} is no-op
-function coerce(y::Arr{<:Union{Missing,Integer}},
-                T::Type{<:Union{Missing,Count}}; verbosity=1)
-    _check_eltype(y, T, verbosity)
+function coerce(y::Arr{T}, T2::Type{<:Union{Missing,Count}};
+                verbosity::Int=1, tight::Bool=false
+                ) where T <: Union{Missing,Integer}
+    y = _check_tight(y, T, tight)
+    _check_eltype(y, T2, verbosity)
     return y
 end
 
 # Arr{Real \ Int} -> {Count} via `_int`, may throw InexactError
-function coerce(y::Arr{<:Union{Missing,Real}},
-                T::Type{<:Union{Missing,Count}}; verbosity=1)
-    _check_eltype(y, T, verbosity)
+function coerce(y::Arr{T}, T2::Type{<:Union{Missing,Count}};
+                verbosity::Int=1, tight::Bool=false
+                ) where T <: Union{Missing,Real}
+    y = _check_tight(y, T, tight)
+    _check_eltype(y, T2, verbosity)
     return _int.(y)
 end
 
 ## COERCE ARRAY TO CONTINUOUS
 
 # Arr{Float} -> Float is no-op
-function coerce(y::Arr{<:Union{Missing,AbstractFloat}},
-                T::Type{<:Union{Missing,Continuous}};
-                verbosity=1)
-    _check_eltype(y, T, verbosity)
+function coerce(y::Arr{T}, T2::Type{<:Union{Missing,Continuous}};
+                verbosity::Int=1, tight::Bool=false
+                ) where T <: Union{Missing,AbstractFloat}
+    y = _check_tight(y, T, tight)
+    _check_eltype(y, T2, verbosity)
     return y
 end
 
 # Arr{Real \ {Float}} -> Float via `float`
-function coerce(y::Arr{<:Union{Missing,Real}},
-                T::Type{<:Union{Missing,Continuous}}; verbosity=1)
-    _check_eltype(y, T, verbosity)
+function coerce(y::Arr{T}, T2::Type{<:Union{Missing,Continuous}};
+                verbosity::Int=1, tight::Bool=false
+                ) where T <: Union{Missing,Real}
+    y = _check_tight(y, T, tight)
+    _check_eltype(y, T2, verbosity)
     return float(y)
 end
 
@@ -52,10 +59,12 @@ end
 
 # CArr -> Float via `float(_int)`
 # NOTE: the CArr{Any} case is treated separately below
-function coerce(y::CArr, T::Type{<:Union{Missing,C}}; verbosity=1
-                ) where C <: Union{Count,Continuous}
-    _check_eltype(y, T, verbosity)
+function coerce(y::CArr{T}, T2::Type{<:Union{Missing,C}};
+                verbosity::Int=1, tight::Bool=false
+                ) where T where C <: Union{Count,Continuous}
+    # here we broadcast and so we don't need to tighten
     iy = _int.(y)
+    _check_eltype(iy, T2, verbosity)
     C == Count && return iy
     return float(iy)
 end

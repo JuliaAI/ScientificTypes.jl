@@ -1,6 +1,6 @@
-function _coerce_col(X, name, types_dict::Dict; args...)
+function _coerce_col(X, name, types_dict::Dict; kw...)
     y = getproperty(X, name)
-    haskey(types_dict, name) && return coerce(y, types_dict[name]; args...)
+    haskey(types_dict, name) && return coerce(y, types_dict[name]; kw...)
     return y
 end
 
@@ -37,13 +37,13 @@ schema(Xfixed).scitypes # (Continuous, Continuous, Continuous)
 See also [`scitype`](@ref), [`schema`](@ref).
 
 """
-function coerce(X, types_dict::Dict; verbosity=1)
+function coerce(X, types_dict::Dict; kw...)
     isempty(types_dict) && return X
     trait(X) == :table ||
         error("Non-tabular data encountered or Tables pkg not loaded.")
     names  = schema(X).names
     X_ct   = Tables.columntable(X)
-    ct_new = (_coerce_col(X_ct, col, types_dict; verbosity=verbosity) for col in names)
+    ct_new = (_coerce_col(X_ct, col, types_dict; kw...) for col in names)
     return Tables.materializer(X)(NamedTuple{names}(ct_new))
 end
 
@@ -74,26 +74,27 @@ Same as [`coerce`](@ref) except it does the modification in place provided `X`
 supports in-place modification (at the moment, only the DataFrame! does).
 An error is thrown otherwise. The arguments are the same as `coerce`.
 """
-function coerce!(X, args...; kwargs...)
+function coerce!(X, args...; kw...)
     # DataFrame --> coerce_dataframe! (see convention)
-    is_type(X, :DataFrames, :DataFrame) && return coerce_df!(X, args...; kwargs...)
+    is_type(X, :DataFrames, :DataFrame) && return coerce_df!(X, args...; kw...)
     # Everything else
     throw(ArgumentError("In place coercion not supported for $(typeof(X)). Try `coerce` instead."))
 end
-coerce!(X, types::Dict; kwargs...) = coerce!(X, (p for p in types)..., kwargs...)
+coerce!(X, types::Dict; kw...) = coerce!(X, (p for p in types)..., kw...)
 
-function coerce_df!(df, pairs::Pair{Symbol}...; verbosity=1)
+function coerce_df!(df, pairs::Pair{Symbol}...; kw...)
     names = Tables.schema(df).names
     types = Dict(pairs)
     for name in names
         name in keys(types) || continue
         # for DataFrames >= 0.19 df[!, name] = coerce(df[!, name], types(name))
-        # but we want something that works more robustly... even for older DataFrames
-        # the only way to do this is to use the `df.name = something` but we cannot use
-        # setindex! which will throw a deprecation warning...
+        # but we want something that works more robustly... even for older
+        # DataFrames; the only way to do this is to use the
+        # `df.name = something` but we cannot use setindex! without throwing
+        # a deprecation warning... metaprogramming to the rescue!
         name_str = "$name"
         ex = quote
-            $df.$name = coerce($df.$name, $types[Symbol($name_str)])
+            $df.$name = coerce($df.$name, $types[Symbol($name_str)], $kw...)
         end
         eval(ex)
     end

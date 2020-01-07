@@ -22,3 +22,5 @@ include("basic_tests.jl")
 include("extra_tests.jl")
 
 include("autotype.jl")
+
+include("mlj_coerce.jl")
