@@ -84,7 +84,7 @@ _float(y) = float(y)
 function coerce(y::Union{CArr{Any},Arr{Any}}, T::Type{<:Union{Missing,C}};
                 verbosity=1) where C <: Union{Count,Continuous}
     has_missings = findfirst(ismissing, y) !== nothing
-    has_missings && verbosity > 0 && _coerce_missing_warn(T)
+    has_missings && verbosity > 0 && _coerce_missing_warn(T, Any)
     has_chars    = findfirst(e -> isa(e, Char), y) !== nothing
     # Count case
     if C == Count

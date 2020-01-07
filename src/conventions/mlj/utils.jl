@@ -1,12 +1,17 @@
-function _coerce_missing_warn(::Type{T}) where T
-    T == Any && @warn "Trying to coerce from `Any` type to $T.\n" *
-                      "Coerced to Union{Missing,$T} instead."
-    T >: Missing || @warn "Missing values encountered coercing scitype " *
-                          "to $T.\nCoerced to Union{Missing,$T} instead."
+function _coerce_missing_warn(::Type{T}, from::Type) where T
+    T >: Missing && return
+    if from == Any
+        @warn "Trying to coerce from `Any` to `$T` with categoricals.\n" *
+              "Coerced to Union{Missing,$T} instead."
+    else
+        @warn "Trying to coerce from `Union{Missing,$from}` to `$T`.\n" *
+              "Coerced to Union{Missing,$T} instead."
+    end
 end
 
 function _check_eltype(y, T, verb)
-    eltype(y) >: Missing && verb > 0 && _coerce_missing_warn(T)
+    E = eltype(y)
+    E >: Missing && verb > 0 && _coerce_missing_warn(T, E)
 end
 
 function _check_tight(v, T, tight)

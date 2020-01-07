@@ -142,37 +142,41 @@ end
     @test coerce(z, OrderedFactor) === z
 
     # missing values
-    y_coerced = @test_logs((:warn, r"Missing values encountered"),
-                           coerce([4, 7, missing], Continuous))
+    y_coerced = @test_logs(
+        (:warn, r"Trying to coerce from `Union{Missing,"),
+        coerce([4, 7, missing], Continuous))
     @test ismissing(y_coerced == [4.0, 7.0, missing])
     @test scitype_union(y_coerced) === Union{Missing,Continuous}
-    y_coerced = @test_logs((:warn, r"Missing values encountered"),
-                           coerce(Any[4, 7.0, missing], Continuous))
+    y_coerced = @test_logs(
+        (:warn, r"Trying to coerce from `Any"),
+        coerce(Any[4, 7.0, missing], Continuous))
     @test ismissing(y_coerced == [4.0, 7.0, missing])
     @test scitype_union(y_coerced) === Union{Missing,Continuous}
-    y_coerced = @test_logs((:warn, r"Missing values encountered"),
-                           coerce([4.0, 7.0, missing], Count))
+    y_coerced = @test_logs(
+        (:warn, r"Trying to coerce from `Union{Missing,"),
+        coerce([4.0, 7.0, missing], Count))
     @test ismissing(y_coerced == [4, 7, missing])
     @test scitype_union(y_coerced) === Union{Missing,Count}
-    y_coerced = @test_logs((:warn, r"Missing values encountered"),
-                           coerce(Any[4, 7.0, missing], Count))
+    y_coerced = @test_logs(
+        (:warn, r"Trying to coerce from `Any"),
+        coerce(Any[4, 7.0, missing], Count))
     @test ismissing(y_coerced == [4, 7, missing])
     @test scitype_union(y_coerced) === Union{Missing,Count}
-    @test scitype_union(@test_logs((:warn, r"Missing values encountered"),
-                                   coerce([:x, :y, missing], Multiclass))) ===
-                                       Union{Missing, Multiclass{2}}
-    @test scitype_union(@test_logs((:warn, r"Missing values encountered"),
-                                coerce([:x, :y, missing], OrderedFactor))) ===
-                                       Union{Missing, OrderedFactor{2}}
+    @test scitype_union(@test_logs(
+        (:warn, r"Trying to coerce from `Union{Missing,"),
+        coerce([:x, :y, missing], Multiclass))) === Union{Missing, Multiclass{2}}
+    @test scitype_union(@test_logs(
+        (:warn, r"Trying to coerce from `Union{Missing,"),
+        coerce([:x, :y, missing], OrderedFactor))) === Union{Missing, OrderedFactor{2}}
     # non-missing Any vectors
-    @test coerce(Any[4, 7], Continuous) == [4.0, 7.0]
+    @test coerce(Any[4, 7],     Continuous) == [4.0, 7.0]
     @test coerce(Any[4.0, 7.0], Continuous) == [4, 7]
 
     # Finite conversions:
     @test scitype_union(coerce([:x, :y], Finite)) === Multiclass{2}
-    @test scitype_union(@test_logs((:warn, r"Missing values encountered"),
-                                coerce([:x, :y, missing], Finite))) ===
-                                    Union{Missing, Multiclass{2}}
+    @test scitype_union(@test_logs(
+        (:warn, r"Trying to coerce from `Union{Missing,"),
+        coerce([:x, :y, missing], Finite))) === Union{Missing, Multiclass{2}}
 
     # More finite conversions (to check resolution of #48):
     y = categorical([1, 2, 3, missing]) # unordered
@@ -197,7 +201,7 @@ end
 @testset "coerce R->OF (MLJ)" begin
     v = [0.1, 0.2, 0.2, 0.3, missing, 0.1]
     w = [0.1, 0.2, 0.2, 0.3, 0.1]
-    @test_logs((:warn, r"Missing values encountered"),
+    @test_logs((:warn, r"Trying to coerce from `Union{Missing,"),
                    global cv = coerce(v, OrderedFactor))
     cw = coerce(w, OrderedFactor)
     @test all(skipmissing(unique(cv)) .== [0.1, 0.2, 0.3])
@@ -207,9 +211,10 @@ end
 @testset "Any->Multiclass (MLJ)" begin
     v1 = categorical(Any[1,2,1,2,1,missing,2])
     v2 = Any[collect("aksldjfalsdjkfslkjdfalksjdf")...]
-    @test_logs((:warn, r"Missing values"),
+    @test_logs((:warn, r"Trying to coerce from `Any"),
                global v1c = coerce(v1, Multiclass))
-    v2c = coerce(v2, Multiclass)
+    @test_logs((:warn, r"Trying to coerce from `Any"),
+               global v2c = coerce(v2, Multiclass))
     @test scitype_union(v1c) == Union{Missing,Multiclass{2}}
     @test scitype_union(v2c) == Multiclass{7}
 
@@ -225,8 +230,9 @@ end
     # normal behaviour
     v1 = categorical([1,2,1,2,1,2,missing])
     v2 = collect("aksldjfalsdjkfslkjdfalksjdf")
-    @test_logs((:warn, r"Missing values"),
+    @test_logs((:warn, r"Trying to coerce from `Union"),
                global v1c = coerce(v1, Multiclass))
+    global v2c # otherwise julia complains... 
     v2c = coerce(v2, Multiclass)
     @test scitype_union(v1c) == Union{Missing,Multiclass{2}}
     @test scitype_union(v2c) == Multiclass{7}

@@ -4,10 +4,10 @@ scitype(c::CategoricalElement, ::MLJ) =
     c.pool.ordered ? OrderedFactor{nlevels(c)} : Multiclass{nlevels(c)}
 
 # v is already categorical here, but may need `ordering` changed
-function _finalize_finite_coerce(v, verbosity, T)
+function _finalize_finite_coerce(v, verbosity, T, fromT)
     elst = elscitype(v)
     if elst >: Missing && !(T >: Missing)
-        verbosity > 0 && _coerce_missing_warn(T)
+        verbosity > 0 && _coerce_missing_warn(T, fromT)
     end
     if elst <: T
         return v
@@ -23,7 +23,7 @@ function coerce(v::Arr{T}, ::Type{T2};
                 ) where T where T2 <: Union{Missing,Finite}
     v = _check_tight(v, T, tight)
     vcat = categorical(v, ordered=nonmissing(T2)<:OrderedFactor)
-    return _finalize_finite_coerce(vcat, verbosity, T2)
+    return _finalize_finite_coerce(vcat, verbosity, T2, T)
 end
 
 # if v is a CategoricalArray except CategoricalArray{Any}:
@@ -31,7 +31,7 @@ function coerce(v::CArr{T}, ::Type{T2};
                 verbosity::Int=1, tight::Bool=false
                 ) where T where T2 <: Union{Missing,Finite}
     v = _check_tight(v, T, tight)
-    return _finalize_finite_coerce(v, verbosity, T2)
+    return _finalize_finite_coerce(v, verbosity, T2, T)
 end
 
 ## PERFORMANT SCITYPES FOR ARRAYS
