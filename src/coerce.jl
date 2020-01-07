@@ -1,10 +1,7 @@
 function _coerce_col(X, name, types_dict::Dict; args...)
     y = getproperty(X, name)
-    if haskey(types_dict, name)
-        return coerce(y, types_dict[name]; args...)
-    else
-        return y
-    end
+    haskey(types_dict, name) && return coerce(y, types_dict[name]; args...)
+    return y
 end
 
 """

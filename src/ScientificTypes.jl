@@ -13,9 +13,6 @@ export categorical
 
 using Tables, CategoricalArrays, ColorTypes, PrettyTables
 
-const CategoricalElement{U} =
-    Union{CategoricalValue{<:Any,U},CategoricalString{U}}
-
 
 # ## FOR DETECTING OBJECTS BASED ON TRAITS
 
@@ -94,6 +91,11 @@ struct   ColorImage{W,H} <: Image{W,H} end
 const Binary     = Finite{2}
 const Scientific = Union{Missing,Found}
 
+const Arr  = AbstractArray
+const CArr = CategoricalArray
+const CategoricalElement = Union{CategoricalValue,CategoricalString}
+
+
 """
     MLJScientificTypes.Table{K}
 
@@ -167,6 +169,7 @@ include("autotype.jl")
 
 # and include code not requiring optional dependencies:
 
+include("conventions/mlj/utils.jl")
 include("conventions/mlj/mlj.jl")
 include("conventions/mlj/finite.jl")
 include("conventions/mlj/images.jl")

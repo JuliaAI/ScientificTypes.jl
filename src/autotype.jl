@@ -56,8 +56,8 @@ function _autotype(X, ::Val{:table}; only_changes::Bool=true,
     return suggested_types
 end
 
-function _autotype(X::AbstractArray{T,M}, ::Val{:other};
-                  rules::NTuple{N,Symbol} where N=(:few_to_finite,)) where {T,M}
+function _autotype(X::Arr, ::Val{:other};
+                   rules::NTuple{N,Symbol} where N=(:few_to_finite,))
     # check that the rules are recognised
     _check_rules(rules)
     sugg_type = elscitype(X)
@@ -76,7 +76,8 @@ end
 
 # convenience functions to pass a single rule at the time
 autotype(X, rule::Symbol; args...) = autotype(X; rules=(rule,), args...)
-autotype(X, rules::NTuple{N,Symbol} where N; args...)  = autotype(X; rules=rules, args...)
+autotype(X, rules::NTuple{N,Symbol} where N; args...) =
+    autotype(X; rules=rules, args...)
 
 """
 few_to_finite
@@ -98,14 +99,12 @@ function few_to_finite(type::Type, col, nrows::Int)
     unique_vals  = unique(skipmissing(col))
     coltype      = eltype(col)
     nunique_vals = length(unique_vals)
-
     if nunique_vals ≤ 3 && nrows ≥ 5 ||             # H1
        nunique_vals ≤ max(min(0.1 * nrows, 100), 4) # H2
         # suggest a type
         T = sugg_finite(coltype)
         return T_or_Union_Missing_T(coltype, T)
     end
-
     return type
 end
 
@@ -117,8 +116,9 @@ Return `Continuous` if the current type is either `Count` or `Integer`,
 otherwise return the type unchanged.
 """
 function discrete_to_continuous(type::Type, _, _)
-    nonmissing(type)<: Union{Count,Integer} &&
+    if nonmissing(type) <: Union{Count,Integer}
         return T_or_Union_Missing_T(type, Continuous)
+    end
     return type
 end
 
