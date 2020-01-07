@@ -155,3 +155,10 @@ end
     Xc = coerce(X, d, tight=true)
     @test elscitype(Xc.x) == Continuous
 end
+
+@testset "Extra tight" begin
+    a = categorical(Any[1,2,3])
+    # calls get.
+    c = coerce(a, Multiclass; tight=true)
+    @test elscitype(c) == Multiclass{3}
+end

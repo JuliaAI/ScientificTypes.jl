@@ -14,8 +14,15 @@ function _check_eltype(y, T, verb)
     E >: Missing && verb > 0 && _coerce_missing_warn(T, E)
 end
 
-function _check_tight(v, T, tight)
-    if T >: Missing && tight && findfirst(ismissing, v) == nothing
+function _check_tight(v::CArr, T, tight)
+    if T >: Missing && tight && findfirst(ismissing, v) === nothing
+        v = get.(v)
+    end
+    return v
+end
+
+function _check_tight(v::Arr, T, tight)
+    if T >: Missing && tight && findfirst(ismissing, v) === nothing
         v = identity.(v)
     end
     return v
