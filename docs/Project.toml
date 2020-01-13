@@ -7,4 +7,4 @@ DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 AbstractTrees = "1520ce14-60c1-5f80-bbc7-55ef81b5835c"
 
 [compat]
-Documenter = "^0.23"
+Documenter = "^0.23,^0.24"

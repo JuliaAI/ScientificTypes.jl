@@ -3,11 +3,11 @@ scitype(X)
 
 The scientific type that `X` may represent.
 """
-scitype(X; kw...)    = scitype(X, convention(); kw...)
+scitype(X;    kw...) = scitype(X, convention();     kw...)
 scitype(X, C; kw...) = scitype(X, C, Val(trait(X)); kw...)
-scitype(X, C, ::Val{:other}; kw...) = Unknown
 
-scitype(::Missing; kw...) = Missing
+scitype(X, C, ::Val{:other}; kw...) = Unknown
+scitype(::Missing;           kw...) = Missing
 
 
 # ## CONVENIENCE METHOD FOR UNIONS OVER ELEMENTS
@@ -56,37 +56,34 @@ the case that `T <: Union{U, Missing}`.
 For example, in the *MLJ* convention, one has
 `Scitype(::Type{<:Integer}, ::MLJ) = Count`.
 
-"""
-Scitype(::Type,      ::Convention) = nothing
-Scitype(::Type{Any}, ::Convention) = nothing # `Any` isa `Union{<:Any, Missing}`
+""" # XXX
+Scitype(::Type, ::Convention) = Unknown
+# to distinguish between Any type and Union{T,Missing} for some more
+# specialised `T`, we define the Any case explicitly
+Scitype(::Type{Any}, ::Convention) = Unknown
 
 # For all such `T` we can also get almost the same speed-up in the case that
 # `T` is replaced by `Union{T, Missing}`, which we detect by wrapping
 # the answer as a Val:
 
-Scitype(MT::Type{Union{T,Missing}}, C::Convention) where T = Val(Scitype(T, C))
+Scitype(::Type{Union{T,Missing}}, C::Convention) where T =
+    Union{Missing,Scitype(T, C)}
 
 # For example, Scitype(::Integer, ::MLJ) = Count
 
 # the dispatcher:
-scitype(A::Arr{T}, C, ::Val{:other}; kw...) where T = arr_scitype(A, C, Scitype(T, C); kw...)
+scitype(A::Arr{T}, C, ::Val{:other}; kw...) where T =
+    arr_scitype(A, C, Scitype(T, C); kw...)
 
-# the slow fallback (calling scitype_union)
-arr_scitype(A::Arr{T,N}, ::Convention, ::Nothing; kw...) where {T,N} =
-    Arr{scitype_union(A),N}
-
-# the speed-up where `S` corresponds to an explicit `Scitype(...)`
-arr_scitype(::Arr{T,N}, ::Convention, S; kw...) where {T,N} = Arr{S,N}
-
-function arr_scitype(A::Arr{T,N}, C::Convention, ::Val{S};
-                     tight::Bool=false) where {T,N,S}
+function arr_scitype(A::Arr{T,N}, C::Convention, S;
+                     tight::Bool=false) where {T,N}
     # no explicit scitype available
-    S === nothing && return arr_scitype(A, C, S)
+    S === Unknown && return Arr{scitype_union(A),N}
     # otherwise return `Arr{S,N}` or `Arr{Union{Missing,S},N}`
     if T >: Missing
         if tight
             has_missings = findfirst(ismissing, A) !== nothing
-            !has_missings && return Arr{S,N}
+            !has_missings && return Arr{nonmissing(S),N}
         end
         return Arr{Union{S,Missing},N}
     end

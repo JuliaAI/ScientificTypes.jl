@@ -29,19 +29,18 @@ Found
 │  ├─ Image
 │  │  ├─ ColorImage
 │  │  └─ GrayImage
+|  ├─ Textual
 │  └─ Table
 └─ Unknown
 ```
 
 - A single method `scitype` for articulating a convention about what scientific type each Julia object can represent. For example, one might declare `scitype(::AbstractFloat) = Continuous`.
-
 - A default convention called *MLJ*, based on dependencies
   `CategoricalArrays`, `ColorTypes`, and `Tables`, which includes a
   convenience method `coerce` for performing scientific type coercion
   on `AbstractVectors` and columns of tabular data (any table
   implementing the [Tables.jl](https://github.com/JuliaData/Tables.jl)
   interface).
-
 - A `schema` method for tabular data, based on the optional Tables dependency, for inspecting the machine and scientific types of tabular data, in addition to column names and number of rows.
 
 
@@ -200,28 +199,36 @@ scitype(data) <: Table(Continuous,Count,OrderedFactor)
 
 ### The scientific type of tuples, arrays and tables
 
-Under any convention, the scitype of a tuple is a `Tuple` type parameterized by scientific types:
+Under any convention, the scitype of a tuple is a `Tuple` type parametrised by scientific types:
 
 ```@example 5
 using ScientificTypes # hide
 scitype((1, 4.5))
 ```
 
-Similarly, the scitype of an `AbstractArray` is `AbstractArray{U}` where `U` is the union of the element scitypes:
+The scitype of an `AbstractArray`, `A`, is always`AbstractArray{U}` where `U` is the union of the element scitypes, with one exception: if `typeof(A) <: AbstractArray{Union{Missing,T}}` for some `T`, then the scitype is `AbstractArray{Union{Missing, U}}`, where `U` is the union over all non-missing elements, **even if `A` has no missing elements**.
+
+This exception is made for performance reasons. If one wants to override it, one uses `scitype(A, tight=true)`.
 
 ```@example 5
-scitype([1.3, 4.5, missing])
+v = [1.3, 4.5, missing]
+scitype(v)
+```
+
+```@example 5
+scitype(v[1:2])
+```
+
+```@example 5
+scitype(v[1:2], tight=true)
 ```
 
 *Performance note:* Computing type unions over large arrays is
 expensive and, depending on the convention's implementation and the
-array eltype, computing the scitype can be slow. (In the *MLJ*
-convention this is mitigated with the help of the
-`ScientificTypes.Scitype` method, of which other conventions could
-make use. Do `?ScientificTypes.Scitype` for details.) An eltype `Any`
-will always be slow and you may want to consider replacing an array
-`A` with `broadcast(identity, A)` to collapse the eltype and speed up
-the computation.
+array eltype, computing the scitype can be slow.
+In the *MLJ* convention this is mitigated with the help of the `ScientificTypes.Scitype` method, of which other conventions could make use.
+Do `?ScientificTypes.Scitype` for details.
+An eltype `Any` may lead to poor performances and you may want to consider replacing an array `A` with `broadcast(identity, A)` to collapse the eltype and speed up the computation.
 
 Provided the [Tables.jl](https://github.com/JuliaData/Tables.jl) package is loaded, any table implementing the Tables interface has a scitype encoding the scitypes of its columns:
 
@@ -231,7 +238,7 @@ X = (x1=rand(10),
      x2=rand(10),
      x3=categorical(rand("abc", 10)),
      x4=categorical(rand("01", 10)))
-scitype(X)
+schema(X)
 ```
 
 Sepcifically, if `X` has columns `c1, ..., cn`, then, by definition,
@@ -258,7 +265,7 @@ Note that `Table(Continuous,Finite)` is a *type* union and not a `Table` *instan
 
 ## The MLJ convention
 
-The table below summarizes the *MLJ* convention for representing
+The table below summarises the *MLJ* convention for representing
 scientific types:
 
 Type `T`        | `scitype(x)` for `x::T`           | package required
@@ -266,6 +273,7 @@ Type `T`        | `scitype(x)` for `x::T`           | package required
 `Missing`       | `Missing`                         |
 `AbstractFloat` | `Continuous`                      |
 `Integer`       |  `Count`                          |
+`String`        | `Textual`                         |
 `CategoricalValue` | `Multiclass{N}` where `N = nlevels(x)`, provided `x.pool.ordered == false`  | CategoricalArrays
 `CategoricalString` | `Multiclass{N}` where `N = nlevels(x)`, provided `x.pool.ordered == false`  | CategoricalArrays
 `CategoricalValue` | `OrderedFactor{N}` where `N = nlevels(x)`, provided `x.pool.ordered == true`| CategoricalArrays
