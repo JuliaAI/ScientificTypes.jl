@@ -56,7 +56,7 @@ the case that `T <: Union{U, Missing}`.
 For example, in the *MLJ* convention, one has
 `Scitype(::Type{<:Integer}, ::MLJ) = Count`.
 
-""" # XXX
+"""
 Scitype(::Type, ::Convention) = Unknown
 # to distinguish between Any type and Union{T,Missing} for some more
 # specialised `T`, we define the Any case explicitly
