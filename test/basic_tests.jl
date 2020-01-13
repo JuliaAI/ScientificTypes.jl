@@ -232,7 +232,7 @@ end
     v2 = collect("aksldjfalsdjkfslkjdfalksjdf")
     @test_logs((:warn, r"Trying to coerce from `Union"),
                global v1c = coerce(v1, Multiclass))
-    global v2c # otherwise julia complains... 
+    global v2c # otherwise julia complains...
     v2c = coerce(v2, Multiclass)
     @test scitype_union(v1c) == Union{Missing,Multiclass{2}}
     @test scitype_union(v2c) == Multiclass{7}

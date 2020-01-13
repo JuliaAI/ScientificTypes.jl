@@ -94,6 +94,7 @@ const Scientific = Union{Missing,Found}
 const Arr  = AbstractArray
 const CArr = CategoricalArray
 const CategoricalElement = Union{CategoricalValue,CategoricalString}
+const Cat = CategoricalElement
 
 
 """
@@ -170,7 +171,7 @@ include("autotype.jl")
 # and include code not requiring optional dependencies:
 
 include("conventions/mlj/utils.jl")
-include("conventions/mlj/mlj.jl")
+include("conventions/mlj/infinite.jl")
 include("conventions/mlj/finite.jl")
 include("conventions/mlj/images.jl")
 

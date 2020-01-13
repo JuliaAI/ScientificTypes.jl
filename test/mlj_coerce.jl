@@ -1,6 +1,92 @@
 # this overlaps with other tests it's aim is more to a list of mappings
 # and exemplify the behaviour in a wide range of cases.
 
+@testset "Missing ex" begin
+    # these tests only serve as complement to the rest to exemplify
+    # the behaviour when there are missing values / any types
+    # these tests are more meant to showcase behaviour than thorough testing
+    # the rest of the tests are more thorough.
+
+    ## Arr{Union{Missing,T}} --> FINITE
+    v  = [1, 2, missing]
+    cv = coerce(v, Union{Missing,OrderedFactor})
+    @test elscitype(cv) == Union{Missing,OrderedFactor{2}}
+    cv = coerce(v[1:2], Union{Missing,OrderedFactor})
+    @test elscitype(cv) == Union{Missing,OrderedFactor{2}}
+
+    ## CArr{Union{Missing,T}} --> FINITE
+    v  = categorical(['a', 'b', missing])
+    cv = coerce(v, Union{Missing,Multiclass})
+    @test elscitype(cv) == Union{Missing,Multiclass{2}}
+    cv = coerce(v[1:2], Union{Missing,Multiclass}) # no true missing
+    @test elscitype(cv) == Union{Missing,Multiclass{2}}
+
+    ## Arr{Union{Missing,T}} --> INFINITE
+    v  = [1, 2, 3, missing]
+    cv = coerce(v, Union{Missing,Count})
+    @test elscitype(cv) == Union{Missing,Count}
+    cv = coerce(v[1:3], Union{Missing,Count})
+    @test elscitype(cv) == Union{Missing,Count}
+
+    ## CArr{Union{Missing,T}} --> INFINITE
+    v  = categorical([1, 2, 3, missing])
+    cv = coerce(v, Union{Missing,Count})
+    @test elscitype(cv) == Union{Missing,Count}
+    cv = coerce(v[1:3], Count)   # NOTE: broadcast
+    @test elscitype(cv) == Count
+
+    ## WARNINGs
+    v = categorical(['a', 'b', missing])
+    @test_logs (:warn,
+        "Trying to coerce from `Union{Missing, Char}` to `Multiclass`.\nCoerced to `Union{Missing,Multiclass}` instead."
+        ) (cv = coerce(v, Multiclass))
+    @test elscitype(cv) == Union{Missing,Multiclass{2}}
+end
+
+@testset "Any ex" begin
+    # Arr{Any} --> FINITE
+    v  = Any[1, 2, 3]
+    cv = coerce(v, Union{Missing,OrderedFactor})
+    @test elscitype(cv) == Union{Missing,OrderedFactor{3}}
+    v  = Any[1, 2, 3, missing]
+    cv = coerce(v, Union{Missing,OrderedFactor})
+    @test elscitype(cv) == Union{Missing,OrderedFactor{3}}
+
+    # CArr{Any} --> FINITE
+    v  = categorical(Any['a', 'b', 'c'])
+    cv = coerce(v, Union{Missing,Multiclass})
+    @test elscitype(cv) == Union{Missing,Multiclass{3}}
+    v  = categorical(Any['a', 'b', missing])
+    cv = coerce(v, Union{Missing,Multiclass})
+    @test elscitype(cv) == Union{Missing,Multiclass{2}}
+    cv = coerce(v[1:2], Union{Missing,Multiclass}) # no true missing
+    @test elscitype(cv) == Union{Missing,Multiclass{2}}
+
+    # Arr{Any} --> Infinite
+    v  = Any[1.0, 2.0, 5.3]
+    cv = coerce(v, Continuous)
+    @test elscitype(cv) == Continuous
+
+    # CArr{Any} --> Infinite
+    v  = categorical(Any[1.0, 2.0, 3.0])
+    cv = coerce(v, Continuous)
+    @test elscitype(cv) == Continuous
+
+    ## Warnings
+    v = Any['A', 1, 2]
+    @test_logs (:warn,
+        "Char value encountered, such value will be coerced according to the corresponding numeric value (e.g. 'A' to 65)."
+        ) (cv = coerce(v, Count))
+    @test cv == [65, 1, 2]
+    @test elscitype(cv) == Count
+
+    v = categorical(Any[1,2,3])
+    @test_logs (:warn,
+        "Trying to coerce from `Any` to `OrderedFactor` with categoricals.\nCoerced to `Union{Missing,OrderedFactor}` instead."
+        ) (cv = coerce(v, OrderedFactor))
+    @test elscitype(cv) == Union{Missing,OrderedFactor{3}}
+end
+
 @testset "(MLJ)->Finite" begin
     # char / string
     char    = ['a','b','c']

@@ -1,32 +1,17 @@
-nlevels(c::CategoricalElement) = length(levels(c.pool))
+#=
+Functionalities to coerce to T <: Union{Missing,<:Finite}
+=#
 
-scitype(c::CategoricalElement, ::MLJ) =
-    c.pool.ordered ? OrderedFactor{nlevels(c)} : Multiclass{nlevels(c)}
-
-# v is already categorical here, but may need `ordering` changed
-function _finalize_finite_coerce(v, verbosity, T, fromT)
-    elst = elscitype(v)
-    if elst >: Missing && !(T >: Missing)
-        verbosity > 0 && _coerce_missing_warn(T, fromT)
-    end
-    if elst <: T
-        return v
-    end
-    return categorical(v, ordered=nonmissing(T)<:OrderedFactor)
-end
-
-# if v is an Array (not a CategoricalArray):
-# NOTE: if Arr{Any} then categorical will  have eltype Union{Missing,T} even
-# if there are no missing values
+# Arr{T} -> Finite
 function coerce(v::Arr{T}, ::Type{T2};
                 verbosity::Int=1, tight::Bool=false
                 ) where T where T2 <: Union{Missing,Finite}
-    v = _check_tight(v, T, tight)
+    v    = _check_tight(v, T, tight)
     vcat = categorical(v, ordered=nonmissing(T2)<:OrderedFactor)
     return _finalize_finite_coerce(vcat, verbosity, T2, T)
 end
 
-# if v is a CategoricalArray except CategoricalArray{Any}:
+# CArr{T} -> Finite
 function coerce(v::CArr{T}, ::Type{T2};
                 verbosity::Int=1, tight::Bool=false
                 ) where T where T2 <: Union{Missing,Finite}
@@ -34,15 +19,14 @@ function coerce(v::CArr{T}, ::Type{T2};
     return _finalize_finite_coerce(v, verbosity, T2, T)
 end
 
-## PERFORMANT SCITYPES FOR ARRAYS
-
-function scitype(A::CArr{T,N}, ::MLJ) where {T,N}
-    nlevels = length(levels(A))
-    if isordered(A)
-        S = OrderedFactor{nlevels}
-    else
-        S = Multiclass{nlevels}
+# v is already categorical here, but may need `ordering` changed
+function _finalize_finite_coerce(v, verbosity, T, fromT)
+    elst = elscitype(v)
+    if (elst >: Missing) && !(T >: Missing)
+        verbosity > 0 && _coerce_missing_warn(T, fromT)
     end
-    T >: Missing && (S = Union{S,Missing})
-    return AbstractArray{S,N}
+    if elst <: T
+        return v
+    end
+    return categorical(v, ordered=nonmissing(T)<:OrderedFactor)
 end
