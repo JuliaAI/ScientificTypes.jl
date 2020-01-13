@@ -23,4 +23,4 @@ include("extra_tests.jl")
 
 include("autotype.jl")
 
-include("mlj_coerce.jl")
+include("mlj.jl")

@@ -1,6 +1,3 @@
-# this overlaps with other tests it's aim is more to a list of mappings
-# and exemplify the behaviour in a wide range of cases.
-
 @testset "Missing ex" begin
     # these tests only serve as complement to the rest to exemplify
     # the behaviour when there are missing values / any types
@@ -247,4 +244,23 @@ end
     # calls get.
     c = coerce(a, Multiclass; tight=true)
     @test elscitype(c) == Multiclass{3}
+end
+
+@testset "Scitype/tight" begin
+    x = [1,2,3,missing]
+    @test elscitype(x) == Union{Missing,Count}
+    @test elscitype(x[1:3]) == Union{Missing,Count}
+    @test elscitype(x[1:3], tight=true) == Count
+
+    df = DataFrame(X = [1,2,3,missing], Y = [1.0,2.0,3.0,missing])
+    sch = schema(df)
+    @test sch.scitypes[1] == Union{Missing,Count}
+    @test sch.scitypes[2] == Union{Missing,Continuous}
+    df2 = df[1:3,:]
+    sch = schema(df2)
+    @test sch.scitypes[1] == Union{Missing,Count}
+    @test sch.scitypes[2] == Union{Missing,Continuous}
+    sch = schema(df2, tight=true)
+    @test sch.scitypes[1] == Count
+    @test sch.scitypes[2] == Continuous
 end
