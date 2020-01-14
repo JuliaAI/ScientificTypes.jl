@@ -199,14 +199,20 @@ scitype(data) <: Table(Continuous,Count,OrderedFactor)
 
 ### The scientific type of tuples, arrays and tables
 
-Under any convention, the scitype of a tuple is a `Tuple` type parametrised by scientific types:
+**Important Definition 1** Under any convention, the scitype of a tuple is a `Tuple` type parametrised by scientific types:
 
 ```@example 5
 using ScientificTypes # hide
 scitype((1, 4.5))
 ```
 
-The scitype of an `AbstractArray`, `A`, is always`AbstractArray{U}` where `U` is the union of the element scitypes, with one exception: if `typeof(A) <: AbstractArray{Union{Missing,T}}` for some `T`, then the scitype is `AbstractArray{Union{Missing, U}}`, where `U` is the union over all non-missing elements, **even if `A` has no missing elements**.
+**Important Definition 2** The scitype of an `AbstractArray`, `A`, is
+always`AbstractArray{U}` where `U` is the union of the scitpyes of the
+elements of `A`, with one exception: If `typeof(A) <:
+AbstractArray{Union{Missing,T}}` for some `T` different from `Any`,
+then the scitype of `A` is `AbstractArray{Union{Missing, U}}`, where
+`U` is the union over all non-missing elements, **even if `A` has no
+missing elements**.
 
 This exception is made for performance reasons. If one wants to override it, one uses `scitype(A, tight=true)`.
 
@@ -241,7 +247,8 @@ X = (x1=rand(10),
 schema(X)
 ```
 
-Sepcifically, if `X` has columns `c1, ..., cn`, then, by definition,
+**Important Definition 3** Specifically, if `X` has columns `c1, ...,
+cn`, then
 
 ```julia
 scitype(X) == Table{Union{scitype(c1), ..., scitype(cn)}}
