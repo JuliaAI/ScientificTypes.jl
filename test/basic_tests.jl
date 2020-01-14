@@ -12,9 +12,8 @@ end
     uv = categorical([:x, :y], ordered=true)
     u = uv[1]
 
-    @test scitype((4, 4.5, c, u, "X")) ==
-    Tuple{Count,Continuous,Multiclass{2},
-          OrderedFactor{2},Textual}
+    @test scitype((4, 4.5, c, u, "X")) == Tuple{
+                       Count,Continuous,Multiclass{2},OrderedFactor{2},Textual}
 end
 
 A = Any[2 4.5;
@@ -32,7 +31,7 @@ end
 
 @testset "elscitype" begin
     X = randn(5, 5)
-    @test scitype(X) == AbstractArray{Continuous, 2}
+    @test scitype(X) == Arr{Continuous, 2}
     @test elscitype(X) == Continuous
     X = [1, 2, missing, 5]
     @test elscitype(X) == Union{Missing,Count}
@@ -45,45 +44,39 @@ end
 end
 
 @testset "Arrays" begin
-    @test scitype(A) ==
-        AbstractArray{Union{Count, Continuous}, 2}
+    # COUNT
+    @test scitype(A)               == Arr{Union{Count,Continuous}, 2}
+    @test scitype([1, 2, 3])       == Vec{Count}
+    @test scitype([1, missing, 3]) == Vec{Union{Missing,Count}}
+    @test scitype(Any[1, 2, 3])    == Vec{Count}
+    @test scitype(Any[1, missing]) == Vec{Union{Missing,Count}}
 
-    @test scitype([1, 2, 3]) ==
-        AbstractVector{Count}
-    @test scitype([1, missing, 3]) ==
-        AbstractVector{Union{Missing,Count}}
-    @test scitype(Any[1, 2, 3]) ==
-        AbstractVector{Count}
-    @test scitype(Any[1, missing, 3]) ==
-        AbstractVector{Union{Missing,Count}}
+    # CONTINUOUS
+    @test scitype([1.0, 2.0, 3.0])    == Vec{Continuous}
+    @test scitype(Any[1.0, missing])  == Vec{Union{Missing,Continuous}}
+    @test scitype(Any[1.0, 2.0, 3.0]) == Vec{Continuous}
+    @test scitype(Any[1.0, missing])  == Vec{Union{Missing,Continuous}}
 
-    @test scitype([1.0, 2.0, 3.0]) ==
-        AbstractVector{Continuous}
-    @test scitype(Any[1.0, missing, 3.0]) ==
-        AbstractVector{Union{Missing,Continuous}}
-    @test scitype(Any[1.0, 2.0, 3.0]) ==
-        AbstractVector{Continuous}
-    @test scitype(Any[1.0, missing, 3.0]) ==
-        AbstractVector{Union{Missing,Continuous}}
-
-    @test scitype(categorical(1:4)) ==
-        AbstractVector{Multiclass{4}}
-    @test scitype(Any[categorical(1:4)...]) ==
-        AbstractVector{Multiclass{4}}
+    # MULTICLASS
+    @test scitype(categorical(1:4))         == Vec{Multiclass{4}}
+    @test scitype(Any[categorical(1:4)...]) == Vec{Multiclass{4}}
     @test scitype(categorical([1, missing, 3])) ==
-        AbstractVector{Union{Multiclass{2},Missing}}
-    @test scitype(categorical([1, missing])[1:1]) ==
-        AbstractVector{Multiclass{1}}
+        Vec{Union{Multiclass{2},Missing}}
+    # NOTE: the slice here does not contain missings but the machine type
+    # still contains a missing so the scitype remains with a missing
+    @test scitype(categorical([1, missing, 3])[1:1]) ==
+        Vec{Union{Multiclass{2},Missing}}
 
+    # ORDEREDFACTOR
     @test scitype(categorical(1:4, ordered=true)) ==
-        AbstractVector{OrderedFactor{4}}
+        Vec{OrderedFactor{4}}
     @test scitype(Any[categorical(1:4, ordered=true)...]) ==
-        AbstractVector{OrderedFactor{4}}
+        Vec{OrderedFactor{4}}
     @test scitype(categorical([1, missing, 3], ordered=true)) ==
-        AbstractVector{Union{OrderedFactor{2},Missing}}
-    @test scitype(categorical([1, missing], ordered=true)[1:1]) ==
-        AbstractVector{OrderedFactor{1}}
-
+        Vec{Union{OrderedFactor{2},Missing}}
+    # NOTE: see note for multiclass
+    @test scitype(categorical([1, missing, 3], ordered=true)[1:1]) ==
+        Vec{Union{OrderedFactor{2},Missing}}
 end
 
 @testset "Images" begin
@@ -94,7 +87,7 @@ end
     color_image2 = fill(black, (5, 3))
     v = [color_image, color_image2, color_image2]
     @test scitype(v) ==
-        AbstractVector{Union{ColorImage{10,20},ColorImage{5,3}}}
+        Vec{Union{ColorImage{10,20},ColorImage{5,3}}}
 
     white = Gray(1.0)
     gray_image = fill(white, (10, 20))
@@ -102,15 +95,15 @@ end
 end
 
 @testset "Type coercion" begin
-    X=(x=10:10:44, y=1:4, z=collect("abcd"))
+    X = (x=10:10:44, y=1:4, z=collect("abcd"))
     types = Dict(:x => Continuous, :z => Multiclass)
-#   X_coerced = @test_logs coerce(X, types)
     X_coerced = coerce(X, types)
     @test X_coerced ==  coerce(X, :x => Continuous, :z => Multiclass)
     @test scitype_union(X_coerced.x) === Continuous
     @test scitype_union(X_coerced.z) <: Multiclass
     @test !X_coerced.z.pool.ordered
     @test_throws MethodError coerce(["a", "b", "c"], Count)
+
     y = collect(Float64, 1:5)
     y_coerced = coerce(y, Count)
     @test scitype_union(y_coerced) === Count
@@ -120,11 +113,11 @@ end
     @test scitype_union(y_coerced) === Continuous
     @test y_coerced ≈ y
     X_coerced = coerce(X, Dict(:z => OrderedFactor))
-#    X_coerced = @test_logs coerce(X, Dict(:z => OrderedFactor))
     @test X_coerced == coerce(X, :z => OrderedFactor)
     @test X_coerced.x === X.x
     @test scitype_union(X_coerced.z) <: OrderedFactor
     @test X_coerced.z.pool.ordered
+
     # Check no-op coercion
     y = rand(Float64, 5)
     @test coerce(y, Continuous) === y
@@ -147,45 +140,50 @@ end
     @test coerce(z, Multiclass) === z
     z = categorical(X.z, true, ordered = true)
     @test coerce(z, OrderedFactor) === z
+
     # missing values
-    y_coerced = @test_logs((:warn, r"Missing values encountered"),
-                           coerce([4, 7, missing], Continuous))
+    y_coerced = @test_logs(
+        (:warn, r"Trying to coerce from `Union{Missing,"),
+        coerce([4, 7, missing], Continuous))
     @test ismissing(y_coerced == [4.0, 7.0, missing])
     @test scitype_union(y_coerced) === Union{Missing,Continuous}
-    y_coerced = @test_logs((:warn, r"Missing values encountered"),
-                           coerce(Any[4, 7.0, missing], Continuous))
+    y_coerced = @test_logs(
+        (:warn, r"Trying to coerce from `Any"),
+        coerce(Any[4, 7.0, missing], Continuous))
     @test ismissing(y_coerced == [4.0, 7.0, missing])
     @test scitype_union(y_coerced) === Union{Missing,Continuous}
-    y_coerced = @test_logs((:warn, r"Missing values encountered"),
-                           coerce([4.0, 7.0, missing], Count))
+    y_coerced = @test_logs(
+        (:warn, r"Trying to coerce from `Union{Missing,"),
+        coerce([4.0, 7.0, missing], Count))
     @test ismissing(y_coerced == [4, 7, missing])
     @test scitype_union(y_coerced) === Union{Missing,Count}
-    y_coerced = @test_logs((:warn, r"Missing values encountered"),
-                           coerce(Any[4, 7.0, missing], Count))
+    y_coerced = @test_logs(
+        (:warn, r"Trying to coerce from `Any"),
+        coerce(Any[4, 7.0, missing], Count))
     @test ismissing(y_coerced == [4, 7, missing])
     @test scitype_union(y_coerced) === Union{Missing,Count}
-    @test scitype_union(@test_logs((:warn, r"Missing values encountered"),
-                                   coerce([:x, :y, missing], Multiclass))) ===
-                                       Union{Missing, Multiclass{2}}
-    @test scitype_union(@test_logs((:warn, r"Missing values encountered"),
-                                coerce([:x, :y, missing], OrderedFactor))) ===
-                                       Union{Missing, OrderedFactor{2}}
+    @test scitype_union(@test_logs(
+        (:warn, r"Trying to coerce from `Union{Missing,"),
+        coerce([:x, :y, missing], Multiclass))) === Union{Missing, Multiclass{2}}
+    @test scitype_union(@test_logs(
+        (:warn, r"Trying to coerce from `Union{Missing,"),
+        coerce([:x, :y, missing], OrderedFactor))) === Union{Missing, OrderedFactor{2}}
     # non-missing Any vectors
-    @test coerce(Any[4, 7], Continuous) == [4.0, 7.0]
+    @test coerce(Any[4, 7],     Continuous) == [4.0, 7.0]
     @test coerce(Any[4.0, 7.0], Continuous) == [4, 7]
 
     # Finite conversions:
     @test scitype_union(coerce([:x, :y], Finite)) === Multiclass{2}
-    @test scitype_union(@test_logs((:warn, r"Missing values encountered"),
-                                coerce([:x, :y, missing], Finite))) ===
-                                    Union{Missing, Multiclass{2}}
+    @test scitype_union(@test_logs(
+        (:warn, r"Trying to coerce from `Union{Missing,"),
+        coerce([:x, :y, missing], Finite))) === Union{Missing, Multiclass{2}}
 
     # More finite conversions (to check resolution of #48):
     y = categorical([1, 2, 3, missing]) # unordered
     yc = coerce(y, Union{Missing,OrderedFactor})
     @test isordered(yc)
     @test yc[1].pool.ordered
-    @test scitype(yc) == AbstractVector{Union{Missing,OrderedFactor{3}}}
+    @test scitype(yc) == Vec{Union{Missing,OrderedFactor{3}}}
     @test scitype_union(yc) == Union{Missing,OrderedFactor{3}}
     @test scitype_union(y) == Union{Missing,Multiclass{3}}
 end
@@ -203,7 +201,7 @@ end
 @testset "coerce R->OF (MLJ)" begin
     v = [0.1, 0.2, 0.2, 0.3, missing, 0.1]
     w = [0.1, 0.2, 0.2, 0.3, 0.1]
-    @test_logs((:warn, r"Missing values encountered"),
+    @test_logs((:warn, r"Trying to coerce from `Union{Missing,"),
                    global cv = coerce(v, OrderedFactor))
     cw = coerce(w, OrderedFactor)
     @test all(skipmissing(unique(cv)) .== [0.1, 0.2, 0.3])
@@ -213,19 +211,28 @@ end
 @testset "Any->Multiclass (MLJ)" begin
     v1 = categorical(Any[1,2,1,2,1,missing,2])
     v2 = Any[collect("aksldjfalsdjkfslkjdfalksjdf")...]
-    @test_logs((:warn, r"Missing values"),
+    @test_logs((:warn, r"Trying to coerce from `Any"),
                global v1c = coerce(v1, Multiclass))
-    v2c = coerce(v2, Multiclass)
+    @test_logs((:warn, r"Trying to coerce from `Any"),
+               global v2c = coerce(v2, Multiclass))
     @test scitype_union(v1c) == Union{Missing,Multiclass{2}}
     @test scitype_union(v2c) == Multiclass{7}
-    @test eltype(v1c) <: Union{Missing, CategoricalValue{Int64}}
-    @test eltype(v2c) <: CategoricalValue{Char}
 
-    # normal behaviour is unchanged
+    # NOTE: the original vector is of Anytype, so the categorical value is too
+    # Also when applying `categorical` to a vector of `Any`, the eltype will
+    # be Union{Missing,CategoricalValue}, for instance:
+    v = Any[1,2,3]
+    @test eltype(categorical(v)) == Union{Missing,CategoricalValue{Any,UInt32}}
+    # This justifies the following:
+    @test eltype(v1c) <: Union{Missing,CategoricalValue{Any}}
+    @test eltype(v2c) <: Union{Missing,CategoricalValue{Any}}
+
+    # normal behaviour
     v1 = categorical([1,2,1,2,1,2,missing])
     v2 = collect("aksldjfalsdjkfslkjdfalksjdf")
-    @test_logs((:warn, r"Missing values"),
+    @test_logs((:warn, r"Trying to coerce from `Union"),
                global v1c = coerce(v1, Multiclass))
+    global v2c # otherwise julia complains...
     v2c = coerce(v2, Multiclass)
     @test scitype_union(v1c) == Union{Missing,Multiclass{2}}
     @test scitype_union(v2c) == Multiclass{7}

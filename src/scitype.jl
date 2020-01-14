@@ -3,11 +3,11 @@ scitype(X)
 
 The scientific type that `X` may represent.
 """
-scitype(X) = scitype(X, convention())
-scitype(X, C) = scitype(X, C, Val(trait(X)))
-scitype(X, C, ::Val{:other}) = Unknown
+scitype(X;    kw...) = scitype(X, convention();     kw...)
+scitype(X, C; kw...) = scitype(X, C, Val(trait(X)); kw...)
 
-scitype(::Missing) = Missing
+scitype(X, C, ::Val{:other}; kw...) = Unknown
+scitype(::Missing;           kw...) = Missing
 
 
 # ## CONVENIENCE METHOD FOR UNIONS OVER ELEMENTS
@@ -25,7 +25,7 @@ scitype_union(A) = reduce((a,b)->Union{a,b}, (scitype(el) for el in A))
 
 # ## SCITYPES OF TUPLES
 
-scitype(t::Tuple, ::Convention) = Tuple{scitype.(t)...}
+scitype(t::Tuple, ::Convention; kw...) = Tuple{scitype.(t; kw...)...}
 
 
 # ## SCITYPES OF ARRAYS
@@ -57,41 +57,38 @@ For example, in the *MLJ* convention, one has
 `Scitype(::Type{<:Integer}, ::MLJ) = Count`.
 
 """
-Scitype(::Type,      ::Convention) = nothing
-Scitype(::Type{Any}, ::Convention) = nothing # `Any` isa `Union{<:Any, Missing}`
+Scitype(::Type, ::Convention) = Unknown
+# to distinguish between Any type and Union{T,Missing} for some more
+# specialised `T`, we define the Any case explicitly
+Scitype(::Type{Any}, ::Convention) = Unknown
 
 # For all such `T` we can also get almost the same speed-up in the case that
 # `T` is replaced by `Union{T, Missing}`, which we detect by wrapping
 # the answer as a Val:
 
-Scitype(MT::Type{Union{T,Missing}}, C::Convention) where T = Val(Scitype(T, C))
+Scitype(::Type{Union{T,Missing}}, C::Convention) where T =
+    Union{Missing,Scitype(T, C)}
 
 # For example, Scitype(::Integer, ::MLJ) = Count
 
-const Arr = AbstractArray
-
 # the dispatcher:
-scitype(A::Arr{T}, C, ::Val{:other}) where T = arr_scitype(A, C, Scitype(T, C))
+scitype(A::Arr{T}, C, ::Val{:other}; kw...) where T =
+    arr_scitype(A, C, Scitype(T, C); kw...)
 
-# the slow fallback (calling scitype_union)
-arr_scitype(A::Arr{T,N}, ::Convention, ::Nothing) where {T,N} =
-    Arr{scitype_union(A),N}
-
-# the speed-up where `S` corresponds to an explicit `Scitype(...)`
-arr_scitype(::Arr{T,N}, ::Convention, S) where {T,N} = Arr{S,N}
-
-function arr_scitype(A::Arr{T,N}, C::Convention, ::Val{S}) where {T,N,S}
+function arr_scitype(A::Arr{T,N}, C::Convention, S;
+                     tight::Bool=false) where {T,N}
     # no explicit scitype available
-    S === nothing && return arr_scitype(A, C, S)
-    # otherwise return `Arr{S,N}` but check first if the array
-    # is of type Union{T,Missing}. If that's the case, check that there
-    # actually **are** missing values in `A`.
-    T >: Missing && has_missings(A) && return Arr{Union{S,Missing},N}
-    # otherwise
+    S === Unknown && return Arr{scitype_union(A),N}
+    # otherwise return `Arr{S,N}` or `Arr{Union{Missing,S},N}`
+    if T >: Missing
+        if tight
+            has_missings = findfirst(ismissing, A) !== nothing
+            !has_missings && return Arr{nonmissing(S),N}
+        end
+        return Arr{Union{S,Missing},N}
+    end
     return Arr{S,N}
 end
-
-_get_elscitype(st::Type{Arr{T,N}}) where {T,N} = T
 
 """
 elscitype(A)
@@ -102,16 +99,6 @@ scitype which is `AbstractArray{T,N}` and extracts the element scitype from
 the `T`. Note however that, in some corner cases, `scitype` does check all
 elements in which case `elscitype` also will.
 """
-elscitype(X::AbstractArray) = scitype(X) |> _get_elscitype
+elscitype(X::Arr; kw...) = scitype(X; kw...) |> _get_elst
 
-
-"""
-has_missings(X::AbstractArray)
-
-Check whether `X` has any missing value and return `true` if that's the case. """
-function has_missings(X::Arr)
-    @inbounds for i in eachindex(X)
-        ismissing(X[i]) && return true
-    end
-    return false
-end
+_get_elst(st::Type{Arr{T,N}}) where {T,N} = T
