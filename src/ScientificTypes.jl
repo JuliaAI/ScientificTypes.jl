@@ -7,7 +7,6 @@ export ColorImage, GrayImage
 export scitype, scitype_union, elscitype, coerce, coerce!, schema
 export info
 export autotype
-export MLJ
 
 # re-export from CategoricalArrays:
 export categorical
