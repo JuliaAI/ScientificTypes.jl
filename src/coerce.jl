@@ -5,8 +5,22 @@ function _coerce_col(X, name, types_dict::Dict; kw...)
 end
 
 """
-coerce(X, col1=>scitype1, col2=>scitype2, ... ; verbosity=1)
-coerce(X, d::AbstractDict; verbosity=1)
+    coerce(A, S; tight=false, verbosity=1)
+
+Return a copy of an array `A` after applying machine type conversions
+to ensure `scitype(A) = AbstractArray{S}` or `scitype(A) =
+Abstract{Union{Missing,S}`, under the active convention. The latter
+case applies whenever `eltype(A) <: AbstractArray{Union{Missing,T}}`
+for some `T` (different from `Any`), *even if `A` has no missing
+values*. A warning is issued if `Missing` appears in the new scitype,
+unless `verbosity` is set below `1`.
+
+If `A` has no missing values, then a pure scitype is guaranteed by
+specifying `tight=true`.
+
+
+    coerce(X, col1=>scitype1, col2=>scitype2, ... ; verbosity=1)
+    coerce(X, d::AbstractDict; verbosity=1)
 
 Return a copy of the table `X` with the scitypes of the specified
 columns coerced to those specified, or to missing-value versions of
