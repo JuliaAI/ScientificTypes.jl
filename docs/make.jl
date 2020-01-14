@@ -4,7 +4,7 @@ makedocs(
     modules = [ScientificTypes],
     format = Documenter.HTML(
         prettyurls = !("local" in ARGS),
-        assets = ["assets/custom.css"]
+        # assets = ["assets/custom.css"]
         ),
     sitename = "ScientificTypes.jl",
     authors = "Anthony Blaom, Thibaut Lienart, and contributors.",
