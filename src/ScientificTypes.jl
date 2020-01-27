@@ -1,89 +1,47 @@
 module ScientificTypes
 
-export Scientific, Found, Unknown, Finite, Infinite
-export OrderedFactor, Multiclass, Count, Continuous, Textual
-export Binary, Table
-export ColorImage, GrayImage
-export scitype, scitype_union, elscitype, coerce, coerce!, schema
-export info
-export autotype
+# Type exports
+export Scientific, Found, Unknown, Known, Finite, Infinite,
+       OrderedFactor, Multiclass, Count, Continuous, Textual,
+       Binary, ColorImage, GrayImage
+export Convention
 
-# re-export from CategoricalArrays:
-export categorical
+export scitype, scitype_union, elscitype, schema, info, nonmissing
+export convention, set_convention, trait, TRAIT_FUNCTION_GIVEN_NAME
 
-using Tables, CategoricalArrays, ColorTypes, PrettyTables
-
-
-# ## FOR DETECTING OBJECTS BASED ON TRAITS
-
-# We define a "dynamically" extended function `trait`:
-
-const TRAIT_FUNCTION_GIVEN_NAME = Dict()
-function trait(X)
-    for (name, f) in TRAIT_FUNCTION_GIVEN_NAME
-        f(X) && return name
-    end
-    return :other
-end
-
-# Explanation: For example, if Tables.jl is loaded and one does
-# `TRAIT_FUNCTION_GIVEN_NAME[:table] = Tables.is_table` then
-# `trait(X)` returns `:table` on any Tables.jl table. There is an
-# understanding here that no two trait functions added to the
-# dictionary values can be simultaneously true on two julia objects.
-
-# External packages should extend the dictionary
-# TRAIT_FUNCTION_GIVEN_NAME in their __init__ function.
-
-
-"""
-
-    info(object)
-
-Returns metadata associated with some object, typically a named tuple
-keyed on a set of object traits.
-
-*Notes on overloading:* If the class of objects is detected by its
-type, `info` can be overloaded in the usual way.  If the class of
-objects is detected by the value of `ScientificTypes.trait(object)` -
-say if this value is `:some_symbol` - then one should define a method
-`info(object, ::Val{:some_symbol})`.
-
-"""
-info(object) = info(object, Val(ScientificTypes.trait(object)))
-
-
-# ## CONVENTIONS
-
-abstract type Convention end
-struct MLJ <: Convention end
-
-const CONVENTION=[MLJ(),]
-convention() = CONVENTION[1]
-
-function set_convention(C)
-    CONVENTION[1] = C()
-    return nothing
-end
-
-
-# ## THE SCIENTIFIC TYPES
+# -------------------------------------------------------------------
+# Scientific Types
+#
+# Found
+# ├─ Known
+# │  ├─ Finite
+# │  │  ├─ Multiclass
+# │  │  └─ OrderedFactor
+# │  ├─ Infinite
+# │  │  ├─ Continuous
+# │  │  └─ Count
+# │  ├─ Image
+# │  │  ├─ ColorImage
+# │  │  └─ GrayImage
+# │  └─ Textual
+# └─ Unknown
+#
 
 abstract type Found          end
 abstract type Known <: Found end
 struct      Unknown <: Found end
 
-struct Textual <: Known end
+abstract type Infinite   <: Known end
+abstract type Finite{N}  <: Known end
+abstract type Image{W,H} <: Known end
+struct         Textual   <: Known end
 
-abstract type Infinite <: Known    end
-struct      Continuous <: Infinite end
-struct           Count <: Infinite end
+struct Continuous <: Infinite end
+struct      Count <: Infinite end
 
-abstract type Finite{N} <: Known     end
 struct    Multiclass{N} <: Finite{N} end
 struct OrderedFactor{N} <: Finite{N} end
 
-abstract type Image{W,H} <: Known      end
 struct    GrayImage{W,H} <: Image{W,H} end
 struct   ColorImage{W,H} <: Image{W,H} end
 
@@ -91,88 +49,94 @@ struct   ColorImage{W,H} <: Image{W,H} end
 const Binary     = Finite{2}
 const Scientific = Union{Missing,Found}
 
-const Arr  = AbstractArray
-const CArr = CategoricalArray
-const CategoricalElement = Union{CategoricalValue,CategoricalString}
-const Cat = CategoricalElement
+# convenience alias
+const Arr = AbstractArray
 
+# -------------------------------------------------------------------
+# Convention
 
-"""
-    MLJScientificTypes.Table{K}
+abstract type Convention end
+struct NoConvention <: Convention end
 
-The scientific type for tabular data (a container `X` for which
-`Tables.is_table(X)=true`).
-
-If `X` has columns `c1, c2, ..., cn`, then, by definition,
-
-    scitype(X) = Table{Union{scitype(c1), scitype(c2), ..., scitype(cn)}}
-
-A special constructor of `Table` types exists:
-
-    `Table(T1, T2, T3, ..., Tn) <: Table`
-
-has the property that
-
-    scitype(X) <: Table(T1, T2, T3, ..., Tn)
-
-if and only if `X` is a table *and*, for every column `col` of `X`,
-`scitype(col) <: AbstractVector{<:Tj}`, for some `j` between `1` and
-`n`. Note that this constructor constructs a *type* not an instance,
-as instances of scientific types play no role (except for missing).
-
-    julia> X = (x1 = [10.0, 20.0, missing],
-                x2 = [1.0, 2.0, 3.0],
-                x3 = [4, 5, 6])
-
-    julia> scitype(X) <: MLJBase.Table(Continuous, Count)
-    false
-
-    julia> scitype(X) <: MLJBase.Table(Union{Continuous, Missing}, Count)
-    true
+const CONVENTION = Ref{Convention}(NoConvention())
 
 """
-struct Table{K} <: Known end
-function Table(Ts...)
-    Union{Ts...} <: Scientific ||
-        error("Arguments of Table scitype constructor "*
-              "must be scientific types. ")
-    return Table{<:Union{[AbstractVector{<:T} for T in Ts]...}}
+    set_convention(C)
+
+Set the current convention to  `C`.
+"""
+set_convention(C::Type{<:Convention}) = (CONVENTION[] = C(); nothing)
+
+"""
+    convention()
+
+Return the current convention.
+"""
+function convention()
+    conv = CONVENTION[]
+    if conv isa NoConvention
+        @warn "No convention specified. Did you forget to use the " *
+              "`set_convention` function?"
+    end
+    return conv
+end
+
+# -------------------------------------------------------------------
+# trait & info
+#
+# Note that for every new trait, a corresponding `schema` function should
+# be implemented, see schema.jl
+
+const TRAIT_FUNCTION_GIVEN_NAME = Dict{Symbol,Function}()
+
+"""
+    trait(X)
+
+Check `X` against traits specified in `TRAIT_FUNCTION_GIVEN_NAME` and returns
+a symbol corresponding to the matching trait, or `:other` if `X` didn't match
+any of the trait functions.
+"""
+function trait(X)::Symbol
+    for (name, f) in TRAIT_FUNCTION_GIVEN_NAME
+        f(X) && return name
+    end
+    return :other
 end
 
 """
-is_type(obj, spkg, stype)
+    info(X)
 
-This is a way to check that an object `obj` is of a given type that may come
-from a package that is not loaded in the current environment.
-For instance, say `DataFrames` is not loaded in the current environment, a
-function from some package could still return a DataFrame in which case you
-can check this with
+Return the metadata associated with some object `X`, typically a named tuple
+keyed on a set of object traits.
 
-```
-is_type(obj, :DataFrames, :DataFrame)
-```
+*Notes on overloading:*: If the class of objects is detected by its type,
+`info` can be overloaded in the usual way.  If the class of objects is detected
+by the value of `ScientificTypes.trait(object)` - say if this value is
+`:some_symbol` - then one should define a method
+`info(object, ::Val{:some_symbol})`.
 """
-function is_type(obj, spkg::Symbol, stype::Symbol)
-    # If the package is loaded, then it will just be `stype`
-    # otherwise it will be `spkg.stype`
-    rx = Regex("^($spkg\\.)?$stype")
-    match(rx, "$(typeof(obj))") === nothing || return true
-    return false
-end
+info(X) = info(X, Val(trait(X)))
 
+# -----------------------------------------------------------------
+# nonmissing
+
+if VERSION < v"1.3"
+    # see also discourse.julialang.org/t/get-non-missing-type-in-the-case-of-parametric-type/29109
+    """
+        nonmissingtype(TT)
+
+    Return the type `T` if the type is a `Union{Missing,T}` or `T`.
+    """
+    function nonmissingtype(::Type{T}) where T
+        return T isa Union ? ifelse(T.a == Missing, T.b, T.a) : T
+    end
+end
+nonmissing = nonmissingtype
+
+# -----------------------------------------------------------------
+# includes
 
 include("scitype.jl")
 include("schema.jl")
-include("coerce.jl")
-include("autotype.jl")
-
-## ACTIVATE DEFAULT CONVENTION
-
-# and include code not requiring optional dependencies:
-
-include("conventions/mlj/utils.jl")
-include("conventions/mlj/infinite.jl")
-include("conventions/mlj/finite.jl")
-include("conventions/mlj/images.jl")
 
 end # module

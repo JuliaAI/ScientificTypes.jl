@@ -1,26 +1,8 @@
-using Test
-using ScientificTypes
-using CategoricalArrays
-using Tables
-
-using ColorTypes
-using Random
-using DataFrames
-using CSV
-
+using Test, ScientificTypes, Tables
 const S = ScientificTypes
-const M = S.MLJ()
 
-const Arr  = AbstractArray
-const Vec  = AbstractVector
-const CArr = CategoricalArray
+include("convention.jl")
 
-include("type_tests.jl")
+include("schema.jl")
 
-include("basic_tests.jl")
-
-include("extra_tests.jl")
-
-include("autotype.jl")
-
-include("mlj.jl")
+include("scitype.jl")
