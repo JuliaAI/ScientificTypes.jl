@@ -7,7 +7,6 @@ export Scientific, Found, Unknown, Known, Finite, Infinite,
 export Convention, Schema
 
 export scitype, scitype_union, elscitype, schema, info, nonmissing
-export convention, set_convention, trait, TRAIT_FUNCTION_GIVEN_NAME
 
 # -------------------------------------------------------------------
 # Scientific Types

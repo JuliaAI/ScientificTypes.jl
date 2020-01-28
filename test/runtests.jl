@@ -1,5 +1,5 @@
 using Test, ScientificTypes, Tables
-const S = ScientificTypes
+const ST = ScientificTypes
 
 include("convention.jl")
 
