@@ -13,4 +13,9 @@
 
     X = [1,2,3]
     @test_throws ArgumentError schema(X)
+
+    io = IOBuffer()
+    show(io, sch)
+    sh = String(take!(io))
+    @test sh == "Schema{...}()"
 end

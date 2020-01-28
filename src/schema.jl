@@ -13,17 +13,18 @@ end
 Schema(names, types, scitypes, nrows) =
     Schema{Tuple(Symbol.(names)), Tuple{types...}, Tuple{scitypes...}, nrows}()
 
-boogie(t)        = Tuple(fieldtype(t, i) for i = 1:fieldcount(t))
-boogie_woogie(t) = collect(boogie(t))
+if VERSION < v"1.1"
+    fieldtypes(t) = Tuple(fieldtype(t, i) for i = 1:fieldcount(t))
+end
 
 function Base.getproperty(sch::Schema{names, types, scitypes, nrows},
                           field::Symbol) where {names, types, scitypes, nrows}
     if field === :names
         return names
     elseif field === :types
-        return types === nothing ? nothing : boogie(types)
+        return types === nothing ? nothing : fieldtypes(types)
     elseif field === :scitypes
-        return scitypes === nothing ? nothing : boogie(scitypes)
+        return scitypes === nothing ? nothing : fieldtypes(scitypes)
     elseif field === :nrows
         return nrows === nothing ? nothing : nrows
     else

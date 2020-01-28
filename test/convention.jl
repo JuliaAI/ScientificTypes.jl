@@ -1,5 +1,5 @@
 @testset "convention" begin
-    set_convention(ScientificTypes.NoConvention
+    set_convention(ScientificTypes.NoConvention)
     c = ""
     @test_logs (:warn, "No convention specified. Did you forget to use the `set_convention` function?") (c = convention())
     @test c isa ScientificTypes.NoConvention
