@@ -8,9 +8,6 @@
 
     @test_throws ArgumentError sch.something
     @test propertynames(sch) == (:names, :types, :scitypes, :nrows)
-    snt = S._as_named_tuple(sch)
-    @test snt isa NamedTuple
-    @test snt.names == sch.names
 
     X = [1,2,3]
     @test_throws ArgumentError schema(X)

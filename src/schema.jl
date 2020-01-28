@@ -34,10 +34,6 @@ end
 
 Base.propertynames(sch::Schema) = (:names, :types, :scitypes, :nrows)
 
-_as_named_tuple(s::Schema) =
-    NamedTuple{(:names, :types, :scitypes, :nrows)}(
-               (s.names, s.types, s.scitypes, s.nrows))
-
 """
     schema(X)
 
