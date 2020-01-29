@@ -54,9 +54,6 @@ schema(X, ::Val{:other}; kw...) =
     throw(ArgumentError("Cannot inspect the internal scitypes of "*
                         "an object with trait `:other`."))
 
-# See MLJScientificTypes for a definition of schema specific for Tables.
-# For those who develop their own convention and extension of
-# TRAIT_FUNCTION_GIVEN_NAME, they need to ensure that `schema` is defined
-# for all keys of that dictionary.
-
+# This show method can be extended, see for instance MLJScientificTypes
+# which uses Tables and PrettyTables for a nice display of the schema.
 Base.show(io::IO, s::Schema) = print(io, "Schema{...}()")

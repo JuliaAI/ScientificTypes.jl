@@ -62,29 +62,26 @@ const CONVENTION = Ref{Convention}(NoConvention())
 """
     set_convention(C)
 
-Set the current convention to  `C`.
+Set the current convention to `C`.
 """
-set_convention(C::Type{<:Convention}) = (CONVENTION[] = C(); nothing)
+set_convention(C::Convention) = (CONVENTION[] = C; nothing)
 
 """
     convention()
 
 Return the current convention.
 """
-function convention()
-    conv = CONVENTION[]
-    if conv isa NoConvention
+function convention()::Convention
+    C = CONVENTION[]
+    if C isa NoConvention
         @warn "No convention specified. Did you forget to use the " *
               "`set_convention` function?"
     end
-    return conv
+    return C
 end
 
 # -------------------------------------------------------------------
 # trait & info
-#
-# Note that for every new trait, a corresponding `schema` function should
-# be implemented, see schema.jl
 
 const TRAIT_FUNCTION_GIVEN_NAME = Dict{Symbol,Function}()
 
@@ -124,7 +121,8 @@ if VERSION < v"1.3"
     """
         nonmissingtype(TT)
 
-    Return the type `T` if the type is a `Union{Missing,T}` or `T`.
+    Return the type `T` if `TT = Union{Missing,T}` for some `T` and return `TT`
+    otherwise.
     """
     function nonmissingtype(::Type{T}) where T
         return T isa Union ? ifelse(T.a == Missing, T.b, T.a) : T
