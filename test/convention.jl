@@ -1,3 +1,5 @@
+struct MockMLJ <: Convention end
+
 @testset "convention" begin
     ST.set_convention(ScientificTypes.NoConvention())
     c = ""
