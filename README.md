@@ -13,7 +13,7 @@ universe.
 
 ## Purpose
 
-The package makes the distinction between between **machine type** and **scientific type**:
+The package makes the distinction between **machine type** and **scientific type**:
 
 * the _machine type_ is a Julia type the data is currently encoded as (for instance: `Float64`)
 * the _scientific type_ is a type defined by this package which
@@ -54,7 +54,7 @@ Found
 
 If you want to implement your own convention, you can consider the [MLJScientificTypes.jl](https://github.com/alan-turing-institute/MLJScientificTypes.jl) as a blueprint.
 
-When defining a convention you may want to:
+The steps below summarise the possible steps in defining such a convention:
 
 * declare a new convention,
 * declare new traits,
@@ -62,8 +62,7 @@ When defining a convention you may want to:
 * add explicit `scitype` and `Scitype` definitions,
 * define a `coerce` function.
 
-We explain below how these steps may look like taking the MLJ convention as
-an example.
+Each step is explained below taking the MLJ convention as an example.
 
 ### Declaring a new convention
 
