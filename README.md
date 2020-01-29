@@ -45,8 +45,7 @@ Found
 │  ├─ Image
 │  │  ├─ ColorImage
 │  │  └─ GrayImage
-|  ├─ Textual
-│  └─ Table
+│  └─ Textual
 └─ Unknown
 ```
 
