@@ -20,7 +20,7 @@ end
 
     X = (x = [1,2,3],
          y = [5,5,7])
-    @test ST.trait(X)     == :table
+    @test ST.trait(X) == :table
     X = [1,2,3]
     @test ST.trait(X) == :other
 end
@@ -28,4 +28,14 @@ end
 @testset "nonmissing" begin
     U = Union{Missing,Int}
     @test nonmissing(U) == Int
+end
+
+@testset "table" begin
+    T0 = Table(Continuous)
+    @test T0 == Table{K} where K<:AbstractVector{<:Continuous}
+    T1 = Table(Continuous, Count)
+    @test T1 == Table{K} where K<:Union{AbstractVector{<:Continuous}, AbstractVector{<:Count}}
+    T2 = Table(Continuous, Union{Missing,Continuous})
+    @test T2 == Table{K} where K<:Union{AbstractVector{<:Union{Missing,Continuous}}}
+    @test_throws MethodError Table(Int,Float64)
 end

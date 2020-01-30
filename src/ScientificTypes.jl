@@ -3,7 +3,7 @@ module ScientificTypes
 # Type exports
 export Scientific, Found, Unknown, Known, Finite, Infinite,
        OrderedFactor, Multiclass, Count, Continuous, Textual,
-       Binary, ColorImage, GrayImage
+       Binary, ColorImage, GrayImage, Table
 export Convention
 
 export scitype, scitype_union, elscitype, nonmissing
@@ -117,6 +117,25 @@ if VERSION < v"1.3"
 end
 nonmissing = nonmissingtype
 
+# -----------------------------------------------------------------
+# Constructor for table scientific type
+
+"""
+Table(...)
+
+Constructor for the `Table` scientific type with:
+
+```
+Table(S1, S2, ..., Sn) <: Table
+```
+
+where  `S1, ..., Sn` are the scientific type of the table's columns which
+are expected to be represented by abstract vectors.
+"""
+Table(Ts::Type{<:Scientific}...) = Table{<:Union{(Arr{<:T,1} for T in Ts)...}}
+
+# -----------------------------------------------------------------
+# scitype
 
 include("scitype.jl")
 
