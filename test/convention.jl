@@ -6,7 +6,6 @@ struct MockMLJ <: Convention end
     @test_logs (:warn, "No convention specified. Did you forget to use the `set_convention` function?") (c = ST.convention())
     @test c isa ST.NoConvention
 
-    struct MockMLJ <: Convention end
     ST.set_convention(MockMLJ())
     c = ST.convention()
     @test c isa MockMLJ
