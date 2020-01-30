@@ -45,6 +45,7 @@ Found
 │  ├─ Image
 │  │  ├─ ColorImage
 │  │  └─ GrayImage
+│  ├─ Table
 │  └─ Textual
 └─ Unknown
 ```
@@ -57,6 +58,7 @@ The steps below summarise the possible steps in defining such a convention:
 
 * declare a new convention,
 * declare new traits,
+* add new scientific types,
 * add explicit `scitype` and `Scitype` definitions,
 * define a `coerce` function.
 
@@ -104,14 +106,15 @@ end
 
 ### Adding scientific types
 
-You may want to extend the type hierarchy defined above. In the case of the
-MLJ convention, we consider a *table* as a scientific type:
+You may want to extend the type hierarchy defined above. This is done as usual
+with something like
 
 ```julia
-struct Table{K} <: Known end
+struct MyNewType{P} <: Known end
 ```
 
-where `K` is a union over the scientific type of each of the columns.
+Recall that Scientific Types are only used for dispatching and so should not
+have fields.
 
 ### Adding explicit `scitype` and `Scitype` definitions
 
