@@ -3,10 +3,10 @@ module ScientificTypes
 # Type exports
 export Scientific, Found, Unknown, Known, Finite, Infinite,
        OrderedFactor, Multiclass, Count, Continuous, Textual,
-       Binary, ColorImage, GrayImage
-export Convention, Schema
+       Binary, ColorImage, GrayImage, Table
+export Convention
 
-export scitype, scitype_union, elscitype, schema, info, nonmissing
+export scitype, scitype_union, elscitype, nonmissing, trait
 
 # -------------------------------------------------------------------
 # Scientific Types
@@ -30,10 +30,11 @@ abstract type Found          end
 abstract type Known <: Found end
 struct      Unknown <: Found end
 
-abstract type Infinite   <: Known end
-abstract type Finite{N}  <: Known end
+abstract type   Infinite <: Known end
+abstract type  Finite{N} <: Known end
 abstract type Image{W,H} <: Known end
-struct         Textual   <: Known end
+struct           Textual <: Known end
+struct          Table{K} <: Known end
 
 struct Continuous <: Infinite end
 struct      Count <: Infinite end
@@ -99,20 +100,6 @@ function trait(X)::Symbol
     return :other
 end
 
-"""
-    info(X)
-
-Return the metadata associated with some object `X`, typically a named tuple
-keyed on a set of object traits.
-
-*Notes on overloading:*: If the class of objects is detected by its type,
-`info` can be overloaded in the usual way.  If the class of objects is detected
-by the value of `ScientificTypes.trait(object)` - say if this value is
-`:some_symbol` - then one should define a method
-`info(object, ::Val{:some_symbol})`.
-"""
-info(X) = info(X, Val(trait(X)))
-
 # -----------------------------------------------------------------
 # nonmissing
 
@@ -131,9 +118,25 @@ end
 nonmissing = nonmissingtype
 
 # -----------------------------------------------------------------
-# includes
+# Constructor for table scientific type
+
+"""
+Table(...)
+
+Constructor for the `Table` scientific type with:
+
+```
+Table(S1, S2, ..., Sn) <: Table
+```
+
+where  `S1, ..., Sn` are the scientific type of the table's columns which
+are expected to be represented by abstract vectors.
+"""
+Table(Ts::Type{<:Scientific}...) = Table{<:Union{(Arr{<:T,1} for T in Ts)...}}
+
+# -----------------------------------------------------------------
+# scitype
 
 include("scitype.jl")
-include("schema.jl")
 
 end # module
