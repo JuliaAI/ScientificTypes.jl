@@ -19,12 +19,9 @@ end
     isjunk(s::String) = s == "junk" ? true : false
     ST.TRAIT_FUNCTION_GIVEN_NAME[:junk] = isjunk
 
-    ST.info(object, ::Val{:junk}) = length(object)
-
     X = (x = [1,2,3],
          y = [5,5,7])
     @test ST.trait(X)     == :table
-    @test info("junk") == 4
     X = [1,2,3]
     @test ST.trait(X) == :other
 end
