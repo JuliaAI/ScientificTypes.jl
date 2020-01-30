@@ -6,7 +6,7 @@ export Scientific, Found, Unknown, Known, Finite, Infinite,
        Binary, ColorImage, GrayImage, Table
 export Convention
 
-export scitype, scitype_union, elscitype, nonmissing
+export scitype, scitype_union, elscitype, nonmissing, trait
 
 # -------------------------------------------------------------------
 # Scientific Types
