@@ -1,12 +1,16 @@
 module ScientificTypes
 
 # Type exports
-export Scientific, Found, Unknown, Known, Finite, Infinite,
-       OrderedFactor, Multiclass, Count, Continuous, Textual,
-       Binary, ColorImage, GrayImage, Table
 export Convention
 
+# re-export-able types and methods
+export Scientific, Found, Unknown, Known, Finite, Infinite,
+       OrderedFactor, Multiclass, Count, Continuous, Textual,
+       Binary, ColorImage, GrayImage, Image, Table
 export scitype, scitype_union, elscitype, nonmissing, trait
+
+# utils (should not be re-exported)
+export TRAIT_FUNCTION_GIVEN_NAME, set_convention
 
 # -------------------------------------------------------------------
 # Scientific Types
