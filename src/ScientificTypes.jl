@@ -2,6 +2,7 @@ module ScientificTypes
 
 # Type exports
 export Convention
+
 # re-export-able types and methods
 export Scientific, Found, Unknown, Known, Finite, Infinite,
        OrderedFactor, Multiclass, Count, Continuous, Textual,

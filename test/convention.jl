@@ -1,22 +1,22 @@
 struct MockMLJ <: Convention end
 
 @testset "convention" begin
-    ST.set_convention(ScientificTypes.NoConvention())
+    set_convention(ScientificTypes.NoConvention())
     c = ""
     @test_logs (:warn, "No convention specified. Did you forget to use the `set_convention` function?") (c = ST.convention())
     @test c isa ST.NoConvention
 
-    ST.set_convention(MockMLJ())
+    set_convention(MockMLJ())
     c = ST.convention()
     @test c isa MockMLJ
 end
 
 @testset "trait" begin
-    ST.TRAIT_FUNCTION_GIVEN_NAME[:table] = Tables.istable
+    TRAIT_FUNCTION_GIVEN_NAME[:table] = Tables.istable
 
     isjunk(::Any)     = false
     isjunk(s::String) = s == "junk" ? true : false
-    ST.TRAIT_FUNCTION_GIVEN_NAME[:junk] = isjunk
+    TRAIT_FUNCTION_GIVEN_NAME[:junk] = isjunk
 
     X = (x = [1,2,3],
          y = [5,5,7])
