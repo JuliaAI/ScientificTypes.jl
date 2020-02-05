@@ -86,7 +86,7 @@ If `tight=true` and `T>:Missing` then the function checks whether there are
 "true missing values", otherwise it constructs a "tight copy" of the array
 without a `Union{Missing,S}` type.
 """
-function arr_scitype(A::Arr{T,N}, C::Convention, S;
+function arr_scitype(A::Arr{T,N}, C::Convention, S::Type{<:Scientific};
                      tight::Bool=false) where {T,N}
     # no explicit scitype available
     S === Unknown && return Arr{scitype_union(A),N}

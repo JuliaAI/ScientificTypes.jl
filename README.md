@@ -45,6 +45,7 @@ Found
 │  ├─ Image
 │  │  ├─ ColorImage
 │  │  └─ GrayImage
+│  ├─ Table
 │  └─ Textual
 └─ Unknown
 ```
@@ -57,7 +58,7 @@ The steps below summarise the possible steps in defining such a convention:
 
 * declare a new convention,
 * declare new traits,
-* implement custom `schema`, `show` and `info` functions,
+* add new scientific types,
 * add explicit `scitype` and `Scitype` definitions,
 * define a `coerce` function.
 
@@ -105,46 +106,15 @@ end
 
 ### Adding scientific types
 
-You may want to extend the type hierarchy defined above. In the case of the
-MLJ convention, we consider a *table* as a scientific type:
+You may want to extend the type hierarchy defined above. This is done as usual
+with something like
 
 ```julia
-struct Table{K} <: Known end
+struct MyNewType{P} <: Known end
 ```
 
-where `K` is a union over the scientific type of each of the columns.
-
-### Implementing custom `schema`, `show` and `info`
-
-If you have added new traits, you *may* want to extend the `schema` function
-for objects with that trait. Subsequently you may also want to extend  the
-`show` of such schemas  and  the `info` of such objects.
-
-The `Schema` constructor takes 4 tuples:
-- the *names* of the features
-- their *machine type*
-- their *scientific type*
-- the *number of rows*
-
-In the MLJ convention:
-
-```julia
-function ScientificTypes.schema(X, ::Val{:table}; kw...)
-    sch = Tables.schema(X)
-    # ...
-    return Schema(names, types, stypes, nrows)
-end
-```
-
-Extending the `show` or `info` is then straightforward.
-
-```julia
-ScientificTypes.info(X, ::Val{:table}) = schema(X)
-
-function Base.show(io::IO, ::MIME"text/plain", s::ScientificTypes.Schema)
-    # ...
-end
-```
+Recall that Scientific Types are only used for dispatching and so should not
+have fields.
 
 ### Adding explicit `scitype` and `Scitype` definitions
 
