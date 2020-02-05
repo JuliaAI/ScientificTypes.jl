@@ -4,12 +4,13 @@
 | :-----------: | :------: |
 | [![Build Status](https://travis-ci.org/alan-turing-institute/ScientificTypes.jl.svg?branch=master)](https://travis-ci.org/alan-turing-institute/ScientificTypes.jl) | [![codecov.io](http://codecov.io/github/alan-turing-institute/ScientificTypes.jl/coverage.svg?branch=master)](http://codecov.io/github/alan-turing-institute/ScientificTypes.jl?branch=master) |
 
-A light-weight, dependency-free Julia interface for implementing conventions
-about the scientific interpretation of data.
-This package should only be used by developers who intend to define their own
-scientific type convention.
-The [MLJScientificTypes.jl](https://github.com/alan-turing-institute/MLJScientificTypes.jl) packages implements such a convention used in the [MLJ](https://github.com/alan-turing-institute/MLJ.jl)
-universe.
+A light-weight, dependency-free Julia interface for implementing
+conventions about the scientific interpretation of data.  This package
+should only be used by developers who intend to define their own
+scientific type convention.  The
+[MLJScientificTypes.jl](https://github.com/alan-turing-institute/MLJScientificTypes.jl)
+packages implements such a convention used in the
+[MLJ](https://github.com/alan-turing-institute/MLJ.jl) universe.
 
 ## Purpose
 
