@@ -4,24 +4,11 @@
 | :-----------: | :------: |
 | [![Build Status](https://travis-ci.org/alan-turing-institute/ScientificTypes.jl.svg?branch=master)](https://travis-ci.org/alan-turing-institute/ScientificTypes.jl) | [![codecov.io](http://codecov.io/github/alan-turing-institute/ScientificTypes.jl/coverage.svg?branch=master)](http://codecov.io/github/alan-turing-institute/ScientificTypes.jl?branch=master) |
 
-A light-weight, dependency-free Julia interface for implementing
-conventions about the scientific interpretation of data.  This package
-should only be used by developers who intend to define their own
-scientific type convention.  The
-[MLJScientificTypes.jl](https://github.com/alan-turing-institute/MLJScientificTypes.jl)
-packages implements such a convention used in the
-[MLJ](https://github.com/alan-turing-institute/MLJ.jl) universe.
+A light-weight, dependency-free, Julia interface defining a collection
+of types (without instances) for implementing conventions about the
+scientific interpretation of data.
 
-#### Contents
-
- - [Who is this repository for?](#who-is-this-repo-for)
- - [What's provided here?](#what-is-provided-here)
- - [Defining a new convention](#defining-a-new-convention)
-
-
-## Who is this repository for?
-
-The package makes the distinction between the **machine type** and
+This package makes the distinction between the **machine type** and
 **scientific type** of data:
 
 * The _machine type_ is a Julia type the data is currently encoded as (e.g., `Float64`)
@@ -35,6 +22,23 @@ is used for product numbers (a factor) but also for a person's weight
 type is frequently represented by *different* machine types - both
 `Int` and `Float64` are used to represent weights, for example.
 
+
+#### Contents
+
+ - [Who is this repository for?](#who-is-this-repository-for)
+ - [What's provided here?](#what-is-provided-here)
+ - [Defining a new convention](#defining-a-new-convention)
+
+
+## Who is this repository for?
+
+This package
+should only be used by developers who intend to define their own
+scientific type convention.  The
+[MLJScientificTypes.jl](https://github.com/alan-turing-institute/MLJScientificTypes.jl)
+package implements such a convention used in the
+[MLJ](https://github.com/alan-turing-institute/MLJ.jl) universe.
+
 The purpose of this package is to provide a mechanism for articulating
 conventions around the scientific interpretation of data. With such a
 convention in place, a numerical algorithm declares its data
@@ -45,7 +49,7 @@ places on the actual machine type of the data supplied.
 
 ## What is provided here?
 
-#### Scientific types
+#### 1. Scientific types
 
 ScientificTypes provides a hierarchy of Julia types
 representing data types for use in method dispatch (e.g., for trait
@@ -80,7 +84,7 @@ type](#more-on-the-table-type).
 The julia native `Missing` type is also regarded as a scientific
 type. 
 
-#### The `scitype` and `Scitype` methods
+#### 2. The `scitype` and `Scitype` methods
 
 ScientificTypes provides a method `scitype` for articulating a
 particular convention: `scitype(X)` is the scientific type of object
@@ -100,8 +104,10 @@ one has `scitype(3.14) = Continuous` and `scitype(42) = Count`.
 The developer implementing a particular scientific type convention
 [overloads](#defining-a-new-convention) the `scitype` method
 appropriately. However, this package provides certain rudimentary
-fallback behaviour, of which only the first should be altered by the
+fallback behaviour; only Property 1 below should be altered by the
 developer:
+
+**Property 0.** `scitype(missing) = Missing` (`Missing` is the only native type also regarded scientific type).
 
 **Property 1.** `scitype(X) = Unknown`, unless `X` is a tuple, an
 abstract array, or `missing`.
@@ -146,7 +152,7 @@ AbstractArray{Union{Missing, Continuous},1}
 > `?ScientificTypes.Scitype` for details.
 
 
-#### Trait dictionary
+#### 3. Trait dictionary
 
 Scientific types provides a dictionary `TRAIT_FUNCTION_GIVEN_NAME` for
 registering names (symbols) for boolean-value trait functions used to
@@ -154,7 +160,7 @@ dispatch `scitype` in cases that direct type-dispatch is
 inadequate. See [below](#adding-explicit-scitype-declarations) for
 details.
 
-#### Convenience methods
+#### 4. Convenience methods
 
 Scientific provides the following convenience functions:
 
@@ -273,7 +279,7 @@ function __init__()
 end
 ```
 
-**Important limitation.** One cannot may not add a trait function to
+**Important limitation.** One may not add a trait function to
 the `TRAIT_FUNCTION_GIVEN_NAME` dictionary if it holds `true` on some
 object `X` for which an existing trait already holds true.
 
