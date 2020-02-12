@@ -93,7 +93,7 @@ const TRAIT_FUNCTION_GIVEN_NAME = Dict{Symbol,Function}()
 """
     trait(X)
 
-Check `X` against traits specified in `TRAIT_FUNCTION_GIVEN_NAME` and returns
+Check `X` against traits specified in `TRAIT_FUNCTION_GIVEN_NAME` and return
 a symbol corresponding to the matching trait, or `:other` if `X` didn't match
 any of the trait functions.
 """
