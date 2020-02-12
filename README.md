@@ -107,7 +107,7 @@ appropriately. However, this package provides certain rudimentary
 fallback behaviour; only Property 1 below should be altered by the
 developer:
 
-**Property 0.** `scitype(missing) = Missing` (`Missing` is the only native type also regarded scientific type).
+**Property 0.** `scitype(missing) = Missing` (`Missing` is the only native type also regarded as a scientific type).
 
 **Property 1.** `scitype(X) = Unknown`, unless `X` is a tuple, an
 abstract array, or `missing`.
