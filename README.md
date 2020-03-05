@@ -51,25 +51,32 @@ places on the actual machine type of the data supplied.
 
 #### 1. Scientific types
 
-ScientificTypes provides a hierarchy of Julia types
-representing data types for use in method dispatch (e.g., for trait
-values). Instances of the types play no role.
+ScientificTypes provides new julia types signifying "scientific type"
+for use in method dispatch (e.g., for trait values). Instances of the
+types play no role.
 
 ```
-Found
-├─ Known
-│  ├─ Finite
-│  │  ├─ Multiclass
-│  │  └─ OrderedFactor
-│  ├─ Infinite
-│  │  ├─ Continuous
-│  │  └─ Count
-│  ├─ Image
-│  │  ├─ ColorImage
-│  │  └─ GrayImage
-│  ├─ Table
-│  └─ Textual
-└─ Unknown
+Finite{N}
+├─ Multiclass{N}
+└─ OrderedFactor{N}
+
+Infinite
+├─ Continuous
+└─ Count
+
+Image{W,H}
+├─ ColorImage{W,H}
+└─ GrayImage{W,H}
+
+Time
+├─ Day
+└─ Instant
+
+Table{K}
+
+Textual
+
+Unknown
 ```
 
 The types `Finite{N}`, `Multiclass{N}` and `OrderedFactor{N}` are all
@@ -77,8 +84,12 @@ parametrised by the number of levels `N`, while `Image{W,H}`,
 `GrayImage{W,H}` and `ColorImage{W,H}` are all parametrised by the
 image width and height dimensions, `(W, H)`. 
 
-The `Table` type also has a type parameter, for conveying the
-scientific type(s) of table columns. See [More on the `Table`
+The `Day` type is intended for dates (respresented, for example, by
+julia's `Date.Date` type) while `Instant` is intended for finer
+measurements of time (such as those represented by Date.DateTime`).
+
+The type parameter `K` in `Table{K}` is for conveying the scientific
+type(s) of a table's columns. See [More on the `Table`
 type](#more-on-the-table-type).
 
 The julia native `Missing` type is also regarded as a scientific
