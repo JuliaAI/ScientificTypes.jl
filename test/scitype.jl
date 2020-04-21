@@ -37,5 +37,5 @@ end
 @testset "temporal types" begin
     @test ScientificDate <: ScientificTimeType
     @test ScientificDateTime <: ScientificTimeType
-    @test ScientificTime <: ScientificTimeType 
+    @test ScientificTime <: ScientificTimeType
 end
