@@ -68,9 +68,10 @@ Image{W,H}
 ├─ ColorImage{W,H}
 └─ GrayImage{W,H}
 
-Time
-├─ Day
-└─ Instant
+ScientificTimeType
+├─ ScientificDate
+├─ ScientificTime
+└─ ScientificDateTime
 
 Table{K}
 
