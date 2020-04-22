@@ -26,7 +26,7 @@ represented by *different* machine types - both `Int` and `Float64`
 are used to represent weights, for example.
 
 For implementation of a concrete convention assigning specific
-scientific types (interpretations) to julia objects, see the
+scientific types (interpretations) to julia objects, see instead the
 [MLJScientificTypes](https://github.com/alan-turing-institute/MLJScientificTypes.jl)
 package.
 
