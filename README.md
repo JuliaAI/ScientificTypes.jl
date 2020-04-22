@@ -8,52 +8,23 @@ A light-weight, dependency-free, Julia interface defining a collection
 of types (without instances) for implementing conventions about the
 scientific interpretation of data.
 
-This package makes the distinction between the **machine type** and
-**scientific type** of data:
+This package makes a distinction between **machine type** and
+**scientific type** of a Julia object:
 
-* The _machine type_ is a Julia type the data is currently encoded as (e.g., `Float64`)
-* The _scientific type_ is a type defined by this package which
-  encapsulates how the data should be _interpreted_ (e.g., `Continuous` or `Multiclass`)
+* The _machine type_ refers to the Julia type being used to represent
+  the object (for instance, `Float64`).
+
+* The _scientific type_ is one of the types defined in
+  [ScientificTypes.jl](https://github.com/alan-turing-institute/ScientificTypes.jl)
+  reflecting how the object should be _interpreted_ (for instance,
+  `Continuous` or `Multiclass`).
 
 The distinction is useful because the same machine type is often used
 to represent data with *differing* scientific interpretations - `Int`
 is used for product numbers (a factor) but also for a person's weight
-(a continuous variable) - while the same scientific
-type is frequently represented by *different* machine types - both
-`Int` and `Float64` are used to represent weights, for example.
-
-
-#### Contents
-
- - [Who is this repository for?](#who-is-this-repository-for)
- - [What's provided here?](#what-is-provided-here)
- - [Defining a new convention](#defining-a-new-convention)
-
-
-## Who is this repository for?
-
-This package
-should only be used by developers who intend to define their own
-scientific type convention.  The
-[MLJScientificTypes.jl](https://github.com/alan-turing-institute/MLJScientificTypes.jl)
-package implements such a convention used in the
-[MLJ](https://github.com/alan-turing-institute/MLJ.jl) universe.
-
-The purpose of this package is to provide a mechanism for articulating
-conventions around the scientific interpretation of data. With such a
-convention in place, a numerical algorithm declares its data
-requirements in terms of scientific types, the user has a convenient
-way to check compliance of his data with that requirement, and the
-developer understands precisely the constraints his data specification
-places on the actual machine type of the data supplied.
-
-## What is provided here?
-
-#### 1. Scientific types
-
-ScientificTypes provides new julia types signifying "scientific type"
-for use in method dispatch (e.g., for trait values). Instances of the
-types play no role.
+(a continuous variable) - while the same scientific type is frequently
+represented by *different* machine types - both `Int` and `Float64`
+are used to represent weights, for example.
 
 ```
 Finite{N}
@@ -80,14 +51,53 @@ Textual
 Unknown
 ```
 
+> Figure 1. The type hierarchy defined in ScientificTypes.jl
+
+#### Contents
+
+ - [Who is this repository for?](#who-is-this-repository-for)
+ - [What's provided here?](#what-is-provided-here)
+ - [Defining a new convention](#defining-a-new-convention)
+
+
+## Who is this repository for?
+
+This package should only be used by developers who intend to define
+their own scientific type convention.  The
+[MLJScientificTypes.jl](https://github.com/alan-turing-institute/MLJScientificTypes.jl)
+package implements such a convention, first adopted in the
+[MLJ](https://github.com/alan-turing-institute/MLJ.jl) universe, but
+which can be adopted by other statistical and scientific software.
+
+The purpose of this package is to provide a mechanism for articulating
+conventions around the scientific interpretation of data. With such a
+convention in place, a numerical algorithm declares its data
+requirements in terms of scientific types, the user has a convenient
+way to check compliance of his data with that requirement, and the
+developer understands precisely the constraints his data specification
+places on the actual machine type of the data supplied.
+
+## What is provided here?
+
+#### 1. Scientific types
+
+ScientificTypes provides the new julia types appearing in Figure 1
+above, signifying "scientific type" for use in method dispatch (e.g.,
+for trait values). Instances of the types play no role.
+
 The types `Finite{N}`, `Multiclass{N}` and `OrderedFactor{N}` are all
 parametrised by the number of levels `N`, while `Image{W,H}`,
 `GrayImage{W,H}` and `ColorImage{W,H}` are all parametrised by the
 image width and height dimensions, `(W, H)`. 
 
-The `Day` type is intended for dates (respresented, for example, by
-julia's `Date.Date` type) while `Instant` is intended for finer
-measurements of time (such as those represented by Date.DateTime`).
+The scientific type `ScientificDate` is for representing dates (for
+example, the 23rd of April, 2029), `ScientificTime` represents time
+within a 24-hour day, while `ScientificDateTime` represents both a
+time of day and date. These types mirror the types `Date`, `Time` and
+`DateTime` from the Julia standard library Dates (and indeed, in the
+[MLJ
+convention](https://github.com/alan-turing-institute/MLJScientificTypes.jl)
+the difference is only a formal one).
 
 The type parameter `K` in `Table{K}` is for conveying the scientific
 type(s) of a table's columns. See [More on the `Table`
