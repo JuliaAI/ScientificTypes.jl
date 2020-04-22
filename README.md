@@ -14,8 +14,7 @@ This package makes a distinction between **machine type** and
 * The _machine type_ refers to the Julia type being used to represent
   the object (for instance, `Float64`).
 
-* The _scientific type_ is one of the types defined in
-  [ScientificTypes.jl](https://github.com/alan-turing-institute/ScientificTypes.jl)
+* The _scientific type_ is one of the types defined in this package
   reflecting how the object should be _interpreted_ (for instance,
   `Continuous` or `Multiclass`).
 
@@ -25,6 +24,11 @@ is used for product numbers (a factor) but also for a person's weight
 (a continuous variable) - while the same scientific type is frequently
 represented by *different* machine types - both `Int` and `Float64`
 are used to represent weights, for example.
+
+For implementation of a concrete convention assigning specific
+scientific types (interpretations) to julia objects, see the
+[MLJScientificTypes](https://github.com/alan-turing-institute/MLJScientificTypes.jl)
+package.
 
 ```
 Finite{N}
