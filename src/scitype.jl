@@ -72,6 +72,9 @@ Scitype(::Type{Any}, ::Convention) = Unknown
 Scitype(::Type{Union{T,Missing}}, C::Convention) where T =
     Union{Missing,Scitype(T, C)}
 
+# for the case Missing, we return Missing
+Scitype(::Type{Missing}, C::Convention) = Missing
+
 # Broadcasting over arrays
 
 scitype(A::Arr{T}, C::Convention, ::Val{:other}; kw...) where T =
