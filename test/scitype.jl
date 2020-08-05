@@ -16,6 +16,8 @@
 
     Xm = Any[missing, missing]
     @test scitype(Xm) == AbstractVector{Missing}
+    
+    @test scitype([missing, missing]) == AbstractVector{Missing}
 end
 
 @testset "scitype2" begin
