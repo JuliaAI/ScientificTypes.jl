@@ -48,5 +48,6 @@ end
     ScientificTypes.Scitype(::Type{Missing}, ::MockMLJ) = Missing
     @test scitype(Int[]) == AbstractVector{Count}
     @test scitype(Any[]) == AbstractVector{Unknown}
+    @test scitype(Missing[]) == AbstractVector{Missing}
     @test scitype(Vector{Union{Int,Missing}}()) == AbstractVector{Union{Missing,Count}}
 end
