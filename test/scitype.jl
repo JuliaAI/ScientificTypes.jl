@@ -16,7 +16,7 @@
 
     Xm = Any[missing, missing]
     @test scitype(Xm) == AbstractVector{Missing}
-    
+
     @test scitype([missing, missing]) == AbstractVector{Missing}
 end
 
@@ -40,4 +40,13 @@ end
     @test ScientificDate <: ScientificTimeType
     @test ScientificDateTime <: ScientificTimeType
     @test ScientificTime <: ScientificTimeType
+end
+
+@testset "Empty array" begin
+    set_convention(MockMLJ())
+    ScientificTypes.Scitype(::Type{<:Integer}, ::MockMLJ) = Count
+    ScientificTypes.Scitype(::Type{Missing}, ::MockMLJ) = Missing
+    @test scitype(Int[]) == AbstractVector{Count}
+    @test scitype(Any[]) == AbstractVector{Unknown}
+    @test scitype(Vector{Union{Int,Missing}}()) == AbstractVector{Union{Missing,Count}}
 end
