@@ -107,8 +107,8 @@ The type parameter `K` in `Table{K}` is for conveying the scientific
 type(s) of a table's columns. See [More on the `Table`
 type](#more-on-the-table-type).
 
-The julia native `Missing` type is also regarded as a scientific
-type. 
+The julia native types `Missing` and `Nothing` are also regarded as scientific
+types. 
 
 #### 2. The `scitype` and `Scitype` methods
 
@@ -133,7 +133,9 @@ appropriately. However, this package provides certain rudimentary
 fallback behaviour; only Property 1 below should be altered by the
 developer:
 
-**Property 0.** `scitype(missing) = Missing` (`Missing` is the only native type also regarded as a scientific type).
+**Property 0.** `scitype(missing) = Missing` and `scitype(nothing) =
+Nothing` (regarding `Missing` and `Nothing` as native scientific
+types).
 
 **Property 1.** `scitype(X) = Unknown`, unless `X` is a tuple, an
 abstract array, or `missing`.

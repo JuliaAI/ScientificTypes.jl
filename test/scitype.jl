@@ -1,3 +1,9 @@
+@testset "void types" begin
+    @test scitype(nothing) == Nothing
+    @test scitype(missing) == Missing
+    @test scitype([nothing, nothing]) == AbstractVector{Nothing}
+end
+
 @testset "scitype" begin
     X = [1, 2, 3]
     @test scitype(X) == AbstractVector{Unknown}

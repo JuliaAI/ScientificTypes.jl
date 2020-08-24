@@ -37,5 +37,4 @@ end
     @test T1 == Table{K} where K<:Union{AbstractVector{<:Continuous}, AbstractVector{<:Count}}
     T2 = Table(Continuous, Union{Missing,Continuous})
     @test T2 == Table{K} where K<:Union{AbstractVector{<:Union{Missing,Continuous}}}
-    @test_throws MethodError Table(Int,Float64)
 end

@@ -39,6 +39,7 @@ scitype(X, C; kw...) = scitype(X, C, Val(trait(X)); kw...)
 
 scitype(X, C, ::Val{:other}; kw...) = Unknown
 scitype(::Missing;           kw...) = Missing
+scitype(::Nothing;           kw...) = Nothing
 
 scitype(t::Tuple, ::Convention; kw...) = Tuple{scitype.(t; kw...)...}
 
@@ -106,6 +107,8 @@ Scitype(::Type{Union{T,Missing}}, C::Convention) where T =
 # for the case Missing, we return Missing
 Scitype(::Type{Missing}, C::Convention) = Missing
 
+Scitype(::Type{Nothing}, C::Convention) = Nothing
+
 # Broadcasting over arrays
 
 scitype(A::Arr{T}, C::Convention, ::Val{:other}; kw...) where T =
@@ -120,7 +123,7 @@ If `tight=true` and `T>:Missing` then the function checks whether there are
 "true missing values", otherwise it constructs a "tight copy" of the array
 without a `Union{Missing,S}` type.
 """
-function arr_scitype(A::Arr{T,N}, C::Convention, S::Type{<:Scientific};
+function arr_scitype(A::Arr{T,N}, C::Convention, S::Type;
                      tight::Bool=false) where {T,N}
     # no explicit scitype available
     S === Unknown && return Arr{scitype_union(A),N}
