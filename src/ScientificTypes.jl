@@ -129,7 +129,7 @@ Table(S1, S2, ..., Sn) <: Table
 where  `S1, ..., Sn` are the scientific type of the table's columns which
 are expected to be represented by abstract vectors.
 """
-Table(Ts::Type{<:Scientific}...) = Table{<:Union{(Arr{<:T,1} for T in Ts)...}}
+Table(Ts::Type...) = Table{<:Union{(Arr{<:T,1} for T in Ts)...}}
 
 # -----------------------------------------------------------------
 # scitype
