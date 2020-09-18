@@ -9,7 +9,8 @@ export Scientific, Found, Unknown, Known, Finite, Infinite,
     ScientificTimeType, ScientificDate, ScientificDateTime,
     ScientificTime,
     Textual, Binary,
-    ColorImage, GrayImage, Image, Table
+    ColorImage, GrayImage, Image, Table,
+    ManifoldPoint
 export scitype, scitype_union, elscitype, nonmissing, trait
 
 # utils (should not be re-exported)
@@ -41,6 +42,8 @@ struct ScientificDateTime <: ScientificTimeType end
 
 struct  GrayImage{W,H} <: Image{W,H} end
 struct ColorImage{W,H} <: Image{W,H} end
+
+struct ManifoldPoint{M} <: Known end
 
 # aliases:
 const Binary     = Finite{2}
