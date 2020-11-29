@@ -2,15 +2,13 @@
 
 | [Linux] | Coverage |
 | :-----------: | :------: |
-| [![Build status](https://github.com/alan-turing-institute/ScientificTypes.jl/workflows/CI/badge.svg)](https://github.com/alan-turing-institute/ScientificTypes/actions)| [![codecov.io](http://codecov.io/github/alan-turing-institute/ScientificTypes.jl/coverage.svg?branch=master)](http://codecov.io/github/alan-turing-institute/ScientificTypes.jl?branch=master) |
+| [![Build status](https://github.com/alan-turing-institute/ScientificTypes.jl/workflows/CI/badge.svg)](https://github.com/alan-turing-institute/ScientificTypes.jl/actions)| [![codecov.io](http://codecov.io/github/alan-turing-institute/ScientificTypes.jl/coverage.svg?branch=master)](http://codecov.io/github/alan-turing-institute/ScientificTypes.jl?branch=master) |
 
- [![Build Status](https://travis-ci.org/alan-turing-institute/ScientificTypes.jl.svg?branch=master)](https://travis-ci.org/alan-turing-institute/ScientificTypes.jl)
- 
 A light-weight, dependency-free, Julia interface defining a collection
 of types (without instances) for implementing conventions about the
 scientific interpretation of data.
 
-This package makes a distinction between **machine type** and
+This package makes a distinction between the **machine type** and
 **scientific type** of a Julia object:
 
 * The _machine type_ refers to the Julia type being used to represent
