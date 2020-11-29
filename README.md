@@ -57,7 +57,7 @@ ManifoldPoint{MT}
 Unknown
 ```
 
-> Figure 1. The type hierarchy defined in ScientificTypes.jl
+> Figure 1. The type hierarchy defined in ScientificTypes.jl (The Julia native `Missing` type is also regarded as a scientific type).
 
 #### Contents
 
