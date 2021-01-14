@@ -82,7 +82,7 @@ function convention()::Convention
 end
 
 # -------------------------------------------------------------------
-# trait & info
+# trait
 
 const TRAIT_FUNCTION_GIVEN_NAME = Dict{Symbol,Function}()
 
