@@ -18,11 +18,13 @@ end
     isjunk(s::String) = s == "junk" ? true : false
     TRAIT_FUNCTION_GIVEN_NAME[:junk] = isjunk
 
+    X = [1,2,3]
+    @test ST.trait(X) == :other
     X = (x = [1,2,3],
          y = [5,5,7])
     @test ST.trait(X) == :table
-    X = [1,2,3]
-    @test ST.trait(X) == :other
+    TRAIT_FUNCTION_GIVEN_NAME[:named_tuple] = X -> X isa NamedTuple
+    @test_throws Exception ST.trait(X)
 end
 
 @testset "nonmissing" begin
