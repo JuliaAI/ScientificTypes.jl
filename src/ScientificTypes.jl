@@ -82,22 +82,31 @@ function convention()::Convention
 end
 
 # -------------------------------------------------------------------
-# trait & info
+# trait
 
 const TRAIT_FUNCTION_GIVEN_NAME = Dict{Symbol,Function}()
 
 """
     trait(X)
 
-Check `X` against traits specified in `TRAIT_FUNCTION_GIVEN_NAME` and return
-a symbol corresponding to the matching trait, or `:other` if `X` didn't match
-any of the trait functions.
+Check `X` against traits specified in `TRAIT_FUNCTION_GIVEN_NAME` and
+return a symbol corresponding to the first matching trait, or `:other`
+if `X` didn't match any of the trait functions. If more than one trait
+matches, throw an error.
+
 """
 function trait(X)::Symbol
+    ret = :other
+    found = false
     for (name, f) in TRAIT_FUNCTION_GIVEN_NAME
-        f(X) && return name
+        if f(X)
+            found && error("Bad dictionary "*
+                           "`ScientificTypes.TRAIT_FUNCTION_GIVEN_NAME`. ")
+            ret = name
+            found = true
+        end
     end
-    return :other
+    return ret
 end
 
 # -----------------------------------------------------------------
