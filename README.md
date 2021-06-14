@@ -2,7 +2,7 @@
 
 | [Linux] | Coverage |
 | :-----------: | :------: |
-| [![Build status](https://github.com/alan-turing-institute/ScientificTypes.jl/workflows/CI/badge.svg)](https://github.com/alan-turing-institute/ScientificTypes.jl/actions)| [![codecov.io](http://codecov.io/github/alan-turing-institute/ScientificTypes.jl/coverage.svg?branch=master)](http://codecov.io/github/alan-turing-institute/ScientificTypes.jl?branch=master) |
+| [![Build status](https://github.com/JuliaAI/ScientificTypes.jl/workflows/CI/badge.svg)](https://github.com/JuliaAI/ScientificTypes.jl/actions)| [![codecov.io](http://codecov.io/github/JuliaAI/ScientificTypes.jl/coverage.svg?branch=master)](http://codecov.io/github/JuliaAI/ScientificTypes.jl?branch=master) |
 
 A light-weight, dependency-free, Julia interface defining a collection
 of types (without instances) for implementing conventions about the
@@ -27,7 +27,7 @@ are used to represent weights, for example.
 
 For implementation of a concrete convention assigning specific
 scientific types (interpretations) to julia objects, see instead the
-[MLJScientificTypes](https://github.com/alan-turing-institute/MLJScientificTypes.jl)
+[MLJScientificTypes](https://github.com/JuliaAI/MLJScientificTypes.jl)
 package.
 
 ```
@@ -70,9 +70,9 @@ Unknown
 
 This package should only be used by developers who intend to define
 their own scientific type convention.  The
-[MLJScientificTypes.jl](https://github.com/alan-turing-institute/MLJScientificTypes.jl)
+[MLJScientificTypes.jl](https://github.com/JuliaAI/MLJScientificTypes.jl)
 package implements such a convention, first adopted in the
-[MLJ](https://github.com/alan-turing-institute/MLJ.jl) universe, but
+[MLJ](https://github.com/JuliaAI/MLJ.jl) universe, but
 which can be adopted by other statistical and scientific software.
 
 The purpose of this package is to provide a mechanism for articulating
@@ -105,7 +105,7 @@ within a 24-hour day, while `ScientificDateTime` represents both a
 time of day and date. These types mirror the types `Date`, `Time` and
 `DateTime` from the Julia standard library Dates (and indeed, in the
 [MLJ
-convention](https://github.com/alan-turing-institute/MLJScientificTypes.jl)
+convention](https://github.com/JuliaAI/MLJScientificTypes.jl)
 the difference is only a formal one).
 
 The type parameter `K` in `Table{K}` is for conveying the scientific
@@ -120,7 +120,7 @@ types.
 ScientificTypes provides a method `scitype` for articulating a
 particular convention: `scitype(X)` is the scientific type of object
 `X`. For example, in the `MLJ` convention, implemented by
-[MLJScientificTypes](https://github.com/alan-turing-institute/MLJScientificTypes.jl),
+[MLJScientificTypes](https://github.com/JuliaAI/MLJScientificTypes.jl),
 one has `scitype(3.14) = Continuous` and `scitype(42) = Count`.
 
 > *Aside.* `scitype` is *not* a mapping of types to types but from
@@ -245,7 +245,7 @@ Note that `Table(Continuous,Finite)` is a *type* union and not a `Table` *instan
 ## Defining a new convention
 
 If you want to implement your own convention, you can consider the
-[MLJScientificTypes.jl](https://github.com/alan-turing-institute/MLJScientificTypes.jl)
+[MLJScientificTypes.jl](https://github.com/JuliaAI/MLJScientificTypes.jl)
 as a blueprint.
 
 The steps below summarise the possible steps in defining such a convention:
@@ -338,7 +338,7 @@ Under this definition, `coerce([1, 2, 4], Continuous)` is mapped to
 
 In the case of tabular data, one might additionally define `coerce`
 methods to selectively coerce data in specified columns. See
-[MLJScientificType](https://github.com/alan-turing-institute/MLJScientificTypes.jl)
+[MLJScientificType](https://github.com/JuliaAI/MLJScientificTypes.jl)
 for examples.
 
 
