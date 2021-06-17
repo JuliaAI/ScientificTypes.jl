@@ -9,7 +9,7 @@ using PersistenceDiagramsBase
 using PrettyTables
 using Dates
 
-import StatisticalTraits.info
+import StatisticalTraits: info
 
 # re-exports from ScientificTypes
 export Scientific, Found, Unknown, Known, Finite, Infinite,
