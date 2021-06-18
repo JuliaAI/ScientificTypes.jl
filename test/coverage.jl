@@ -31,20 +31,20 @@
     @test !(eltype(c) >: Missing)
 
     # increase autotype coverage
-    M = ScientificTypes
-    @test M.string_to_multiclass(String, ["a","b"], 0) == String
-    @test M.string_to_multiclass(Textual, ["a","b"], 0) == Multiclass
-    @test M.string_to_multiclass(Textual, ["a","b", missing], 0) == Union{Missing,Multiclass}
+    ST = ScientificTypes
+    @test ST.string_to_multiclass(String, ["a","b"], 0) == String
+    @test ST.string_to_multiclass(Textual, ["a","b"], 0) == Multiclass
+    @test ST.string_to_multiclass(Textual, ["a","b", missing], 0) == Union{Missing,Multiclass}
 
     # explicit scitype test
-    S = ScientificTypes
-    @test S.Scitype(Int, M.DefaultConvention()) == Count
-    @test S.Scitype(Float64, M.DefaultConvention()) == Continuous
-    @test S.Scitype(SubString, M.DefaultConvention()) == Textual
+    STB = ScientificTypesBase
+    @test STB.Scitype(Int, ST.DefaultConvention()) == Count
+    @test STB.Scitype(Float64, ST.DefaultConvention()) == Continuous
+    @test STB.Scitype(SubString, ST.DefaultConvention()) == Textual
 
     X = [1,2,3]
     @test elscitype(X) == Count
-    S.Scitype(::Type{Float16}, ::ScientificTypes.DefaultConvention) = Count
+    STB.Scitype(::Type{Float16}, ::ST.DefaultConvention) = Count
     Xf = Float16[1,2,3]
     @test elscitype(Xf) == Count
 end
