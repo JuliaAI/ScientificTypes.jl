@@ -36,8 +36,8 @@ Pkg.add("ScientificTypes")
   articulate their data type requirements in a generic,
   purpose-oriented way, and who are furthermore happy to adopt an
   existing convention about what data types should be used for
-  what purpose (a convention that has been successfully adopted in an
-  existing large scale Julia project)
+  what purpose (a convention first developed for the MLJ ecosystem,
+  but useful in a general context)
 
 ## What's provided here?
 
