@@ -120,3 +120,13 @@ _.nrows = 5
 
 ```
 
+#### Acknowledgements
+
+ScientificTypes is based on code from MLJScientificTypes (now deprecated)
+and in particular builds on contributions of @ablaom, @tlienart, @OkonSamuel
+and others not recorded in the ScientificTypes commit history.
+
+ScientificTypes 2.0 (which implements the DefaultConvention, previously the
+MLJ convention) is essentially a copy of MLJScientificTypes 0.4.8. The code
+at ScientificTypes 1.1.2 (which defined only the API) became
+ScientificTypesBase 1.0.
