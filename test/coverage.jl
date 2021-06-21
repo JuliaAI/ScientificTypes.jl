@@ -52,7 +52,7 @@ end
 @testset "Schema" begin
     ST = ScientificTypes
     sch = ST.Schema((:a, :b), (Int, Int), (Count, Count), 5)
-    @test sch isa M.Schema{(:a, :b),Tuple{Int64,Int64},Tuple{Count,Count},5}
+    @test sch isa ST.Schema{(:a, :b),Tuple{Int64,Int64},Tuple{Count,Count},5}
     @test sch.names == (:a, :b)
     @test sch.types == (Int, Int)
     @test sch.scitypes == (Count, Count)
