@@ -120,13 +120,20 @@ _.nrows = 5
 
 ```
 
-#### Acknowledgements
 
-ScientificTypes is based on code from MLJScientificTypes (now deprecated)
-and in particular builds on contributions of @ablaom, @tlienart, @OkonSamuel
-and others not recorded in the ScientificTypes commit history.
+#### Acknowledgements and history
 
-ScientificTypes 2.0 (which implements the DefaultConvention, previously the
-MLJ convention) is essentially a copy of MLJScientificTypes 0.4.8. The code
-at ScientificTypes 1.1.2 (which defined only the API) became
-ScientificTypesBase 1.0.
+ScientificTypes is based on code from
+[MLJScientificTypes.jl](https://github.com/JuliaAI/MLJScientificTypes.jl)
+(now deprecated) and in particular builds on contributions of Anthony
+Blaom (@ablaom), Thibaut Lienart (@tlienart), Samuel Okon
+(@OkonSamuel), and others not recorded in the ScientificTypes commit
+history.
+
+ScientificTypes.jl 2.0 implements the `DefaultConvention`, which
+coincides with the deprecated `MLJ` convention of
+[MLJScientificTypes.jl](https://github.com/JuliaAI/MLJScientificTypes.jl)
+0.4.8. The code at ScientificTypes 1.1.2 (which defined only the API)
+became
+[ScientificTypesBase.jl](https://github.com/JuliaAI/ScientificTypesBase.jl)
+1.0.
