@@ -121,7 +121,7 @@ _.nrows = 5
 ```
 
 
-#### Acknowledgements
+#### Acknowledgements and history
 
 ScientificTypes is based on code from
 [MLJScientificTypes.jl](https://github.com/JuliaAI/MLJScientificTypes.jl)
