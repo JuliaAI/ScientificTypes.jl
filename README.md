@@ -42,8 +42,7 @@ Pkg.add("ScientificTypes")
 ## What's provided here?
 
 The module `ScientificTypes` defined in this repo rexports the
-scientific types and associated methods defined in [Scientific
-TypesBase.jl](https://github.com/JuliaAI/ScientificTypesBase.jl)
+scientific types and associated methods defined in [ScientificTypesBase.jl](https://github.com/JuliaAI/ScientificTypesBase.jl)
 and provides:
 
 - a collection of `ScientificTypes.scitype` definitions that
