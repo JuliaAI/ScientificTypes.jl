@@ -1,7 +1,7 @@
 name = "ScientificTypes"
 uuid = "321657f4-b219-11e9-178b-2701a2544e81"
 authors = ["Anthony D. Blaom <anthony.blaom@gmail.com>"]
-version = "2.0.0"
+version = "2.0.1"
 
 [deps]
 CategoricalArrays = "324d7699-5711-5eae-9e2f-1d82baa6b597"
@@ -18,7 +18,7 @@ CategoricalArrays = "0.8, 0.9, 0.10"
 ColorTypes = "0.9, 0.10, 0.11"
 PersistenceDiagramsBase = "0.1"
 PrettyTables = "1"
-ScientificTypesBase = "1"
+ScientificTypesBase = "2"
 StatisticalTraits = "2"
 Tables = "1"
 julia = "1"
