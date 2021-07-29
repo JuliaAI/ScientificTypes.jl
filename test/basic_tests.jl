@@ -114,10 +114,6 @@ end
 @testset "Type coercion" begin
     X = (x=10:10:44, y=1:4, z=collect("abcd"))
 
-    @test_throws ArgumentError coerce(X, Count())
-    @test_throws ArgumentError coerce(X, Dict(:x=>Count(), :z=>Multiclass))
-    @test_throws ArgumentError coerce(X, :x=>Count(), :z=>Multiclass)
-
     # test fix for issue 39
     y = collect(Int64, 1:5)
     @test_throws ScientificTypes.CoercionError coerce(y, Float64)

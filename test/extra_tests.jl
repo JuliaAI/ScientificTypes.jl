@@ -33,7 +33,4 @@ end
                                      AbstractArray{OrderedFactor{1},1}}}
 
    @test_throws ScientificTypes.CoercionError coerce!(randn(5, 5))
-   @test_throws ArgumentError coerce!(df, Count())
-   @test_throws ArgumentError coerce!(df, Dict(:x=>Count(), :y=>Multiclass))
-   @test_throws ArgumentError coerce!(df, :x=>Count(), :y=>Multiclass)
 end

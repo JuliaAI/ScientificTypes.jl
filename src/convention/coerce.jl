@@ -108,7 +108,7 @@ function coerce(y::CArr{T}, T2::Type{<:Union{Missing,C}};
     # here we broadcast and so we don't need to tighten
     iy = _int.(y)
     _check_eltype(iy, T2, verbosity)
-    C == Count && return iy
+    nonmissing(T2) == Count && return iy
     return float(iy)
 end
 
@@ -120,7 +120,7 @@ function coerce(y::Arr{T}, T2::Type{<:Union{Missing,C}};
                 ) where T <: MaybeNumber where C <: Infinite
     y = _tighten_if_needed(y, T, tight)
     _check_eltype(y, T2, verbosity)
-    C == Count && return _int.(y)
+    nonmissing(T2) == Count && return _int.(y)
     return _float.(y)
 end
 
@@ -140,16 +140,20 @@ function coerce(y::Arr{Any}, T::Type{<:Union{Missing,C}};
                 verbosity=1, tight::Bool=false
                 ) where C <: Union{Count,Continuous}
     # to float or to count?
-    op, num   = ifelse(C == Count, (_int, "65"), (float, "65.0"))
+    C2 = nonmissing(T)
+    op, num   = ifelse(C2 == Count, (_int, "65"), (float, "65.0"))
     has_chars = findfirst(e -> isa(e, Char), y) !== nothing
     if has_chars && verbosity > 0
-        @info "Char value encountered, such value will be coerced according to the corresponding numeric value (e.g. 'A' to $num)."
+        @info "Char value encountered, such value will be coerced "*
+            "according to the corresponding numeric value (e.g. 'A' to $num)."
     end
     # broadcast the operation
     c = op.(y)
     # if the container type has  missing but not target, warn
     if (eltype(c) >: Missing) && !(T >: Missing) && verbosity > 0
-        @info "Trying to coerce from `Any` to `$T` but encountered missing values.\nCoerced to `Union{Missing,$T}` instead."
+        @info "Trying to coerce from `Any` to `$T` "*
+            "but encountered missing values.\n"*
+            "Coerced to `Union{Missing,$T}` instead."
     end
     return c
 end
