@@ -68,13 +68,13 @@ This documentation focuses on properties of the `scitype` method
 specific to the default convention. The `scitype` method satisfies certain
 universal properties, with respect to its operation on tuples, arrays
 and tables, set out in the ScientificTypes
-[readme](https://github.com/alan-turing-institute/ScientificTypes.jl#2-the-scitype-and-scitype-methods),
+[readme](https://github.com/JuliaAI/ScientificTypesBase.jl#2-the-scitype-and-scitype-methods),
 but only implicitly described here.
 
 To get the scientific type of a Julia object defined by the default
 convention, call `scitype`:
 
-```@example 1
+```@repl 1
 using ScientificTypes
 scitype(3.14)
 ```
@@ -82,11 +82,11 @@ scitype(3.14)
 For a vector, you can use `scitype` or `elscitype` (which will give you a
 scitype corresponding to the elements):
 
-```@example 1
+```@repl 1
 scitype([1,2,3,missing])
 ```
 
-```@example 1
+```@repl 1
 elscitype([1,2,3,missing])
 ```
 
@@ -94,7 +94,7 @@ Occasionally, you may want to find the union of all scitypes of
 elements of an arbitrary iterable, which you can do with
 `scitype_union`:
 
-```@example 1
+```@repl 1
 scitype_union((ifelse(isodd(i), i, missing) for i in 1:5))
 ```
 
