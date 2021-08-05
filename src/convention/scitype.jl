@@ -23,12 +23,21 @@ end
 
 const CatArrOrSub{T,N} =
     Union{CategoricalArray{T,N},SubArray{<:Any,<:Any,<:CategoricalArray{T,N}}}
-
-function ST.scitype(A::CatArrOrSub{T,N}, ::DefaultConvention) where {T,N}
+#=
+function ST.scitype(A::CatArrOrSub{T,N}, ::DefaultConvention; kw...) where {T,N}
     nlevels = length(levels(A))
     S = ifelse(isordered(A), OrderedFactor{nlevels}, Multiclass{nlevels})
-    T >: Missing && (S = Union{S,Missing})
-    return AbstractArray{S,N}
+    kwargs = values(kw)
+    #tight = haskey(kwargs, :tight) ? Val{kwargs[:tight]}() : Val{false}()
+    #_S = _tighten_type_if_needed(A, T, S; tight = tight)
+    return AbstractArray{S, N}
+end
+=#
+function ST.scitype(A::CatArrOrSub{T,N}, ::DefaultConvention; kw...) where {T,N}
+    nlevels = length(levels(A))
+    S = ifelse(isordered(A), OrderedFactor{nlevels}, Multiclass{nlevels})
+    _S = _tighten_type_if_needed(A, T, S; kw...)
+    return AbstractArray{_S, N}
 end
 
 # Table scitype

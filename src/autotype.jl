@@ -16,7 +16,7 @@ autotype(X; kw...) = _autotype(X, Val(ST.trait(X)); kw...)
 
 # For an array object (trait:other)
 function _autotype(X::Arr, ::Val{:other};
-                   rules::NTuple{N,Symbol} where N=(:few_to_finite,))
+                   rules::NTuple{N,Symbol} where N = (:few_to_finite,))
     # check that the rules are recognised
     _check_rules(rules)
     # inspect the current element scitype

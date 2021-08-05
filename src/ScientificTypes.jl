@@ -10,7 +10,7 @@ using PrettyTables
 using Dates
 
 import StatisticalTraits: info
-
+import TableOperations
 # re-exports from ScientificTypes
 export Scientific, Found, Unknown, Known, Finite, Infinite,
     OrderedFactor, Multiclass, Count, Continuous, Textual,
@@ -32,6 +32,7 @@ const ST   = ScientificTypesBase
 const Arr  = AbstractArray
 const CArr = CategoricalArray
 const Cat  = CategoricalValue
+const SCHEMA_SPECIALIZATION_THRESHOLD = 67000 # use same as that of Tables.jl
 
 # Indicate the convention, see init.jl where it is set.
 struct DefaultConvention <: Convention end

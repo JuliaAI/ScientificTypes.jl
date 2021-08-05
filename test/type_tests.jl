@@ -4,7 +4,7 @@ struct MySchemalessTable{U, V}
 end
 
 Tables.istable(::MySchemalessTable) = true
-Tables.columnaccess(::Type{MySchemalessTable}) = true
+Tables.columnaccess(::Type{MySchemalessTable{U, V}}) where {U, V} = true
 Tables.columns(t::MySchemalessTable) = t
 
 @testset "Tables" begin
@@ -27,8 +27,8 @@ Tables.columns(t::MySchemalessTable) = t
     @test t <: Table(Infinite, Multiclass)
     @test !(t <: Table(Continuous, Union{Missing, Count}))
 
-    @test ScientificTypes._nrows(X) == 5
-    @test ScientificTypes._nrows(()) == 0
+    #@test ScientificTypes._nrows(X) == 5
+    #@test ScientificTypes._nrows(()) == 0
 
     # PR #61 "scitype checks for `Tables.DictColumn`"
     X1 = Dict(:a=>rand(5), :b=>rand(Int, 5))

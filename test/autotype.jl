@@ -64,7 +64,7 @@ for X in tables
           Continuous,                           # b
           Count,                                # c
           Multiclass{nobj_d},                   # d*
-          Union{Missing,OrderedFactor{nobj_e}}, # e*
+          Union{Missing, OrderedFactor{nobj_e}}, # e*
           OrderedFactor{nobj_f});                # f*
 
          # test only_changes
