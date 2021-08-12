@@ -1,4 +1,4 @@
-# Basic scitype
+# Basic scitypes
 
 ST.scitype(::Integer,        ::DefaultConvention) = Count
 ST.scitype(::AbstractFloat,  ::DefaultConvention) = Continuous
@@ -8,9 +8,13 @@ ST.scitype(::Time    ,       ::DefaultConvention) = ScientificTime
 ST.scitype(::Date,           ::DefaultConvention) = ScientificDate
 ST.scitype(::DateTime,       ::DefaultConvention) = ScientificDateTime
 
+# Image scitypes
+
 ST.scitype(img::Arr{<:Gray,2}, ::DefaultConvention) = GrayImage{size(img)...}
 ST.scitype(img::Arr{<:AbstractRGB,2}, ::DefaultConvention) =
 ColorImage{size(img)...}
+
+# Persistence diagrams
 
 ST.scitype(::PersistenceDiagram, ::DefaultConvention) = PersistenceDiagram
 
@@ -41,6 +45,30 @@ function ST.scitype(X, ::DefaultConvention, ::Val{:table}; kw...)
     end
     return Table{Union{types...}}
 end
+
+# Distributions
+
+const Dist = Distributions
+
+scalar_scitype(::Type) = Unknown
+scalar_scitype(::Type{<:Dist.Discrete}) = Count
+scalar_scitype(::Type{<:Dist.Continuous}) = Continuous
+space_scitype(variate_form::Type{<:Dist.ArrayLikeVariate{0}},
+              value_support) =
+                  scalar_scitype(value_support)
+space_scitype(variate_form::Type{<:Dist.ArrayLikeVariate{N}},
+              value_support) where N =
+                  AbstractArray{scalar_scitype(value_support),N}
+
+ST.scitype(::Distributions.Sampleable{F,S}) where {F,S} =
+    Sampleable{space_scitype(F,S)}
+
+ST.scitype(::Distributions.Distribution{F,S}) where {F,S} =
+    Density{space_scitype(F,S)}
+
+
+
+
 
 # Scitype for fast array broadcasting
 
