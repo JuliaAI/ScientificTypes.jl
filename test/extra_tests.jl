@@ -1,16 +1,19 @@
-if VERSION ≥ v"1.3.0-"
-   @testset "Coerce Col2" begin
-      X = Tables.table(ones(1_000, 2))
-      tmp = tempname()
-      CSV.write(tmp, X)
-      data = CSV.read(tmp, DataFrame)
-      # data.Column1 and data.Column2 are Column2 (as of CSV 5.19)
-      @test data.Column1 isa AbstractArray{<:AbstractFloat}
-      dc = coerce(data, autotype(data, :discrete_to_continuous))
-      @test scitype(dc) == Table{AbstractArray{Continuous,1}}
-      rm(tmp)
-   end
-end
+# TODO: CSV as testing dep is causing issues for julia 1.0. Perhaps
+# the followinng can be re-instated when we have a new LTS release:
+
+# if VERSION ≥ v"1.3.0-"
+#    @testset "Coerce Col2" begin
+#       X = Tables.table(ones(1_000, 2))
+#       tmp = tempname()
+#       CSV.write(tmp, X)
+#       data = CSV.read(tmp, DataFrame)
+#       # data.Column1 and data.Column2 are Column2 (as of CSV 5.19)
+#       @test data.Column1 isa AbstractArray{<:AbstractFloat}
+#       dc = coerce(data, autotype(data, :discrete_to_continuous))
+#       @test scitype(dc) == Table{AbstractArray{Continuous,1}}
+#       rm(tmp)
+#    end
+# end
 
 @testset "coerce!" begin
    df = DataFrame((x=ones(Int,5), y=ones(5)))
