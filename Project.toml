@@ -21,7 +21,7 @@ Distributions = "0.25"
 PersistenceDiagramsBase = "0.1"
 PrettyTables = "1"
 ScientificTypesBase = "2"
-StatisticalTraits = "2"
+StatisticalTraits = "2.1"
 Tables = "1"
 julia = "1"
 
