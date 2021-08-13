@@ -1,7 +1,8 @@
 using Test, ScientificTypes, ScientificTypesBase, Random
-using Tables, CategoricalArrays, CSV, DataFrames
+using Tables, CategoricalArrays, DataFrames
 using ColorTypes, PersistenceDiagramsBase
 using Dates
+# using CSV # dropped until julia release new LTS as issue for 1.0
 import Distributions
 
 const Arr  = AbstractArray
