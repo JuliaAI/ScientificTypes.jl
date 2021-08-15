@@ -8,6 +8,7 @@ using ColorTypes
 using PersistenceDiagramsBase
 using PrettyTables
 using Dates
+import Distributions
 
 import StatisticalTraits: info
 
@@ -16,7 +17,8 @@ export Scientific, Found, Unknown, Known, Finite, Infinite,
     OrderedFactor, Multiclass, Count, Continuous, Textual,
     Binary, ColorImage, GrayImage, Image, Table,
     ScientificTimeType, ScientificDate, ScientificDateTime,
-    ScientificTime
+    ScientificTime,
+    Density, Sampleable
 export scitype, scitype_union, elscitype, nonmissing, trait
 
 # re-export from StatisticalTraits

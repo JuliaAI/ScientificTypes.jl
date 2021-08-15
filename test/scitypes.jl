@@ -227,6 +227,19 @@ end
     end
 end
 
+struct FooSampleable <: Dist.Sampleable{Dist.ArrayLikeVariate{0},
+                                        Dist.Discrete}
+end
+
+@testset "distributions" begin
+    @test scitype(Dist.Normal()) == Density{Continuous}
+    @test scitype(Dist.Poisson()) == Density{Count}
+    @test scitype(Dist.Categorical(3)) == Density{Count}
+    @test scitype(MultivariateNormal(2,1.0)) ==
+        Density{AbstractVector{Continuous}}
+    @test scitype(FooSampleable()) == Sampleable{Count}
+end
+
 @testset "Autotype+tight" begin
     x = [1,2,3,missing];
     x = x[1:3]

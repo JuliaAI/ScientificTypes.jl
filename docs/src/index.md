@@ -48,6 +48,9 @@ ScientificTimeType
 ├─ ScientificTime
 └─ ScientificDateTime
 
+Sampleable{Ω}
+└─ Density{Ω}
+
 Table{K}
 
 Textual
@@ -120,6 +123,8 @@ Type `T`        | `scitype(x)` for `x::T`           | package required
 `Date`          | `ScientificDate`     | Dates
 `Time`          | `ScientificTime`     | Dates
 `DateTime`      | `ScientificDateTime` | Dates
+`Distributions.Sampleable{F,S}` | `Sampleable{Ω}` where `Ω` is scitype of sample space, according to `{F,S}` 
+`Distributions.Distributions{F,S}` | `Density{Ω}` where `Ω` is scitype of sample space, according to `{F,S}` 
 `AbstractArray{<:Gray,2}` | `GrayImage{W,H}` where `(W, H) = size(x)`                                   | ColorTypes
 `AbstractArrray{<:AbstractRGB,2}` | `ColorImage{W,H}` where `(W, H) = size(x)`                                  | ColorTypes
 `PersistenceDiagram` | `PersistenceDiagram` | PersistenceDiagramsBase
@@ -132,6 +137,8 @@ Here `nlevels(x) = length(levels(x.pool))`.
 - We regard the built-in Julia types `Missing` and `Nothing` as scientific types.
 - `Finite{N}`, `Multiclass{N}` and `OrderedFactor{N}` are all parameterized by the number of levels `N`. We export the alias `Binary = Finite{2}`.
 - `Image{W,H}`, `GrayImage{W,H}` and `ColorImage{W,H}` are all parameterized by the image width and height dimensions, `(W, H)`.
+- `Sampleable{K}` andb
+`Density{K} <: Sampleable{K}` are parameterized by the sample space scitype.
 - On objects for which the default convention has nothing to say, the
   `scitype` function returns `Unknown`.
 

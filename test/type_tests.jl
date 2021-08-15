@@ -44,10 +44,12 @@ Tables.columns(t::MySchemalessTable) = t
     @test s2 === nothing
 end
 
-@testset "csvfile" begin
-    X = (x = rand(4), )
-    CSV.write("test.csv", X)
-    file = CSV.File("test.csv")
-    @test scitype(file) == scitype(X)
-    rm("test.csv")
-end
+# TODO: re-instate when julia 1.0 is no longer LTS release:
+
+# @testset "csvfile" begin
+#     X = (x = rand(4), )
+#     CSV.write("test.csv", X)
+#     file = CSV.File("test.csv")
+#     @test scitype(file) == scitype(X)
+#     rm("test.csv")
+# end
