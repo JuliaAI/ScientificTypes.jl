@@ -1,3 +1,10 @@
+# `trait` definition to catch tables
+
+function ST.trait(X)
+    Tables.istable(X) && return :table
+    return :other
+end
+
 # Basic scitypes
 
 ST.scitype(::Integer,        ::DefaultConvention) = Count
