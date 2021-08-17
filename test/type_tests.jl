@@ -15,7 +15,6 @@ Tables.columns(t::MySchemalessTable) = t
         w = rand(5)
     )
     s = schema(X)
-    @test info(X) == schema(X)
     @test s.scitypes == (Continuous, Count, Multiclass{4}, Continuous)
     @test s.types == (Float64, Int64, CategoricalValue{Char,UInt32}, Float64)
     @test s.nrows == 5
@@ -33,7 +32,6 @@ Tables.columns(t::MySchemalessTable) = t
     # PR #61 "scitype checks for `Tables.DictColumn`"
     X1 = Dict(:a=>rand(5), :b=>rand(Int, 5))
     s1 = schema(X1)
-    @test info(X1) == schema(X1)
     @test s1.scitypes == (Continuous, Count)
     @test s1.types == (Float64, Int64)
     @test s.nrows == 5
