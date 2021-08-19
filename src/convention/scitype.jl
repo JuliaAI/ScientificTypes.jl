@@ -25,8 +25,8 @@ function ST.scitype(c::Cat, ::DefaultConvention)
     return ifelse(c.pool.ordered, OrderedFactor{nc}, Multiclass{nc})
 end
 
-const CatArrOrSub{T,N} =
-    Union{CategoricalArray{T,N},SubArray{<:Any,<:Any,<:CategoricalArray{T,N}}}
+const CatArrOrSub{T, N} =
+    Union{CategoricalArray{T, N}, SubArray{T, N, <:CategoricalArray}}
 
 function ST.scitype(A::CatArrOrSub{T,N}, ::DefaultConvention) where {T,N}
     nlevels = length(levels(A))

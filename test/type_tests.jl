@@ -42,6 +42,11 @@ Tables.columns(t::MySchemalessTable) = t
     X2 = MySchemalessTable(rand(3), rand(3))
     s2 = schema(X2)
     @test s2 === nothing
+
+    #issue 146
+    X = Tables.table(coerce(rand("abc", 5, 3), Multiclass))
+    @test scitype(X) === Table{AbstractVector{Multiclass{3}}}
+
 end
 
 # TODO: re-instate when julia 1.0 is no longer LTS release:
