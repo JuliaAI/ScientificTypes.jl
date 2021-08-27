@@ -1,6 +1,6 @@
 using Test, ScientificTypes, ScientificTypesBase, Random
 using Tables, CategoricalArrays, DataFrames
-using ColorTypes, PersistenceDiagramsBase
+using ColorTypes, PersistenceDiagramsBase, CorpusLoaders
 using Dates
 # using CSV # dropped until julia release new LTS as issue for 1.0
 import Distributions

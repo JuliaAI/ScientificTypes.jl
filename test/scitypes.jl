@@ -240,6 +240,22 @@ end
     @test scitype(FooSampleable()) == Sampleable{Count}
 end
 
+@testset "text analysis" begin
+    tagged_word = CorpusLoaders.PosTaggedWord("NN", "wheelbarrow")
+    tagged_word2 = CorpusLoaders.PosTaggedWord("NN", "soil")
+    @test scitype(tagged_word) == Annotated{Textual}
+    bag_of_words = Dict("cat"=>1, "dog"=>3)
+    @test scitype(bag_of_words) == Multiset{Textual}
+    bag_of_tagged_words = Dict(tagged_word => 5)
+    @test scitype(bag_of_tagged_words) == Multiset{Annotated{Textual}}
+    @test scitype(Document("kadsfkj")) == Unknown
+    @test scitype(Document([tagged_word, tagged_word2])) ==
+        Annotated{AbstractVector{Annotated{Textual}}}
+    nested_tokens = [["dog", "cat"], ["bird", "cat"]]
+    @test scitype(Document(nested_tokens)) ==
+                  Annotated{AbstractVector{AbstractVector{Textual}}}
+end
+
 @testset "Autotype+tight" begin
     x = [1,2,3,missing];
     x = x[1:3]
