@@ -248,11 +248,11 @@ end
     @test scitype(bag_of_words) == Multiset{Textual}
     bag_of_tagged_words = Dict(tagged_word => 5)
     @test scitype(bag_of_tagged_words) == Multiset{Annotated{Textual}}
-    @test scitype(Document("kadsfkj")) == Unknown
-    @test scitype(Document([tagged_word, tagged_word2])) ==
+    @test scitype(Document("kadsfkj", "My Document")) == Unknown
+    @test scitype(Document([tagged_word, tagged_word2], "My Other Doc")) ==
         Annotated{AbstractVector{Annotated{Textual}}}
     nested_tokens = [["dog", "cat"], ["bird", "cat"]]
-    @test scitype(Document(nested_tokens)) ==
+    @test scitype(Document(nested_tokens), "Essay Number 1") ==
                   Annotated{AbstractVector{AbstractVector{Textual}}}
 end
 
