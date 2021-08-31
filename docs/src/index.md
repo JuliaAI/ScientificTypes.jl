@@ -51,11 +51,17 @@ ScientificTimeType
 Sampleable{Ω}
 └─ Density{Ω}
 
+Annotated{S}
+
+AnnotationFor{S}
+
+Multiset{S}
+
 Table{K}
 
 Textual
 
-PersistenceDiagram
+ManifoldPoint{MT}
 
 Unknown
 ```
@@ -109,26 +115,32 @@ typically much slower than calling `scitype` or `elscitype`.
 The table below summarizes the default convention for representing
 scientific types:
 
-Type `T`        | `scitype(x)` for `x::T`           | package required
+Type `T`        | `scitype(x)` for `x::T`           | package/module required
 :-------------- | :-------------------------------- | :------------------------
 `Missing`       | `Missing`                         |
 `Nothing`       | `Nothing`                         |
 `AbstractFloat` | `Continuous`                      |
 `Integer`       |  `Count`                          |
 `String`        | `Textual`                         |
-`CategoricalValue` | `Multiclass{N}` where `N = nlevels(x)`, provided `x.pool.ordered == false`  | CategoricalArrays
-`CategoricalString` | `Multiclass{N}` where `N = nlevels(x)`, provided `x.pool.ordered == false`  | CategoricalArrays
-`CategoricalValue` | `OrderedFactor{N}` where `N = nlevels(x)`, provided `x.pool.ordered == true`| CategoricalArrays
-`CategoricalString` | `OrderedFactor{N}` where `N = nlevels(x)` provided `x.pool.ordered == true` | CategoricalArrays
+`CategoricalValue` | `Multiclass{N}` where `N = nlevels(x)`, provided `x.pool.ordered == false`  | CategoricalArrays.jl
+`CategoricalString` | `Multiclass{N}` where `N = nlevels(x)`, provided `x.pool.ordered == false`  | CategoricalArrays.jl
+`CategoricalValue` | `OrderedFactor{N}` where `N = nlevels(x)`, provided `x.pool.ordered == true`| CategoricalArrays.jl
+`CategoricalString` | `OrderedFactor{N}` where `N = nlevels(x)` provided `x.pool.ordered == true` | CategoricalArrays.jl
 `Date`          | `ScientificDate`     | Dates
 `Time`          | `ScientificTime`     | Dates
 `DateTime`      | `ScientificDateTime` | Dates
 `Distributions.Sampleable{F,S}` | `Sampleable{Ω}` where `Ω` is scitype of sample space, according to `{F,S}` 
 `Distributions.Distributions{F,S}` | `Density{Ω}` where `Ω` is scitype of sample space, according to `{F,S}` 
-`AbstractArray{<:Gray,2}` | `GrayImage{W,H}` where `(W, H) = size(x)`                                   | ColorTypes
-`AbstractArrray{<:AbstractRGB,2}` | `ColorImage{W,H}` where `(W, H) = size(x)`                                  | ColorTypes
+`AbstractArray{<:Gray,2}` | `GrayImage{W,H}` where `(W, H) = size(x)`                                   | ColorTypes.jl
+`AbstractArrray{<:AbstractRGB,2}` | `ColorImage{W,H}` where `(W, H) = size(x)`                                  | ColorTypes.jl
 `PersistenceDiagram` | `PersistenceDiagram` | PersistenceDiagramsBase
-any table type `T` supported by Tables.jl | `Table{K}` where `K=Union{column_scitypes...}`                      | Tables
+any table type `T` supported by Tables.jl | `Table{K}` where `K=Union{column_scitypes...}`                      | Tables.jl
+† `CorpusLoaders.TaggedWord` | `Annotated{Textual}` | CorpusLoaders.jl
+† `CorpusLoaders.Document{AbstractVector{Q}}` | `Annotated{AbstractVector{Scitype(Q)}}` | CorpusLoaders.jl
+† `AbstractDict{<:AbstractString,<:Integer}` | `Multiset{Textual}` | 
+† `AbstractDict{<:TaggedWord,<:Integer}` | `Multiset{Annotated{Textual}}` | CorpusLoaders.jl
+
+† *Experimental* and subject to change in new minor or patch release
 
 Here `nlevels(x) = length(levels(x.pool))`.
 
