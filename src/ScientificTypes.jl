@@ -1,25 +1,18 @@
 module ScientificTypes
 
 # Dependencies
-using ScientificTypesBase
+using Reexport
+@reexport using ScientificTypesBase
 using Tables
 using CategoricalArrays
 using ColorTypes
 using PersistenceDiagramsBase
+using CorpusLoaders
 using PrettyTables
 using Dates
 import Distributions
 
 import StatisticalTraits: info
-
-# re-exports from ScientificTypes
-export Scientific, Found, Unknown, Known, Finite, Infinite,
-    OrderedFactor, Multiclass, Count, Continuous, Textual,
-    Binary, ColorImage, GrayImage, Image, Table,
-    ScientificTimeType, ScientificDate, ScientificDateTime,
-    ScientificTime,
-    Density, Sampleable
-export scitype, scitype_union, elscitype, nonmissing, trait
 
 # re-export from StatisticalTraits
 export info

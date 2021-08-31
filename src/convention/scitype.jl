@@ -66,9 +66,21 @@ ST.scitype(::Distributions.Sampleable{F,S}) where {F,S} =
 ST.scitype(::Distributions.Distribution{F,S}) where {F,S} =
     Density{space_scitype(F,S)}
 
+# Text analysis - EXPERIMENTAL
 
-
-
+type2scitype(T::Type) = ST.Scitype(T, DefaultConvention())
+type2scitype(::Type{<:AbstractVector{T}}) where T =
+    AbstractVector{type2scitype(T)}
+ST.scitype(::TaggedWord, ::DefaultConvention) = Annotated{Textual}
+ST.scitype(::Document{<:AbstractVector{T}}, ::DefaultConvention) where T =
+    Annotated{AbstractVector{type2scitype(T)}}
+ST.scitype(::AbstractDict{<:AbstractString,<:Integer},
+           ::DefaultConvention) = Multiset{Textual}
+ST.scitype(::AbstractDict{<:TaggedWord,<:Integer},
+           ::DefaultConvention) = Multiset{Annotated{Textual}}
+ST.scitype(::AbstractDict{<:Union{TaggedWord,AbstractString},<:Integer},
+           ::DefaultConvention) =
+               Multiset{Annotated{Textual}}
 
 # Scitype for fast array broadcasting
 
@@ -80,3 +92,5 @@ ST.Scitype(::Type{<:Date},               ::DefaultConvention) = ScientificDate
 ST.Scitype(::Type{<:Time},               ::DefaultConvention) = ScientificTime
 ST.Scitype(::Type{<:DateTime},           ::DefaultConvention) = ScientificDateTime
 ST.Scitype(::Type{<:PersistenceDiagram}, ::DefaultConvention) = PersistenceDiagram
+ST.Scitype(::Type{<:TaggedWord},         ::DefaultConvention) =
+    Annotated{Textual}
