@@ -1,3 +1,5 @@
+const ColKey = Union{Symbol,AbstractString}
+
 """
     coerce(A, specs...; tight=false, verbosity=1)
 
@@ -16,7 +18,9 @@ both the `OldScitype` and `Union{Missing,OldScitype}` cases):
 
 (iii) a dictionary of scientific types keyed on column names:
 
-    coerce(X, d::AbstractDict{Symbol, <:Type}; verbosity=1)
+    coerce(X, d::AbstractDict{<:ColKey, <:Type}; verbosity=1)
+
+where `ColKey = Union{Symbol,AbstractString}`.
 
 ### Examples
 
@@ -50,7 +54,7 @@ coerce(::Val{:other}, X, a...; kw...) =
 
 _bad_dictionary() = throw(ArgumentError(
     "A dictionary specifying a scitype conversion "*
-    "must have type `AbstractDict{Symbol, <:Type}`. It's keys must "*
+    "must have type `AbstractDict{<:ColKey, <:Type}`. It's keys must "*
     "be column names and its values be scientific types. "*
     "E.g., `Dict(:cats=>Continuous, :dogs=>Textual`. "))
 coerce(::Val{:table}, X, types_dict::AbstractDict; kw...) =
@@ -68,7 +72,7 @@ coerce(::Val{:table}, X, specs...; kw...) = _bad_specs()
 
 function coerce(::Val{:table},
                 X,
-                types_dict::AbstractDict{Symbol, <:Type};
+                types_dict::AbstractDict{<:ColKey, <:Type};
                 kw...)
     isempty(types_dict) && return X
     names  = schema(X).names
@@ -103,7 +107,7 @@ end
 # symbol=>type and type=>type pairs can be specified in place of a
 # dictionary:
 
-feature_scitype_pairs(p::Pair{Symbol,<:Type}, X) = [p, ]
+feature_scitype_pairs(p::Pair{<:ColKey,<:Type}, X) = [Symbol(first(p)) => last(p), ]
 function feature_scitype_pairs(p::Pair{<:Type,<:Type}, X)
     from_scitype = first(p)
     to_scitype = last(p)
@@ -121,7 +125,7 @@ for c in (:coerce, :coerce!)
     ex = quote
         function $c(::Val{:table},
                     X,
-                    mixed_pairs::Pair{<:Union{Symbol,<:Type},<:Type}...;
+                    mixed_pairs::Pair{<:Union{<:ColKey,<:Type},<:Type}...;
                     kw...)
             components = map(p -> feature_scitype_pairs(p, X), mixed_pairs)
             pairs = vcat(components...)
@@ -170,7 +174,7 @@ coerce!(::Val{:table}, X, specs...; kw...) = _bad_specs()
 
 function coerce!(::Val{:table},
                  X,
-                 types_dict::AbstractDict{Symbol, <:Type};
+                 types_dict::AbstractDict{<:ColKey, <:Type};
                  kw...)
     # DataFrame --> coerce_df!
     if is_type(X, :DataFrames, :DataFrame)
@@ -189,7 +193,7 @@ end
 
 In place coercion for a dataframe.(Unexported method)
 """
-function coerce_df!(df, tdict::AbstractDict{Symbol, <:Type}; kw...)
+function coerce_df!(df, tdict::AbstractDict{<:ColKey, <:Type}; kw...)
     names = schema(df).names
     for name in names
         name in keys(tdict) || continue
