@@ -214,6 +214,11 @@ end
     @test scitype_union(yc) == Union{Missing,OrderedFactor{3}}
     @test scitype_union(y) == Union{Missing,Multiclass{3}}
 
+    # tests fix for issue https://github.com/JuliaAI/ScientificTypes.jl/issues/161
+    X = (x=10:10:44, y=1:4, z=collect("abcd"))
+    Xc = coerce(X, :x => Continuous, "y" => Continuous)
+    @test scitype_union(Xc.x) === Continuous
+    @test scitype_union(Xc.y) === Continuous
 end
 
 @testset "coerce arrays" begin
