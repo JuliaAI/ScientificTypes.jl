@@ -162,7 +162,9 @@ DataFrame! does). An error is thrown otherwise. The arguments are the same as
 `coerce`.
 
 """
-coerce!(X, a...;  kw...) = coerce!(Val(ST.trait(X)), X, a...; kw...)
+coerce!(X, a...;  kw...) = begin
+    coerce!(Val(ST.trait(X)), X, a...; kw...)
+end
 
 coerce!(::Val{:other}, X, a...; kw...) =
     throw(CoercionError("`coerce!` is undefined for non-tabular data."))
@@ -198,16 +200,7 @@ function coerce_df!(df, tdict::AbstractDict{<:ColKey, <:Type}; kw...)
     for name in names
         name in keys(tdict) || continue
         coerce_type = tdict[name]
-        # for DataFrames >= 0.19 df[!, name] = coerce(df[!, name], types(name))
-        # but we want something that works more robustly... even for older
-        # DataFrames; the only way to do this is to use the
-        # `df.name = something` but we cannot use setindex! without throwing
-        # a deprecation warning... metaprogramming to the rescue.
-        name_str = "$name"
-        ex = quote
-            $df.$name = coerce($df.$name, $coerce_type, $kw...)
-        end
-        eval(ex)
+        df[!, name] = coerce(df[!, name], coerce_type; kw...)
     end
     return df
 end

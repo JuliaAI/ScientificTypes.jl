@@ -1,8 +1,11 @@
-@testset "issue #7" begin
-    df = DataFrame(x=[1,2,3,4], y=["a","b","c","a"])
+@testset "coerce!" begin
+    df = DataFrame(x=[1,2,3,4],
+                   y=["a","b","c","a"],
+                   z = Union{Missing,Int}[10, 20, 30, 40])
     coerce!(df, Textual=>Finite)
-    @test scitype(df) == Table{Union{ AbstractArray{Count,1},
-                                      AbstractArray{Multiclass{3},1} }}
+    coerce!(df, Union{Missing,Count}=>Count, tight=true) # issue #166
+    @test scitype(df) == Table{Union{AbstractArray{Count,1},
+                                     AbstractArray{Multiclass{3},1} }}
 end
 
 # issue #9
