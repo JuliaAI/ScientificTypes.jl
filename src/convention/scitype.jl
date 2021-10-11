@@ -66,34 +66,6 @@ ST.scitype(::Distributions.Sampleable{F,S}) where {F,S} =
 ST.scitype(::Distributions.Distribution{F,S}) where {F,S} =
     Density{space_scitype(F,S)}
 
-# Text analysis - EXPERIMENTAL
-
-# This would be less of a hack if some of #155 were adopted.
-
-type2scitype(T::Type) = ST.Scitype(T, DefaultConvention())
-type2scitype(::Type{<:AbstractVector{T}}) where T =
-    AbstractVector{type2scitype(T)}
-type2scitype(::NTuple{N,T}) where {N,T} = NTuple{type2scitype{T}}
-const PlainNGram{N}  = NTuple{N,<:AbstractString}
-const TaggedNGram{N} = NTuple{N,<:CorpusLoaders.TaggedWord}
-ST.scitype(::TaggedWord, ::DefaultConvention) = Annotated{Textual}
-ST.scitype(::Document{<:AbstractVector{T}}, ::DefaultConvention) where T =
-    Annotated{AbstractVector{type2scitype(T)}}
-ST.scitype(::AbstractDict{<:AbstractString,<:Integer},
-           ::DefaultConvention) = Multiset{Textual}
-ST.scitype(::AbstractDict{<:TaggedWord,<:Integer},
-           ::DefaultConvention) = Multiset{Annotated{Textual}}
-ST.scitype(::AbstractDict{<:Union{TaggedWord,AbstractString},<:Integer},
-           ::DefaultConvention) =
-               Multiset{Union{Textual,Annotated{Textual}}}
-ST.scitype(::AbstractDict{<:PlainNGram{N}}) where N =
-    Multiset{NTuple{N,Textual}}
-ST.scitype(::AbstractDict{<:TaggedNGram{N}}) where N =
-    Multiset{NTuple{N,Annotated{Textual}}}
-ST.scitype(::AbstractDict{<:PlainNGram}) =
-    Multiset{NTuple{<:Any,Textual}}
-ST.scitype(::AbstractDict{<:TaggedNGram}) =
-    Multiset{NTuple{<:Any,Annotated{Textual}}}
 
 # Scitype for fast array broadcasting
 
@@ -105,5 +77,3 @@ ST.Scitype(::Type{<:Date},               ::DefaultConvention) = ScientificDate
 ST.Scitype(::Type{<:Time},               ::DefaultConvention) = ScientificTime
 ST.Scitype(::Type{<:DateTime},           ::DefaultConvention) = ScientificDateTime
 ST.Scitype(::Type{<:PersistenceDiagram}, ::DefaultConvention) = PersistenceDiagram
-ST.Scitype(::Type{<:TaggedWord},         ::DefaultConvention) =
-    Annotated{Textual}
