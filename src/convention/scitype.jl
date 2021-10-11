@@ -16,7 +16,7 @@ ColorImage{size(img)...}
 
 # Persistence diagrams
 
-ST.scitype(::PersistenceDiagram, ::DefaultConvention) = PersistenceDiagram
+# ST.scitype(::PersistenceDiagram, ::DefaultConvention) = PersistenceDiagram
 
 # CategoricalArray scitype
 
@@ -76,4 +76,4 @@ ST.Scitype(::Type{<:TimeType},           ::DefaultConvention) = ScientificTimeTy
 ST.Scitype(::Type{<:Date},               ::DefaultConvention) = ScientificDate
 ST.Scitype(::Type{<:Time},               ::DefaultConvention) = ScientificTime
 ST.Scitype(::Type{<:DateTime},           ::DefaultConvention) = ScientificDateTime
-ST.Scitype(::Type{<:PersistenceDiagram}, ::DefaultConvention) = PersistenceDiagram
+# ST.Scitype(::Type{<:PersistenceDiagram}, ::DefaultConvention) = PersistenceDiagram
