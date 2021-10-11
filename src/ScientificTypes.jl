@@ -6,7 +6,6 @@ using Reexport
 using Tables
 using CategoricalArrays
 using ColorTypes
-using PersistenceDiagramsBase
 using CorpusLoaders
 using PrettyTables
 using Dates

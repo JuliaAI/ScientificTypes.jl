@@ -86,13 +86,13 @@ end
     @test scitype(gray_image) == GrayImage{10,20}
 end
 
-@testset "PersistenceDiagrams" begin
-    diagram = PersistenceDiagram([(1, Inf), (2, 3)], dim=0)
-    @test scitype(diagram) == PersistenceDiagram
+# @testset "PersistenceDiagrams" begin
+#     diagram = PersistenceDiagram([(1, Inf), (2, 3)], dim=0)
+#     @test scitype(diagram) == PersistenceDiagram
 
-    diagrams = [diagram, diagram, diagram]
-    @test scitype(diagrams) == Vec{PersistenceDiagram}
-end
+#     diagrams = [diagram, diagram, diagram]
+#     @test scitype(diagrams) == Vec{PersistenceDiagram}
+# end
 
 @testset "temporal types" begin
     d = Date(2020, 4, 21)
