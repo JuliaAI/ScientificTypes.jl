@@ -16,7 +16,7 @@ import StatisticalTraits: info
 export info
 
 # exports
-export coerce, coerce!, autotype, schema
+export coerce, coerce!, autotype, schema, levels, levels!
 
 # -------------------------------------------------------------
 # Abbreviations
