@@ -46,8 +46,7 @@ scientific types and associated methods defined in [ScientificTypesBase.jl](http
 and provides:
 
 - a collection of `scitype` definitions that
-  articulate a default convention, importing the module automatically
-  activating the convention
+  articulate a default convention.
 
 - a `coerce` function, for changing machine types to reflect a specified
   scientific interpretation (scientific type)
@@ -75,17 +74,15 @@ sch = schema(X)
 will print
 
 ```
-_.table =
-┌─────────┬─────────────────────────┬────────────────────────────┐
-│ _.names │ _.types                 │ _.scitypes                 │
-├─────────┼─────────────────────────┼────────────────────────────┤
-│ a       │ Float64                 │ Continuous                 │
-│ b       │ Union{Missing, Float64} │ Union{Missing, Continuous} │
-│ c       │ Int64                   │ Count                      │
-│ d       │ Int64                   │ Count                      │
-│ e       │ Union{Missing, Char}    │ Union{Missing, Unknown}    │
-└─────────┴─────────────────────────┴────────────────────────────┘
-_.nrows = 5
+┌───────┬────────────────────────────┬─────────────────────────┐
+│ names │ scitypes                   │ types                   │
+├───────┼────────────────────────────┼─────────────────────────┤
+│ a     │ Continuous                 │ Float64                 │
+│ b     │ Union{Missing, Continuous} │ Union{Missing, Float64} │
+│ c     │ Count                      │ Int64                   │
+│ d     │ Count                      │ Int64                   │
+│ e     │ Union{Missing, Unknown}    │ Union{Missing, Char}    │
+└───────┴────────────────────────────┴─────────────────────────┘
 ```
 
 Detail is obtained in the obvious way; for example:
@@ -105,17 +102,15 @@ schema(Xc)
 which prints
 
 ```
-_.table =
-┌─────────┬──────────────────────────────────────────────┬───────────────────────────────┐
-│ _.names │ _.types                                      │ _.scitypes                    │
-├─────────┼──────────────────────────────────────────────┼───────────────────────────────┤
-│ a       │ Float64                                      │ Continuous                    │
-│ b       │ Union{Missing, Int64}                        │ Union{Missing, Count}         │
-│ c       │ Int64                                        │ Count                         │
-│ d       │ CategoricalValue{Int64,UInt32}               │ Multiclass{2}                 │
-│ e       │ Union{Missing, CategoricalValue{Char,UInt32}}│ Union{Missing, Multiclass{2}} │
-└─────────┴──────────────────────────────────────────────┴───────────────────────────────┘
-_.nrows = 5
+┌───────┬───────────────────────────────┬────────────────────────────────────────────────┐
+│ names │ scitypes                      │ types                                          │
+├───────┼───────────────────────────────┼────────────────────────────────────────────────┤
+│ a     │ Continuous                    │ Float64                                        │
+│ b     │ Union{Missing, Count}         │ Union{Missing, Int64}                          │
+│ c     │ Count                         │ Int64                                          │
+│ d     │ Multiclass{2}                 │ CategoricalValue{Int64, UInt32}                │
+│ e     │ Union{Missing, Multiclass{2}} │ Union{Missing, CategoricalValue{Char, UInt32}} │
+└───────┴───────────────────────────────┴────────────────────────────────────────────────┘
 
 ```
 
