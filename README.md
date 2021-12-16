@@ -45,7 +45,7 @@ The module `ScientificTypes` defined in this repo rexports the
 scientific types and associated methods defined in [ScientificTypesBase.jl](https://github.com/JuliaAI/ScientificTypesBase.jl)
 and provides:
 
-- a collection of `ScientificTypes.scitype` definitions that
+- a collection of `scitype` definitions that
   articulate a default convention, importing the module automatically
   activating the convention
 

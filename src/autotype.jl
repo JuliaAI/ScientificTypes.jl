@@ -1,4 +1,39 @@
 """
+    nrows(X)
+
+Internal method that return the number of rows a table `X` has.
+
+**Note**
+A more general version of this method is defined in `MLJModelInterface.jl`.
+This method is needed here in order for `auto_type` method to run. 
+"""
+function nrows(X)
+    if !Tables.istable(X)
+        throw(ArgumentError("input argument must be a Tables.jl compatible table"))
+    end
+    if Tables.rowaccess(X)
+        rows = Tables.rows(X)
+        return _nrows_rat(Base.IteratorSize(typeof(rows)), rows)
+        
+    else
+        cols = Tables.columns(X)
+        return _nrows_cat(cols)
+    end
+end
+
+# number of rows for columnaccessed table
+function _nrows_cat(cols)
+    names = Tables.columnnames(cols)
+    !isempty(names) || return 0
+    return length(Tables.getcolumn(cols, names[1]))
+end
+
+# number of rows for rowaccessed table
+_nrows_rat(::Base.HasShape, rows) = size(rows, 1)
+_nrows_rat(::Base.HasLength, rows) = length(rows)
+_nrows_rat(iter_size, rows) = length(collect(rows))
+
+"""
     autotype(X; kw...)
 
 Return a dictionary of suggested scitypes for each column of `X`, a table or
@@ -12,7 +47,7 @@ an array based on rules
                               autotype, `only_changes` should be true.
 * `rules=(:few_to_finite,)`: the set of rules to apply.
 """
-autotype(X; kw...) = _autotype(X, Val(ST.trait(X)); kw...)
+autotype(X; kw...) = _autotype(X, vtrait(X); kw...)
 
 # For an array object (trait:other)
 function _autotype(X::Arr, ::Val{:other};
@@ -59,7 +94,7 @@ function _autotype(X, ::Val{:table}; only_changes::Bool=true,
         # doesn't really matter, there are few rules and sugg is fast
         sugg_type = stype
         for rule in rules
-            sugg_type = eval(:($rule($sugg_type, $col, $sch.nrows)))
+            sugg_type = eval(:($rule($sugg_type, $col, $(nrows(X)))))
         end
         # store the suggested type
         suggested_types[name] = sugg_type

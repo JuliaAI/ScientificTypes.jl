@@ -3,6 +3,7 @@ module ScientificTypes
 # Dependencies
 using Reexport
 @reexport using ScientificTypesBase
+export scitype, elscitype, scitype_union
 using Tables
 using CategoricalArrays
 using ColorTypes
@@ -10,26 +11,27 @@ using PrettyTables
 using Dates
 import Distributions
 
-import StatisticalTraits: info
-
-# re-export from StatisticalTraits
-export info
-
 # exports
 export coerce, coerce!, autotype, schema, levels, levels!
 
-# -------------------------------------------------------------
+# --------------------------------------------------------------------------------------
 # Abbreviations
 
-const ST   = ScientificTypesBase
-const Arr  = AbstractArray
+const ST  = ScientificTypesBase
+const Arr = AbstractArray
 const CArr = CategoricalArray
-const Cat  = CategoricalValue
+const Cat = CategoricalValue
+const COLS_SPECIALIZATION_THRESHOLD = 30
+const ROWS_SPECIALIZATION_THRESHOLD = 10000
+const SCHEMA_SPECIALIZATION_THRESHOLD = Tables.SCHEMA_SPECIALIZATION_THRESHOLD
 
-# Indicate the convention, see init.jl where it is set.
+#---------------------------------------------------------------------------------------
+# Define convention
 struct DefaultConvention <: Convention end
-
-include("init.jl")
+const CONV = DefaultConvention()
+# -------------------------------------------------------------
+# vtrait function, returns either `Val{:table}()` or `Val{:other}()`
+vtrait(X) = Val{ifelse(Tables.istable(X), :table, :other)}()
 
 # -------------------------------------------------------------
 # Includes

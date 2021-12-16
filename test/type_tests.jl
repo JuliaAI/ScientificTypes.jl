@@ -4,7 +4,7 @@ struct MySchemalessTable{U, V}
 end
 
 Tables.istable(::MySchemalessTable) = true
-Tables.columnaccess(::Type{MySchemalessTable}) = true
+Tables.columnaccess(::Type{<:MySchemalessTable}) = true
 Tables.columns(t::MySchemalessTable) = t
 
 @testset "Tables" begin
@@ -15,10 +15,8 @@ Tables.columns(t::MySchemalessTable) = t
         w = rand(5)
     )
     s = schema(X)
-    @test info(X) == schema(X)
     @test s.scitypes == (Continuous, Count, Multiclass{4}, Continuous)
     @test s.types == (Float64, Int64, CategoricalValue{Char,UInt32}, Float64)
-    @test s.nrows == 5
 
     @test_throws ArgumentError schema([:x, :y])
 
@@ -27,16 +25,11 @@ Tables.columns(t::MySchemalessTable) = t
     @test t <: Table(Infinite, Multiclass)
     @test !(t <: Table(Continuous, Union{Missing, Count}))
 
-    @test ScientificTypes._nrows(X) == 5
-    @test ScientificTypes._nrows(()) == 0
-
     # PR #61 "scitype checks for `Tables.DictColumn`"
     X1 = Dict(:a=>rand(5), :b=>rand(Int, 5))
     s1 = schema(X1)
-    @test info(X1) == schema(X1)
     @test s1.scitypes == (Continuous, Count)
     @test s1.types == (Float64, Int64)
-    @test s.nrows == 5
 
     #issue 47
     X2 = MySchemalessTable(rand(3), rand(3))

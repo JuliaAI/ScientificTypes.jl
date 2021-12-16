@@ -45,7 +45,7 @@ Xc = coerce(X, Count=>Continuous)
 schema(Xfixed).scitypes # (Continuous, Continuous, Continuous)
 ```
 """
-coerce(X, a...; kw...) = coerce(Val(ST.trait(X)), X, a...; kw...)
+coerce(X, a...; kw...) = coerce(vtrait(X), X, a...; kw...)
 
 # Non tabular data is not supported
 coerce(::Val{:other}, X, a...; kw...) =
@@ -163,7 +163,7 @@ DataFrame! does). An error is thrown otherwise. The arguments are the same as
 
 """
 coerce!(X, a...;  kw...) = begin
-    coerce!(Val(ST.trait(X)), X, a...; kw...)
+    coerce!(vtrait(X), X, a...; kw...)
 end
 
 coerce!(::Val{:other}, X, a...; kw...) =

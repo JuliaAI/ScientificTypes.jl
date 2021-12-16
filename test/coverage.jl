@@ -8,8 +8,8 @@
     s = schema(df)
     io = IOBuffer()
     show(io, MIME("text/plain"), ScientificTypes.schema(df))
-    @test String(take!(io)) == "┌─────────┬─────────┬────────────┐\n│ _.names │ _.types │ _.scitypes │\n├─────────┼─────────┼────────────┤\n│ x       │ Float64 │ Continuous │\n│ y       │ String  │ Textual    │\n└─────────┴─────────┴────────────┘\n_.nrows = 3\n"
-
+    #@test String(take!(io)) == "┌─────────┬─────────┬────────────┐\n│ names │ scitypes  │ types  │\n├─────────┼─────────┼────────────┤\n│ x       │ Float64 │ Continuous │\n│ y       │ String  │ Textual    │\n└─────────┴─────────┴────────────┘\n"
+    @test String(take!(io)) == "┌───────┬────────────┬─────────┐\n│ names │ scitypes   │ types   │\n├───────┼────────────┼─────────┤\n│ x     │ Continuous │ Float64 │\n│ y     │ Textual    │ String  │\n└───────┴────────────┴─────────┘\n"
     # coerce
     x = Any['a', 5]
     @test (@test_logs (:info, "Char value encountered, such value will be coerced according to the corresponding numeric value (e.g. 'A' to 65).") coerce(x, Count)) == [97, 5]
@@ -51,15 +51,14 @@ end
 
 @testset "Schema" begin
     ST = ScientificTypes
-    sch = ST.Schema((:a, :b), (Int, Int), (Count, Count), 5)
-    @test sch isa ST.Schema{(:a, :b),Tuple{Int64,Int64},Tuple{Count,Count},5}
+    sch = ST.Schema((:a, :b), (Count, Count), (Int, Int))
+    @test sch isa ST.Schema{(:a, :b), Tuple{Count,Count}, Tuple{Int64,Int64}}
     @test sch.names == (:a, :b)
     @test sch.types == (Int, Int)
     @test sch.scitypes == (Count, Count)
-    @test sch.nrows == 5
 
     @test_throws ArgumentError sch.something
-    @test propertynames(sch) == (:names, :types, :scitypes, :nrows)
+    @test propertynames(sch) == (:names, :scitypes, :types)
 
     X = [1,2,3]
     @test_throws ArgumentError schema(X)
