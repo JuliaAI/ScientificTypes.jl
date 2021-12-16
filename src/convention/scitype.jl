@@ -10,15 +10,18 @@ machine type, as specified by the active convention.
 ```
 julia> scitype(3.14)
 Continuous
-julia> scitype([1, 2, 3, missing])
-AbstractArray{Union{Missing, Count},1}
+
+julia> scitype([1, 2, missing])
+AbstractVector{Union{Missing, Count}} 
+
 julia> scitype((5, "beige"))
 Tuple{Count, Textual}
-julia> using CategoricalArrays
-julia> X = (gender = categorical(['M', 'M', 'F', 'M', 'F']),
-            ndevices = [1, 3, 2, 3, 2])
+
+using CategoricalArrays
+X = (gender = categorical(['M', 'M', 'F', 'M', 'F']),
+     ndevices = [1, 3, 2, 3, 2])
 julia> scitype(X)
-Table{Union{AbstractArray{Count,1}, AbstractArray{Multiclass{2},1}}}
+Table{Union{AbstractVector{Count}, AbstractVector{Multiclass{2}}}}
 ```
 """
 scitype(X) = ST.scitype(X, CONV)
