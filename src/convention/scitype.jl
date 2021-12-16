@@ -94,7 +94,7 @@ function _cols_scitype(cols, sch::Tables.Schema{names, types}) where {names, typ
     if N <= COLS_SPECIALIZATION_THRESHOLD
         return __cols_scitype(cols, sch) 
     else
-        scitypes = if type === nothing
+        scitypes = if types === nothing
             Type[scitype(Tables.getcolumn(cols, name[i])) for i in Base.OneTo(N)]
         else
             Type[
