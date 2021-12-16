@@ -21,7 +21,7 @@ julia> scitype(X)
 Table{Union{AbstractArray{Count,1}, AbstractArray{Multiclass{2},1}}}
 ```
 """
-scitype(X) = ST.scitype(X, DefaultConvention())
+scitype(X) = ST.scitype(X, CONV)
 
 function ST.scitype(@nospecialize(X), C::DefaultConvention)
     return _scitype(X, C, vtrait(X)) 
