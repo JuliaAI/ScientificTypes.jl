@@ -21,7 +21,7 @@ Distributions = "0.25.1"
 PrettyTables = "1"
 Reexport = "1.2"
 ScientificTypesBase = "2.2"
-StatisticalTraits = "2"
+StatisticalTraits = "2, 3.0"
 Tables = "1"
 julia = "1"
 
