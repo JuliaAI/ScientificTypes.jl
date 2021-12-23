@@ -463,8 +463,6 @@ before passing to `coerce`.
 
 ```@docs
 ScientificTypes.scitype
-ScientificTypes.elscitype
-ScientificTypes.scitype_union
 coerce
 autotype
 ```

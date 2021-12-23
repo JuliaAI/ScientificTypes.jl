@@ -64,7 +64,7 @@ for X in tables
           Continuous,                           # b
           Count,                                # c
           Multiclass{nobj_d},                   # d*
-          Union{Missing,OrderedFactor{nobj_e}}, # e*
+          Union{Missing, OrderedFactor{nobj_e}}, # e*
           OrderedFactor{nobj_f});                # f*
 
          # test only_changes
@@ -112,10 +112,14 @@ end
 #######################
 
 @testset "auto-utils" begin
+    @test ScientificTypes.nrows(X1) == 5
+    @test ScientificTypes.nrows(X1row) == 5
+    @test ScientificTypes.nrows(X2) == 10
+    @test ScientificTypes.nrows(X2row) == 10
     @test ScientificTypes.nonmissing(Union{Missing,Real}) == Real
     @test ScientificTypes.nonmissing(Real) == Real
     @test ScientificTypes.nonmissing(Union{Missing,Multiclass}) == Multiclass
-    @test ScientificTypes.T_or_Union_Missing_T(Union{Missing,Real},Float64) == Union{Missing,Float64}
+    @test ScientificTypes.T_or_Union_Missing_T(Union{Missing, Real}, Float64) == Union{Missing, Float64}
     @test ScientificTypes.T_or_Union_Missing_T(Real, Float64) == Float64
     @test ScientificTypes.sugg_finite(Union{Missing,Float64}) == OrderedFactor
     @test ScientificTypes.sugg_finite(Union{Missing,String}) == Multiclass
@@ -123,9 +127,10 @@ end
     @test ScientificTypes.sugg_finite(String) == Multiclass
     @test ScientificTypes.sugg_finite(Char) == Multiclass
     @test ScientificTypes.sugg_finite(Int) == OrderedFactor
+    @test ScientificTypes.sugg_finite(Any) == Multiclass
 end
 
-@testset "auto s2c2" begin
+@testset "auto string_to_multiclass" begin
     n = nothing
     M = Missing
     @test ScientificTypes.string_to_multiclass(Continuous, n, n) == Continuous
@@ -144,9 +149,14 @@ end
     col = ("aa", "bb", "cc", missing)
     @test ScientificTypes.string_to_multiclass(Union{M,Textual}, col, n) == Union{M,Multiclass}
     @test ScientificTypes.string_to_multiclass(Textual, col, n) == Union{M,Multiclass}
+    # increase coverage
+    ST = ScientificTypes
+    @test ST.string_to_multiclass(String, ["a","b"], 0) == String
+    @test ST.string_to_multiclass(Textual, ["a","b"], 0) == Multiclass
+    @test ST.string_to_multiclass(Textual, ["a","b", missing], 0) == Union{Missing,Multiclass}
 end
 
-@testset "auto d2c2" begin
+@testset "auto discrete_to_continuous" begin
     n = nothing
     M = Missing
     @test ScientificTypes.discrete_to_continuous(Integer, n, n) == Continuous
@@ -159,7 +169,7 @@ end
     @test ScientificTypes.discrete_to_continuous(Union{M,OrderedFactor}, n, n) == Union{M,OrderedFactor}
 end
 
-@testset "auto f2c2" begin
+@testset "auto few_to_finite" begin
     n = nothing
     M = Missing
     # short return
@@ -188,8 +198,7 @@ end
     @test ScientificTypes.few_to_finite(st, col, length(col)) == st
 end
 
-
-@testset "auto bool->OF" begin
+@testset "auto boolean to OrderedFactor" begin
     X = (v = [false, true, false, true, missing],
          z = [0, 1, 0, 1, 0])
     Xc = coerce(X, autotype(X))
@@ -197,11 +206,24 @@ end
     @test scitype_union(Xc.z) == OrderedFactor{2}
 end
 
-
-@testset "Auto array" begin
+@testset "Auto array inputs" begin
     X = ones(Int, 5, 5)
     @test autotype(X, (:discrete_to_continuous,)) == Continuous
     @test autotype(X, :discrete_to_continuous) == Continuous
     X = reshape([3.415 for i in 1:9], 3, 3)
     @test autotype(X) == OrderedFactor # using :few_to_finite
 end
+
+@testset "Autotype/tight" begin
+    x = [1,2,3,missing];
+    x = x[1:3]
+    y = randn(3)
+    X = (x = x, y = y)
+    d = autotype(X, :discrete_to_continuous)
+    Xc = coerce(X, d)
+    @test elscitype(Xc.x) == Union{Missing,Continuous}
+    Xc = coerce(X, d, tight=true)
+    @test elscitype(Xc.x) == Continuous
+end
+
+

@@ -12,11 +12,13 @@ an array based on rules
                               autotype, `only_changes` should be true.
 * `rules=(:few_to_finite,)`: the set of rules to apply.
 """
-autotype(X; kw...) = _autotype(X, Val(ST.trait(X)); kw...)
+autotype(X; kw...) = _autotype(X, vtrait(X); kw...)
 
 # For an array object (trait:other)
-function _autotype(X::Arr, ::Val{:other};
-                   rules::NTuple{N,Symbol} where N=(:few_to_finite,))
+function _autotype(
+    X::Arr, ::Val{:other};
+    rules::NTuple{N,Symbol} where N = (:few_to_finite,)
+)
     # check that the rules are recognised
     _check_rules(rules)
     # inspect the current element scitype
@@ -36,8 +38,11 @@ function _autotype(X::Arr, ::Val{:other};
 end
 
 # For a table object (trait:table)
-function _autotype(X, ::Val{:table}; only_changes::Bool=true,
-                  rules::NTuple{N,Symbol} where N=(:few_to_finite,))
+function _autotype(
+    X, ::Val{:table}; 
+    only_changes::Bool=true,
+    rules::NTuple{N,Symbol} where N = (:few_to_finite,)
+)
     # check that the rules are recognised
     _check_rules(rules)
     # recuperate the schema of `X`
@@ -59,7 +64,7 @@ function _autotype(X, ::Val{:table}; only_changes::Bool=true,
         # doesn't really matter, there are few rules and sugg is fast
         sugg_type = stype
         for rule in rules
-            sugg_type = eval(:($rule($sugg_type, $col, $sch.nrows)))
+            sugg_type = eval(:($rule($sugg_type, $col, $(nrows(X)))))
         end
         # store the suggested type
         suggested_types[name] = sugg_type
@@ -76,16 +81,49 @@ function _autotype(X, ::Val{:table}; only_changes::Bool=true,
 end
 
 # convenience functions to pass a single rule at the time
-autotype(X, rule::Symbol; args...) =
-    autotype(X; rules=(rule,), args...)
+autotype(X, rule::Symbol; args...) = autotype(X; rules=(rule,), args...)
 # convenience function to splat rules
-autotype(X, rules::NTuple{N,Symbol} where N; args...) =
-    autotype(X; rules=rules, args...)
+autotype(X, rules::NTuple{N,Symbol} where N; args...) = autotype(X; rules=rules, args...)
+
+"""
+    nrows(X)
+
+Helper method to return the number of rows a table `X` has.
+
+**Note**
+A more general version of this method is defined in `MLJModelInterface.jl`.
+This method is needed here in order for `auto_type` method to run. 
+"""
+function nrows(X)
+    if !Tables.istable(X)
+        throw(ArgumentError("input argument must be a Tables.jl compatible table"))
+    end
+    if Tables.rowaccess(X)
+        rows = Tables.rows(X)
+        return _nrows_rat(Base.IteratorSize(typeof(rows)), rows)
+        
+    else
+        cols = Tables.columns(X)
+        return _nrows_cat(cols)
+    end
+end
+
+# number of rows for columnaccessed table
+function _nrows_cat(cols)
+    names = Tables.columnnames(cols)
+    !isempty(names) || return 0
+    return length(Tables.getcolumn(cols, names[1]))
+end
+
+# number of rows for rowaccessed table
+_nrows_rat(::Base.HasShape, rows) = size(rows, 1)
+_nrows_rat(::Base.HasLength, rows) = length(rows)
+_nrows_rat(iter_size, rows) = length(collect(rows))
 
 # -----------------------------------------------------------------
 # rules
 
-function _check_rules(rules::NTuple{N,Symbol} where N)
+function _check_rules(rules::NTuple{N, Symbol} where N)
     for rule in rules
         rule in (:few_to_finite,
                  :discrete_to_continuous,
@@ -161,15 +199,14 @@ end
 Helper function to suggest a finite type corresponding to `T` when there are
 few unique values.
 """
-function sugg_finite(::Type{<:Union{Missing,T}}) where T
-    T <: Real && return OrderedFactor
-    return Multiclass
+function sugg_finite(type::Type)
+    return ifelse(nonmissing(type) <: Real, OrderedFactor, Multiclass)
 end
 
 """
     T_or_Union_Missing_T(type, T)
 
-Helper function to return either `T` or `Union{Missing,T}`.
+Helper function to return either `T` or `Union{Missing, T}`.
 """
 function T_or_Union_Missing_T(type::Type, T::Type)
     return ifelse(type >: Missing, Union{Missing, T}, T)
