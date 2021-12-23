@@ -1,4 +1,4 @@
-const ColKey = Union{Symbol,AbstractString}
+const ColKey = Union{Symbol, AbstractString}
 
 """
     coerce(A, specs...; tight=false, verbosity=1)

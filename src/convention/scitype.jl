@@ -98,12 +98,12 @@ function _cols_scitype(cols, sch::Tables.Schema{names, types}) where {names, typ
         return __cols_scitype(cols, sch) 
     else
         scitypes = if types === nothing
-            Type[scitype(Tables.getcolumn(cols, name[i])) for i in Base.OneTo(N)]
+            Type[scitype(Tables.getcolumn(cols, names[i])) for i in Base.OneTo(N)]
         else
             Type[
                 scitype(
                     Tables.getcolumn(
-                    cols, fieldtype(types, i), i, name[i])
+                    cols, fieldtype(types, i), i, names[i])
                 ) for i in Base.OneTo(N)
             ]
             
@@ -193,11 +193,11 @@ function space_scitype(
     return AbstractArray{scalar_scitype(value_support), N}
 end
 
-function ST.scitype(::Distributions.Sampleable{F, S}) where {F, S}
+function ST.scitype(::Distributions.Sampleable{F, S}, ::DefaultConvention) where {F, S}
     return Sampleable{space_scitype(F, S)}
 end
 
-function ST.scitype(::Distributions.Distribution{F,S}) where {F, S}
+function ST.scitype(::Distributions.Distribution{F,S}, ::DefaultConvention) where {F, S}
     return Density{space_scitype(F, S)}
 end
 

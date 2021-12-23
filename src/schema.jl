@@ -89,8 +89,8 @@ Tables.getcolumn(sch::Schema, i::Int) = Tables.getcolumn(sch, Tables.columnnames
 
 function Tables.getcolumn(sch::Schema, nm::Symbol)
     col = getproperty(sch, nm)
-    if col === Nothing
-        N = length(getproperty(sch, :name))
+    if col === nothing
+        N = length(getproperty(sch, :names))
         return fill(nothing, N)
     end
     return col
@@ -112,9 +112,11 @@ schema(X)
 schema(X) = schema(X, vtrait(X))
 
 # Fallback
-schema(X, ::Val{:other}) =
-    throw(ArgumentError("Cannot inspect the internal scitypes of "*
-                        "a non-tabular object. "))
+function schema(X, ::Val{:other})
+    throw(
+        ArgumentError("Cannot inspect the internal scitypes of a non-tabular object. ")
+    )
+end
 
 function schema(X, ::Val{:table})
     if Tables.columnaccess(X)
