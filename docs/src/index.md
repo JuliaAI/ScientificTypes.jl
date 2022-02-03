@@ -7,7 +7,7 @@ This package makes a distinction between **machine type** and
   the object (for instance, `Float64`).
 
 * The _scientific type_ is one of the types defined in
-  [ScientificTypesBase.jl](https://github.com/alan-turing-institute/ScientificTypesBase.jl)
+  [ScientificTypesBase.jl](https://github.com/JuliaAI/ScientificTypesBase.jl)
   reflecting how the object should be _interpreted_ (for instance,
   `Continuous` or `Multiclass`).
 
@@ -22,7 +22,7 @@ method).
 
 Developers interested in implementing a different convention will
 instead import [Scientific
-TypesBase.jl](https://github.com/alan-turing-institute/ScientificTypesBase.jl),
+TypesBase.jl](https://github.com/JuliaAI/ScientificTypesBase.jl),
 following the documentation there, possibly using this repo as a
 template.
 
