@@ -4,8 +4,9 @@
 # objects with respect to the `DefaultConvention``.
 # -----------------------------------------------------------------------------------------
 """
-The scientific type (interpretation) of `X`, as distinct from its
-machine type, as specified by the active convention.
+The scientific type (interpretation) of `X`, distinct from its
+machine type.
+
 ### Examples
 ```
 julia> scitype(3.14)
@@ -17,9 +18,11 @@ AbstractVector{Union{Missing, Count}}
 julia> scitype((5, "beige"))
 Tuple{Count, Textual}
 
-using CategoricalArrays
-X = (gender = categorical(['M', 'M', 'F', 'M', 'F']),
+julia> using CategoricalArrays
+
+julia> X = (gender = categorical(['M', 'M', 'F', 'M', 'F']),
      ndevices = [1, 3, 2, 3, 2])
+
 julia> scitype(X)
 Table{Union{AbstractVector{Count}, AbstractVector{Multiclass{2}}}}
 ```
