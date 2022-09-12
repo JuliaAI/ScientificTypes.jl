@@ -1,4 +1,4 @@
-module ScientificTypes
+module ScientificTypes 
 
 # Dependencies
 using Reexport

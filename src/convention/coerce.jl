@@ -227,7 +227,7 @@ _2d{C} =AbstractArray{C} where C<:Union{ColorTypes.AbstractRGB, ColorTypes.Gray}
 """
     coerce(image::AbstractArray{<:Real, N}, I)
 
-Given a an array called `image` representing one or more images,
+Given an array called `image` representing one or more images,
 return a transformed version of the data so as to enforce an
 appropriate scientific interpretation `I`:
 
