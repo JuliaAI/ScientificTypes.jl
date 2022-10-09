@@ -65,10 +65,10 @@ end
     @test scitype(Any[categorical(1:4)...]) == Vec{Multiclass{4}}
     @test scitype(categorical([1, missing, 3])) ==
         Vec{Union{Multiclass{2},Missing}}
-    
+
         a = ["aa", "bb", "aa", "bb"] |> categorical
     @test scitype(a[1]) == Multiclass{2}
- 
+
     # NOTE: the slice here does not contain missings but the machine type
     # still contains a missing so the scitype remains with a missing
     @test scitype(categorical([1, missing, 3])[1:1]) ==
@@ -169,7 +169,7 @@ end
     ) == r
     # ExtremelyWide row oriented table
     @test ST._rows_scitype(
-        rows, 
+        rows,
         Tables.Schema(
             Tables.columnnames(iterate(rows, 1)[1]),
             (Int, Int, CategoricalValue{Char, UInt32}, Float64);
@@ -177,7 +177,7 @@ end
         )
     ) == r
 
-    # test schema for column oreinted tables with number of columns 
+    # test schema for column oreinted tables with number of columns
     # exceeding COLS_SPECIALIZATION_THRESHOLD.
     nt = NamedTuple{
             Tuple(Symbol("x$i") for i in Base.OneTo(ST.COLS_SPECIALIZATION_THRESHOLD + 1))
@@ -189,6 +189,12 @@ end
     #issue 146
     X = Tables.table(coerce(rand("abc", 5, 3), Multiclass))
     @test scitype(X) === Table{AbstractVector{Multiclass{3}}}
+
+    # dictionaries are not tables:
+    @test !(scitype(Dict("a" => [1, 2, 3], "b" => [4, 5, 6])) <: Table)
+
+    # vectors of dictionaries are not tables:
+    @test !(scitype([Dict("a" => 1), Dict("a" => 2)]) <: Table)
 end
 
 # TODO: re-instate when julia 1.0 is no longer LTS release:
