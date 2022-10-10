@@ -149,11 +149,9 @@ Here `nlevels(x) = length(levels(x.pool))`.
 - We regard the built-in Julia types `Missing` and `Nothing` as scientific types.
 - `Finite{N}`, `Multiclass{N}` and `OrderedFactor{N}` are all parameterized by the number of levels `N`. We export the alias `Binary = Finite{2}`.
 - `Image{W,H}`, `GrayImage{W,H}` and `ColorImage{W,H}` are all parameterized by the image width and height dimensions, `(W, H)`.
-- `Sampleable{K}` andb
-`Density{K} <: Sampleable{K}` are parameterized by the sample space scitype.
-- On objects for which the default convention has nothing to say, the
-  `scitype` function returns `Unknown`.
-
+- `Sampleable{K}` and `Density{K} <: Sampleable{K}` are parameterized by the sample space scitype.
+- On objects for which the default convention has nothing to say, the `scitype` function returns `Unknown`.
+- In Tables.jl version 1.8 abstract dictionaries with `String` keys, and abstract vectors of dictionaries with `String` keys became tables, according to the value of `Tables.istable`. (Previously only symbolic keys had that interpretation.) This change was breaking for ScientificTypes.jl (see `Multiset{Textual}` above) which accordingly continues to regard these objects as non-tabular. 
 
 ### Special note on binary data
 
