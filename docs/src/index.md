@@ -134,11 +134,17 @@ Type `T`        | `scitype(x)` for `x::T`           | package/module required
 `AbstractArray{<:Gray,2}` | `GrayImage{W,H}` where `(W, H) = size(x)`                                   | ColorTypes.jl
 `AbstractArrray{<:AbstractRGB,2}` | `ColorImage{W,H}` where `(W, H) = size(x)`                                  | ColorTypes.jl
 `PersistenceDiagram` | `PersistenceDiagram` | PersistenceDiagramsBase
-any table type `T` supported by Tables.jl | `Table{K}` where `K=Union{column_scitypes...}`                      | Tables.jl
+(*) any table type `T` supported by Tables.jl | `Table{K}` where `K=Union{column_scitypes...}`                      | Tables.jl
 † `CorpusLoaders.TaggedWord` | `Annotated{Textual}` | CorpusLoaders.jl
 † `CorpusLoaders.Document{AbstractVector{Q}}` | `Annotated{AbstractVector{Scitype(Q)}}` | CorpusLoaders.jl
 † `AbstractDict{<:AbstractString,<:Integer}` | `Multiset{Textual}` | 
 † `AbstractDict{<:TaggedWord,<:Integer}` | `Multiset{Annotated{Textual}}` | CorpusLoaders.jl
+
+(*) In Tables.jl version 1.8 abstract dictionaries with `String` keys, and abstract
+vectors of dictionaries with `String` keys became tables, according to the value of
+`Tables.istable`. (Previously only symbolic keys had that interpretation.) This change was
+breaking for ScientificTypes.jl (see `Multiset{Textual}` above) which accordingly
+continues to regard these objects as non-tabular.
 
 † *Experimental* and subject to change in new minor or patch release
 
@@ -151,7 +157,6 @@ Here `nlevels(x) = length(levels(x.pool))`.
 - `Image{W,H}`, `GrayImage{W,H}` and `ColorImage{W,H}` are all parameterized by the image width and height dimensions, `(W, H)`.
 - `Sampleable{K}` and `Density{K} <: Sampleable{K}` are parameterized by the sample space scitype.
 - On objects for which the default convention has nothing to say, the `scitype` function returns `Unknown`.
-- In Tables.jl version 1.8 abstract dictionaries with `String` keys, and abstract vectors of dictionaries with `String` keys became tables, according to the value of `Tables.istable`. (Previously only symbolic keys had that interpretation.) This change was breaking for ScientificTypes.jl (see `Multiset{Textual}` above) which accordingly continues to regard these objects as non-tabular. 
 
 ### Special note on binary data
 

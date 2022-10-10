@@ -1,11 +1,15 @@
 # -----------------------------------------------------------------------------------------
-# This file includes the single argument definition of `scitype` method and corresponding 
-# convenience functions. It also includes definitions for `scitype/Scitype` of different 
+# This file includes the single argument definition of `scitype` method and corresponding
+# convenience functions. It also includes definitions for `scitype/Scitype` of different
 # objects with respect to the `DefaultConvention``.
-# -----------------------------------------------------------------------------------------
+#
+#-----------------------------------------------------------------------------------------
 """
-The scientific type (interpretation) of `X`, distinct from its
-machine type.
+    scitype(X)
+
+The scientific type (interpretation) of `X`, as distinct from its machine type. Atomic
+scientific types (`Continuous`, `Multiclass`, etc) are mostly abstract types defined in
+the package ScientificTypesBase.jl. Scientific types do not ordinarily have instances.
 
 ### Examples
 ```
@@ -13,24 +17,55 @@ julia> scitype(3.14)
 Continuous
 
 julia> scitype([1, 2, missing])
-AbstractVector{Union{Missing, Count}} 
+AbstractVector{Union{Missing, Count}}
 
 julia> scitype((5, "beige"))
 Tuple{Count, Textual}
 
 julia> using CategoricalArrays
 
-julia> X = (gender = categorical(['M', 'M', 'F', 'M', 'F']),
+julia> table = (gender = categorical(['M', 'M', 'F', 'M', 'F']),
      ndevices = [1, 3, 2, 3, 2])
 
-julia> scitype(X)
+julia> scitype(table)
 Table{Union{AbstractVector{Count}, AbstractVector{Multiclass{2}}}}
+
 ```
+
+Column scitpes of a table can also be inspected with [`schema`](@ref).
+
+The behavior of `scitype` is detailed in the [ScientificTypes
+documentation](https://juliaai.github.io/ScientificTypes.jl/dev/#Summary-of-the-default-convention).
+Key features of the default behavior are:
+
+- `AbstractFloat` has scitype as `Continuous <: Infinite`.
+
+- Any `Integer` has scitype as `Count <: Infinite`.
+
+- Any `CategoricalValue` `x` has scitype as `Multiclass <: Finite` or
+  `OrderedFactor <: Finite`, depending on the value of `isordered(x)`.
+
+- `String`s and `Char`s do *not* have scitype `Multiclass` or
+  `OrderedFactor`; they have scitypes `Textual` and `Unknown`
+  respectively.
+
+- The scientific types of `nothing` and `missing` are `Nothing` and
+  `Missing`, Julia types that are also regarded as scientific.
+
+
+
+!!! note
+
+    Third party packages may extend the behavior of `scitype`: Objects
+    previously having `Unknown` scitype may no longer do so.
+
+See also [`coerce`](@ref), [`autotype`](@ref), [`schema`](@ref).
+
 """
 scitype(X) = ST.scitype(X, CONV)
 
 function ST.scitype(@nospecialize(X), C::DefaultConvention)
-    return _scitype(X, C, vtrait(X)) 
+    return _scitype(X, C, vtrait(X))
 end
 
 function _scitype(X, C, ::Val{:other})
@@ -98,7 +133,7 @@ end
 function _cols_scitype(cols, sch::Tables.Schema{names, types}) where {names, types}
     N = length(names)
     if N <= COLS_SPECIALIZATION_THRESHOLD
-        return __cols_scitype(cols, sch) 
+        return __cols_scitype(cols, sch)
     else
         scitypes = if types === nothing
             Type[scitype(Tables.getcolumn(cols, names[i])) for i in Base.OneTo(N)]
@@ -109,21 +144,21 @@ function _cols_scitype(cols, sch::Tables.Schema{names, types}) where {names, typ
                     cols, fieldtype(types, i), i, names[i])
                 ) for i in Base.OneTo(N)
             ]
-            
+
         end
         return Table{Union{scitypes...}}
     end
 end
 
 @inline function __cols_scitype(
-    cols, 
+    cols,
     sch::Tables.Schema{names, types}
 ) where {names, types}
     N = length(names)
     if @generated
         stypes = if types === nothing
             (
-                :(scitype(Tables.getcolumn(cols, $(Meta.QuoteNode(names[i]))))) 
+                :(scitype(Tables.getcolumn(cols, $(Meta.QuoteNode(names[i])))))
                 for i in Base.OneTo(N)
             )
         else
@@ -134,17 +169,17 @@ end
                             cols, $(fieldtype(types, i)), $i,  $(Meta.QuoteNode(names[i]))
                         );
                     )
-                end 
+                end
                 for i in Base.OneTo(N)
             )
         end
         return :(Table{Union{$(stypes...)}})
     else
-        stypes = if types === nothing 
+        stypes = if types === nothing
             (scitype(Tables.getcolumn(cols, names[i])) for i in Base.OneTo(N))
         else
             (
-                scitype(Tables.getcolumn(cols, fieldtype(types, i), i, names[i])) 
+                scitype(Tables.getcolumn(cols, fieldtype(types, i), i, names[i]))
                 for i in Base.OneTo(N)
             )
         end
@@ -225,7 +260,7 @@ Return the element scientific type of an abstract array `A`. By definition, if
 """
 elscitype(X) = elscitype(collect(X))
 elscitype(X::Arr) = eltype(scitype(X))
- 
+
 """
     scitype_union(A)
 Return the type union, over all elements `x` generated by the iterable `A`,
