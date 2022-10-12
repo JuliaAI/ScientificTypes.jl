@@ -134,11 +134,20 @@ Type `T`        | `scitype(x)` for `x::T`           | package/module required
 `AbstractArray{<:Gray,2}` | `GrayImage{W,H}` where `(W, H) = size(x)`                                   | ColorTypes.jl
 `AbstractArrray{<:AbstractRGB,2}` | `ColorImage{W,H}` where `(W, H) = size(x)`                                  | ColorTypes.jl
 `PersistenceDiagram` | `PersistenceDiagram` | PersistenceDiagramsBase
-any table type `T` supported by Tables.jl | `Table{K}` where `K=Union{column_scitypes...}`                      | Tables.jl
+(*) any table type `T` | `Table{K}` where `K=Union{column_scitypes...}`                      | Tables.jl
 † `CorpusLoaders.TaggedWord` | `Annotated{Textual}` | CorpusLoaders.jl
 † `CorpusLoaders.Document{AbstractVector{Q}}` | `Annotated{AbstractVector{Scitype(Q)}}` | CorpusLoaders.jl
 † `AbstractDict{<:AbstractString,<:Integer}` | `Multiset{Textual}` | 
 † `AbstractDict{<:TaggedWord,<:Integer}` | `Multiset{Annotated{Textual}}` | CorpusLoaders.jl
+
+(*) More precisely, any object `X` for which `Tables.istable(X) == true` will have
+`sctiype(X) = Table{K}`, where `K` is the union of the column scitypes, with the following
+exceptions: abstract dictionaries with `AbstractString` keys, and abstract vectors of
+abstract dictionaries with `AbstractString` keys are not considered tables by
+ScientificTypes.jl. Prior to Tables.jl 1.8, one had `Tables.istable(X) == false` for these
+objects but in releases 1.8 and 1.10, this behaviour changed. These changes were breaking
+for ScientificTypes.jl, which has accordingly enforced the old behaviour, as far as
+`scitype` is concerned.
 
 † *Experimental* and subject to change in new minor or patch release
 
@@ -149,11 +158,8 @@ Here `nlevels(x) = length(levels(x.pool))`.
 - We regard the built-in Julia types `Missing` and `Nothing` as scientific types.
 - `Finite{N}`, `Multiclass{N}` and `OrderedFactor{N}` are all parameterized by the number of levels `N`. We export the alias `Binary = Finite{2}`.
 - `Image{W,H}`, `GrayImage{W,H}` and `ColorImage{W,H}` are all parameterized by the image width and height dimensions, `(W, H)`.
-- `Sampleable{K}` andb
-`Density{K} <: Sampleable{K}` are parameterized by the sample space scitype.
-- On objects for which the default convention has nothing to say, the
-  `scitype` function returns `Unknown`.
-
+- `Sampleable{K}` and `Density{K} <: Sampleable{K}` are parameterized by the sample space scitype.
+- On objects for which the default convention has nothing to say, the `scitype` function returns `Unknown`.
 
 ### Special note on binary data
 
@@ -319,7 +325,7 @@ schema(data)
 scitype(data)
 ```
 
-Similarly, any table implementing the Tables interface has scitype
+Similarly, any table (see (*) above for the definition) has scitype
 `Table{K}`, where `K` is the union of the scitypes of its columns.
 
 Table scitypes are useful for dispatch and type checks, as shown here,

@@ -1,4 +1,4 @@
-module ScientificTypes 
+module ScientificTypes
 
 # Dependencies
 using Reexport
@@ -27,11 +27,26 @@ const SCHEMA_SPECIALIZATION_THRESHOLD = Tables.SCHEMA_SPECIALIZATION_THRESHOLD
 
 #---------------------------------------------------------------------------------------
 # Define convention
+
 struct DefaultConvention <: Convention end
 const CONV = DefaultConvention()
+
 # -------------------------------------------------------------
 # vtrait function, returns either `Val{:table}()` or `Val{:other}()`
-vtrait(X) = Val{ifelse(Tables.istable(X), :table, :other)}()
+
+# To address https://github.com/JuliaData/Tables.jl/issues/306:
+const DictColumnsWithStringKeys = AbstractDict{K, V} where {
+    K <: AbstractString,
+    V <: AbstractVector
+}
+const DictRowsWithStringKeys = AbstractVector{T} where {
+T <: AbstractDict{<:AbstractString}
+}
+_istable(::DictColumnsWithStringKeys) = false
+_istable(::DictRowsWithStringKeys) = false
+_istable(something_else) = Tables.istable(something_else)
+
+vtrait(X) = Val{ifelse(_istable(X), :table, :other)}()
 
 # -------------------------------------------------------------
 # Includes
