@@ -36,10 +36,12 @@ const CONV = DefaultConvention()
 
 # To address https://github.com/JuliaData/Tables.jl/issues/306:
 const DictColumnsWithStringKeys = AbstractDict{K, V} where {
-    K <: String,
+    K <: AbstractString,
     V <: AbstractVector
 }
-const DictRowsWithStringKeys = AbstractVector{T} where T <: AbstractDict{String}
+const DictRowsWithStringKeys = AbstractVector{T} where {
+T <: AbstractDict{<:AbstractString}
+}
 _istable(::DictColumnsWithStringKeys) = false
 _istable(::DictRowsWithStringKeys) = false
 _istable(something_else) = Tables.istable(something_else)

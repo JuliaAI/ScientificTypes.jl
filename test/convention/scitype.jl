@@ -191,10 +191,13 @@ end
     @test scitype(X) === Table{AbstractVector{Multiclass{3}}}
 
     # dictionaries are not tables:
+    _s(str) = SubString(str, 1)
     @test !(scitype(Dict("a" => [1, 2, 3], "b" => [4, 5, 6])) <: Table)
+    @test !(scitype(Dict(_s("a") => [1, 2, 3], _s("b") => [4, 5, 6])) <: Table)
 
     # vectors of dictionaries are not tables:
     @test !(scitype([Dict("a" => 1), Dict("a" => 2)]) <: Table)
+    @test !(scitype([Dict(_s("a") => 1), Dict(_s("a") => 2)]) <: Table)
 end
 
 # TODO: re-instate when julia 1.0 is no longer LTS release:
