@@ -134,17 +134,20 @@ Type `T`        | `scitype(x)` for `x::T`           | package/module required
 `AbstractArray{<:Gray,2}` | `GrayImage{W,H}` where `(W, H) = size(x)`                                   | ColorTypes.jl
 `AbstractArrray{<:AbstractRGB,2}` | `ColorImage{W,H}` where `(W, H) = size(x)`                                  | ColorTypes.jl
 `PersistenceDiagram` | `PersistenceDiagram` | PersistenceDiagramsBase
-(*) any table type `T` supported by Tables.jl | `Table{K}` where `K=Union{column_scitypes...}`                      | Tables.jl
+(*) any table type `T` | `Table{K}` where `K=Union{column_scitypes...}`                      | Tables.jl
 † `CorpusLoaders.TaggedWord` | `Annotated{Textual}` | CorpusLoaders.jl
 † `CorpusLoaders.Document{AbstractVector{Q}}` | `Annotated{AbstractVector{Scitype(Q)}}` | CorpusLoaders.jl
 † `AbstractDict{<:AbstractString,<:Integer}` | `Multiset{Textual}` | 
 † `AbstractDict{<:TaggedWord,<:Integer}` | `Multiset{Annotated{Textual}}` | CorpusLoaders.jl
 
-(*) In Tables.jl version 1.8 abstract dictionaries with `String` keys, and abstract
-vectors of dictionaries with `String` keys became tables, according to the value of
-`Tables.istable`. (Previously only symbolic keys had that interpretation.) This change was
-breaking for ScientificTypes.jl (see `Multiset{Textual}` above) which accordingly
-continues to regard these objects as non-tabular.
+(*) More precisely, any object `X` for which `Tables.istable(X) == true` will have
+`sctiype(X) = Table{K}`, where `K` is the union of the column scitypes, with the following
+exceptions: abstract dictionaries with `AbstractString` keys, and abstract vectors of
+abstract dictionaries with `AbstractString` keys are not considered tables by
+ScientificTypes.jl. Prior to Tables.jl 1.8, one had `Tables.istable(X) == false` for these
+objects but in releases 1.8 and 1.10, this behaviour changed. These changes were breaking
+for ScientificTypes.jl, which has accordingly enforced the old behaviour, as far as
+`scitype` is concerned.
 
 † *Experimental* and subject to change in new minor or patch release
 
@@ -322,7 +325,7 @@ schema(data)
 scitype(data)
 ```
 
-Similarly, any table implementing the Tables interface has scitype
+Similarly, any table (see (*) above for the definition) has scitype
 `Table{K}`, where `K` is the union of the scitypes of its columns.
 
 Table scitypes are useful for dispatch and type checks, as shown here,
