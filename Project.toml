@@ -23,7 +23,7 @@ Reexport = "1.2"
 ScientificTypesBase = "3.0"
 StatisticalTraits = "3.0"
 Tables = "1.6.1"
-julia = "1"
+julia = "1.10"
 
 [extras]
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
