@@ -2,7 +2,7 @@
 
 | Linux | Coverage | Documentation |
 | :-----------: | :------: | :-----------: |
-| [![Build Status](https://github.com/JuliaAI/ScientificTypes.jl/workflows/CI/badge.svg)](https://github.com/JuliaAI/ScientificTypes.jl/actions) | [![codecov.io](http://codecov.io/github/JuliaAI/ScientificTypes.jl/coverage.svg?branch=master)](http://codecov.io/github/JuliaAI/ScientificTypes.jl?branch=master) | [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://JuliaAI.github.io/ScientificTypes.jl/dev)
+| [![Build Status](https://github.com/JuliaAI/ScientificTypes.jl/workflows/CI/badge.svg)](https://github.com/JuliaAI/ScientificTypes.jl/actions) | [![codecov](https://codecov.io/gh/JuliaAI/ScientificTypes.jl/graph/badge.svg?token=t7KNmNGLvj)](https://codecov.io/gh/JuliaAI/ScientificTypes.jl) | [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://JuliaAI.github.io/ScientificTypes.jl/dev)
 
 This package makes a distinction between **machine type** and
 **scientific type** of a Julia object:
