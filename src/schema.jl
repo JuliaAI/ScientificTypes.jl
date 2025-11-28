@@ -244,10 +244,11 @@ function _rows_schema(rows, sch::Tables.Schema{nothing, nothing})
 end
 
 function Base.show(io::IO, ::MIME"text/plain", s::Schema)
-    data = Tables.matrix(s)
-    header = (["names", "scitypes", "types"],)
-    pretty_table(io, data, header=header;
-                 header_crayon=Crayon(bold=false),
-                 alignment=:l)
-end
+    # for getting rid of bold in table headings:
+    style = PrettyTables.TextTableStyle(
+        first_line_column_label = PrettyTables.crayon"black",
+    )
 
+    column_labels = [["names", "scitypes", "types"],]
+    pretty_table(io, s; column_labels, style, alignment=:l)
+end
