@@ -33,17 +33,21 @@
 
     # Schema show
     df = DataFrame(x=[1.0,2.0,3.0], y=["a","b","c"])
-    s = schema(df)
-    io = IOBuffer()
-    show(io, MIME("text/plain"), ScientificTypes.schema(df))
-    @test String(take!(io)) == "┌───────┬────────────┬─────────┐\n│ names │ scitypes   │ types   │\n├───────┼────────────┼─────────┤\n│ x     │ Continuous │ Float64 │\n│ y     │ Textual    │ String  │\n└───────┴────────────┴─────────┘\n"
+    s = ScientificTypes.schema(df)
+    str = sprint(show, MIME("text/plain"), s)
+    @test str == "┌───────┬────────────┬─────────┐\n"*
+        "│ names │ scitypes   │ types   │\n"*
+        "├───────┼────────────┼─────────┤\n"*
+        "│ x     │ Continuous │ Float64 │\n"*
+        "│ y     │ Textual    │ String  │\n"*
+        "└───────┴────────────┴─────────┘\n"
 end
 
 struct MySchemalessTable{U, V}
     x::Vector{U}
     y::Vector{V}
 end
- 
+
 Tables.istable(::MySchemalessTable) = true
 Tables.columnaccess(::Type{<:MySchemalessTable}) = true
 Tables.columns(t::MySchemalessTable) = t
@@ -63,7 +67,7 @@ struct ExtremelyWideTable{U, V}
     a::Vector{U}
     b::Vector{V}
 end
- 
+
 Tables.istable(::ExtremelyWideTable) = true
 Tables.columnaccess(::Type{<:ExtremelyWideTable}) = true
 Tables.columns(t::ExtremelyWideTable) = t
@@ -105,13 +109,13 @@ end
 
     # schema of non-tabular objects
     @test_throws ArgumentError schema([:x, :y])
- 
+
     # PR #61 "schema check for `Tables.DictColumn`"
     X1 = Dict(:a=>rand(5), :b=>rand(Int, 5))
     s1 = schema(X1)
     @test s1.scitypes == (Continuous, Count)
     @test s1.types == (Float64, Int64)
- 
+
     # issue 47 (schema for objects, `X` with, `Tables.schema(X) == nothing`)
     X2 = MySchemalessTable(rand(3), rand(Int, 3))
     s2 = schema(X2)
@@ -132,8 +136,8 @@ end
     @test ST._rows_schema(
         Tables.rows(X3), Tables.schema(X3)
     ) == ST.Schema(Tables.columnnames(X3), (Continuous, Count), (Float64, Int))
-    
-    # test schema for column oreinted tables with number of columns 
+
+    # test schema for column oreinted tables with number of columns
     # exceeding COLS_SPECIALIZATION_THRESHOLD.
     nt = NamedTuple{
             Tuple(Symbol("x$i") for i in Base.OneTo(ST.COLS_SPECIALIZATION_THRESHOLD + 1))
@@ -154,7 +158,6 @@ end
         Tables.columnnames(nt),
         NTuple{ST.COLS_SPECIALIZATION_THRESHOLD + 1, Continuous},
         NTuple{ST.COLS_SPECIALIZATION_THRESHOLD + 1, Float64}
-    )  
+    )
 
  end
- 
