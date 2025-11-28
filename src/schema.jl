@@ -244,10 +244,7 @@ function _rows_schema(rows, sch::Tables.Schema{nothing, nothing})
 end
 
 function Base.show(io::IO, ::MIME"text/plain", s::Schema)
-    data = Tables.matrix(s)
-    header = (["names", "scitypes", "types"],)
-    pretty_table(io, data, header=header;
-                 header_crayon=Crayon(bold=false),
-                 alignment=:l)
+#    data = Tables.matrix(s)
+    column_labels = [["names", "scitypes", "types"],]
+    pretty_table(io, s; column_labels, alignment=:l)
 end
-
