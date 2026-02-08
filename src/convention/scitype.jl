@@ -7,9 +7,18 @@
 """
     scitype(X)
 
-The scientific type (interpretation) of `X`, as distinct from its machine type. Atomic
-scientific types (`Continuous`, `Multiclass`, etc) are mostly abstract types defined in
-the package ScientificTypesBase.jl. Scientific types do not ordinarily have instances.
+Return the scientific type (interpretation) of `X`, as distinct from its machine
+type. Atomic scientific types (`Continuous`, `Multiclass`, etc) are mostly abstract types
+defined in the package ScientificTypesBase.jl. Scientific types do not ordinarily have
+instances.
+
+!!! note
+
+    Third party packages may extend the behavior of `scitype`: Objects previously having
+    `Unknown` scitype may no longer do so.
+
+To display the active scientific type hierarchy (excluding `Missing` and `Nothing`) do
+`scitype()`.
 
 ### Examples
 ```
@@ -53,16 +62,11 @@ Key features of the default behavior are:
   `Missing`, Julia types that are also regarded as scientific.
 
 
-
-!!! note
-
-    Third party packages may extend the behavior of `scitype`: Objects
-    previously having `Unknown` scitype may no longer do so.
-
 See also [`coerce`](@ref), [`autotype`](@ref), [`schema`](@ref).
 
 """
 scitype(X) = ST.scitype(X, CONV)
+scitype(; kwargs...) = ST.scitype(; kwargs...)
 
 function ST.scitype(@nospecialize(X), C::DefaultConvention)
     return _scitype(X, C, vtrait(X))

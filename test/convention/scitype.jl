@@ -1,3 +1,11 @@
+@testset "type hierarch display" begin
+    str = sprint(io -> scitype(; io))
+    # only smoke tests, to save maintenance:
+    @test contains(str, "Found\n  Known\n")
+    @test contains(str, "Multiclass")
+    @test contains(str, "Textual")
+end
+
 @testset "Explicit Scitype tests" begin
     STB = ScientificTypesBase
     ST = ScientificTypes
