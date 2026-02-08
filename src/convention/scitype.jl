@@ -66,6 +66,14 @@ See also [`coerce`](@ref), [`autotype`](@ref), [`schema`](@ref).
 
 """
 scitype(X) = ST.scitype(X, CONV)
+
+"""
+    scitype(io=stdout)
+
+Print to `io` a text representation of the active scientific type hierarchy, starting at
+`Found`.
+
+"""
 scitype(; kwargs...) = ST.scitype(; kwargs...)
 
 function ST.scitype(@nospecialize(X), C::DefaultConvention)
