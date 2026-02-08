@@ -41,7 +41,7 @@ Table{Union{AbstractVector{Count}, AbstractVector{Multiclass{2}}}}
 
 ```
 
-Column scitpes of a table can also be inspected with [`schema`](@ref).
+Column scitypes of a table can also be inspected with [`schema`](@ref).
 
 The behavior of `scitype` is detailed in the [ScientificTypes
 documentation](https://juliaai.github.io/ScientificTypes.jl/dev/#Summary-of-the-default-convention).
@@ -68,10 +68,12 @@ See also [`coerce`](@ref), [`autotype`](@ref), [`schema`](@ref).
 scitype(X) = ST.scitype(X, CONV)
 
 """
-    scitype(io=stdout)
+    scitype(; io=stdout)
 
-Print to `io` a text representation of the active scientific type hierarchy, starting at
-`Found`.
+Print to `io` the scitype hierarchy, beginning at `Found` (and so excluding `Missing` and
+`Nothing`).
+
+Note that third party packages can extend the hierarchy, so output is not static.
 
 """
 scitype(; kwargs...) = ST.scitype(; kwargs...)

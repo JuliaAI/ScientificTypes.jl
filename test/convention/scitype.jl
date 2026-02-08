@@ -1,5 +1,5 @@
 @testset "type hierarch display" begin
-    str = sprint(io -> scitype(; io))
+    str = sprint(io -> scitype(;io))
     # only smoke tests, to save maintenance:
     @test contains(str, "Found\n  Known\n")
     @test contains(str, "Multiclass")
