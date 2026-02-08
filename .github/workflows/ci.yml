@@ -1,14 +1,9 @@
 name: CI
 on:
-  pull_request:
-    branches:
-      - master
-      - dev
   push:
-    branches:
-      - master
-      - dev
-    tags: '*'
+    branches: [master, dev]
+    tags: ["*"]
+  pull_request:
 jobs:
   test:
     name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
@@ -17,106 +12,39 @@ jobs:
       fail-fast: false
       matrix:
         version:
+          - '1' # automatically expands to the latest stable 1.x release of Julia
+          - '1.6'
           - '1.10'
-          - '1' # automatically expands to the latest stable 1.x release of Julia.
         os:
           - ubuntu-latest
+          - windows-latest
         arch:
           - x64
+        include:
+          - os: macOS-latest
+            arch: aarch64
+            version: 1
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v2
         with:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
       - uses: julia-actions/cache@v2
-        env:
-          cache-name: cache-artifacts
-        with:
-          path: ~/.julia/artifacts
-          key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-test-${{ env.cache-name }}-
-            ${{ runner.os }}-test-
-            ${{ runner.os }}-
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
       - uses: julia-actions/julia-processcoverage@v1
       - uses: codecov/codecov-action@v5
         with:
+          files: lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
-          fail_ci_if_error: false
-          verbose: true
   docs:
     name: Documentation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: julia-actions/setup-julia@v2
-        with:
-          version: '1'
-      - shell: julia --color=yes {0}
-        run: |
-           function set_environment_variable(name::AbstractString, value::AbstractString)
-               github_env = ENV["GITHUB_ENV"]
-               touch(github_env)
-               open(github_env, "a") do io
-                   println(io, "$(name)=$(value)")
-               end
-           end
-           event_name = "${{ github.event_name }}"
-           if event_name == "pull_request"
-               base_ref = "${{ github.base_ref }}"
-               head_ref = "${{ github.head_ref }}"
-               base_repository = "${{ github.repository }}"
-               head_repository = "${{ github.event.pull_request.head.repo.full_name }}"
-               build_docs = (base_ref == "master") && (head_ref == "dev") && (base_repository == head_repository)
-           elseif event_name == "push"
-               ref = "${{ github.ref }}"
-               build_docs = (ref == "refs/heads/master") || (startswith(ref, "refs/tags/"))
-           elseif event_name == "schedule"
-               build_docs = ref == "refs/heads/master"
-           elseif event_name == "workflow_dispatch"
-               build_docs = ref == "refs/heads/master"
-           else
-               build_docs = false
-           end
-           if build_docs
-               @info("We will build the docs")
-               set_environment_variable("BUILD_DOCS", "true")
-           else
-               @info("We will NOT build the docs")
-               set_environment_variable("BUILD_DOCS", "false")
-           end
-      - name: Instantiate docs environment
-        shell: julia --color=yes --project=docs {0}
-        run: |
-            if ENV["BUILD_DOCS"] == "true"
-                using Pkg
-                Pkg.develop(PackageSpec(path=pwd()))
-                Pkg.instantiate()
-            end
-      - name: Run doctests
-        shell: julia --color=yes --project=docs {0}
-        run: |
-            if ENV["BUILD_DOCS"] == "true"
-                using Documenter: doctest
-                using ScientificTypes
-                @info "attempting to run the doctests"
-                doctest(ScientificTypes)
-            else
-                @info "skipping the doctests"
-            end
-      - name: Build documentation
-        shell: julia --color=yes --project=docs {0}
-        run: |
-            if ENV["BUILD_DOCS"] == "true"
-                @info "attempting to build the docs"
-                run(`julia --project=docs docs/make.jl`)
-                @info "successfully built the docs"
-            else
-                @info "skipping the docs build"
-            end
+      - uses: actions/checkout@v4
+      - uses: julia-actions/julia-buildpkg@latest
+      - uses: julia-actions/julia-docdeploy@latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
