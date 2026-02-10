@@ -66,6 +66,7 @@ ManifoldPoint{MT}
 Unknown
 ```
 
+For more on specific types, see the [Reference](@ref) section. 
 
 Additionally, we regard the Julia native types `Missing` and `Nothing`
 as scientific types as well.
@@ -464,11 +465,3 @@ autotype(X, only_changes=true, rules=(:discrete_to_continuous, :few_to_finite))
 
 One should check and possibly modify the returned dictionary
 before passing to `coerce`.
-
-## API reference
-
-```@docs
-ScientificTypes.scitype
-coerce
-autotype
-```
