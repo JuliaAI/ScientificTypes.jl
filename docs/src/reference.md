@@ -42,7 +42,6 @@ Textual
 - [coerce](@ref)
 - [autotype](@ref)
 
-
 ```@docs
 scitype
 schema

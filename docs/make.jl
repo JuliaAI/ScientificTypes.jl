@@ -22,5 +22,5 @@ makedocs(
 deploydocs(
     devbranch="dev",
     push_preview=false,
-    repo=REPO, #"github.com/JuliaAI/ScientificTypes.jl.git",
+    repo="github.com/JuliaAI/ScientificTypes.jl.git",
 )
