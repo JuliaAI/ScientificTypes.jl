@@ -1,18 +1,26 @@
-using Documenter, ScientificTypes, ScientificTypesBase
+using Documenter, ScientificTypes
+import ScientificTypesBase
+
+const  REPO = Remotes.GitHub("JuliaAI", "ScientificTypes.jl")
 
 makedocs(
     modules = [ScientificTypes, ScientificTypesBase],
-    format = Documenter.HTML(
-        prettyurls = !("local" in ARGS),
-        ),
-    sitename = "ScientificTypes.jl",
-    authors = "Anthony Blaom, Thibaut Lienart, and contributors.",
+    format=Documenter.HTML(
+        prettyurls = true,
+        collapselevel = 1,
+    ),
     pages = [
         "Home" => "index.md",
-    ]
+        "Reference" => "reference.md",
+    ],
+    sitename = "ScientificTypes.jl",
+    authors = "Anthony Blaom, Thibaut Lienart, and contributors.",
+    warnonly = [:cross_references, :missing_docs],
+    repo = REPO
 )
 
 deploydocs(
-    repo = "github.com/JuliaAI/ScientificTypes.jl",
-    push_preview = true
+    devbranch="dev",
+    push_preview=false,
+    repo="github.com/JuliaAI/ScientificTypes.jl.git",
 )
