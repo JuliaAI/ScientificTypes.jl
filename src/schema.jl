@@ -2,6 +2,7 @@
 Functionalities supporting the schema of `X` when `X` is a `Tables.jl`
 compatible table.
 =#
+
 struct Schema{names, scitypes, types}
     storednames::Union{Nothing, Vector{Symbol}}
     storedscitypes::Union{Nothing, Vector{Type}}
@@ -41,7 +42,7 @@ end
 stored(::Nothing) = false
 tuple_of_symbols(x::NTuple{N, Symbol}) where {N} = x
 tuple_of_symbols(x) = Tuple(map(Symbol, x))
- 
+
 @inline function Schema(names, scitypes, types; stored::Bool=false)
     if stored || length(names) > SCHEMA_SPECIALIZATION_THRESHOLD
         return Schema{nothing, nothing, nothing}(
@@ -49,7 +50,7 @@ tuple_of_symbols(x) = Tuple(map(Symbol, x))
             Type[T for T in scitypes],
             Type[T for T in types]
         )
-    else 
+    else
         return Schema{tuple_of_symbols(names), Tuple{scitypes...}, Tuple{types...}}()
     end
 end
@@ -59,18 +60,18 @@ if VERSION < v"1.1"
 end
 
 # Note that `getproperty(::Schema, :name)`, `getproperty(::Schema, :scitypes)`
-# and `getproperty(::Schema, :types)` cannot return `nothing` even though the 
+# and `getproperty(::Schema, :types)` cannot return `nothing` even though the
 # definition below allows for this case. This is because the nature of the `schema`
-# function defined below.   
+# function defined below.
 function Base.getproperty(sch::Schema{names, scitypes, types},
                           field::Symbol) where {names, scitypes, types}
     if field === :names
         return names === nothing ? getfield(sch, :storednames) : names
     elseif field === :scitypes
-        return scitypes === nothing ? 
+        return scitypes === nothing ?
             (S = getfield(sch, :storedscitypes); S !== nothing ? S : nothing) : fieldtypes(scitypes)
     elseif field === :types
-        return types === nothing ? 
+        return types === nothing ?
             (T = getfield(sch, :storedtypes); T !== nothing ? T : nothing) : fieldtypes(types)
     else
         throw(ArgumentError("unsupported property for ScientificTypes.Schema"))
@@ -140,12 +141,12 @@ function _cols_schema(cols, sch::Tables.Schema{names, types}) where {names, type
     else
         stypes = if types === nothing
             Type[
-                elscitype(Tables.getcolumn(cols, names[i])) 
+                elscitype(Tables.getcolumn(cols, names[i]))
                 for i in Base.OneTo(N)
             ]
         else
             Type[
-                elscitype(Tables.getcolumn(cols, fieldtype(types, i), i, names[i])) 
+                elscitype(Tables.getcolumn(cols, fieldtype(types, i), i, names[i]))
                 for i in Base.OneTo(N)
             ]
         end
@@ -158,7 +159,7 @@ end
     if @generated
         stypes = if types === nothing
             (
-                :(elscitype(Tables.getcolumn(cols, $(Meta.QuoteNode(names[i]))))) 
+                :(elscitype(Tables.getcolumn(cols, $(Meta.QuoteNode(names[i])))))
                 for i in Base.OneTo(N)
             )
         else
@@ -169,29 +170,29 @@ end
                             cols, $(fieldtype(types, i)), $i,  $(Meta.QuoteNode(names[i]))
                         )
                     )
-                end 
+                end
                 for i in Base.OneTo(N)
             )
         end
-        
+
         return :(Schema(names, Tuple{$(stypes...)}, types))
-        
+
     else
-        
-        stypes = if types === nothing 
+
+        stypes = if types === nothing
             (
-                elscitype(Tables.getcolumn(cols, names[i])) 
+                elscitype(Tables.getcolumn(cols, names[i]))
                 for i in Base.OneTo(N)
             )
         else
             (
-                elscitype(Tables.getcolumn(cols, fieldtype(types, i), i, names[i])) 
+                elscitype(Tables.getcolumn(cols, fieldtype(types, i), i, names[i]))
                 for i in Base.OneTo(N)
             )
         end
 
         return Schema(names, Tuple{stypes...}, types)
-        
+
     end
 
 end
@@ -248,7 +249,13 @@ function Base.show(io::IO, ::MIME"text/plain", s::Schema)
     style = PrettyTables.TextTableStyle(
         first_line_column_label = PrettyTables.crayon"black",
     )
-
     column_labels = [["names", "scitypes", "types"],]
-    pretty_table(io, s; column_labels, style, alignment=:l)
+    pretty_table(
+        io,
+        s;
+        column_labels,
+        style,
+        fit_table_in_display_vertically=false,
+        alignment=:l,
+    )
 end

@@ -43,6 +43,13 @@
         "└───────┴────────────┴─────────┘\n"
 end
 
+@testset "all rows of schema are displayed" begin
+    table = Tables.table(fill("data", 2, 200))
+    str = sprint(show, MIME("text/plain"), ScientificTypes.schema(table))
+    nrows =  length(split(str, "\n")) - 5
+    @test nrows == 200
+end
+
 struct MySchemalessTable{U, V}
     x::Vector{U}
     y::Vector{V}
