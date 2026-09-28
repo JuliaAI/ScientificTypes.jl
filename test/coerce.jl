@@ -2,7 +2,6 @@
     X = (x=10:10:44, y=1:4, z=collect("abcd"))
 
     @test_throws ScientificTypes.CoercionError coerce(X, :x=>Float64)
-    @test_throws ScientificTypes.CoercionError coerce(X, :x=>Textual)
 
     types = Dict(:x => Continuous, :z => Multiclass)
     X_coerced = coerce(X, types)

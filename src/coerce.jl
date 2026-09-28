@@ -37,6 +37,10 @@ both the `OldScitype` and `Union{Missing,OldScitype}` cases):
 
 where `ColKey = Union{Symbol,AbstractString}`.
 
+When the element type of `X` is `Union{Missing,T}` but no `missing` value is present, it
+may be that `Missing` persists in the output element type. To force tightening of the
+element type to exclude `Missing`, set `tight=true`.
+
 ### Examples
 
 Specifying  `column_name=>Scitype` pairs:
