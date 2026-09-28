@@ -1,14 +1,18 @@
-# -----------------------------------------------------------------------------------------
-##############
-## Basic (Behavioural tests)
-##############
-
-# ----------------------------------------------------------------------------------------------------------------------
-###############
-## Detailed Tests
-###############
-
 @testset "coerce arrays" begin
+
+    # coercing to Textual and resolution of #193:
+    y = [1, 2, 3, missing]
+    yout = @test_logs(
+        (:info, r"^Trying to"),
+        coerce(y, Textual)
+    )
+    @test yout[1:3] == ["1", "2", "3"]
+    @test ismissing(yout[end])
+    y = [1, 2, 3]
+    yout = coerce(y, Textual)
+    @test yout == ["1", "2", "3"]
+    @test coerce(yout, Textual) == yout
+
     A = rand(Int, 2, 3)
     z = rand(Char, 2, 3)
     y = Any[1.0 2; 3 4]
@@ -16,11 +20,10 @@
     @test scitype_union(coerce(A, OrderedFactor)) <: OrderedFactor
     @test scitype_union(coerce(z, Multiclass)) <: Multiclass
     @test scitype_union(coerce(y, Count)) === Count
-    
-    # test fix for issue 39
+
+    # test fix for https://github.com/JuliaAI/MLJScientificTypes.jl/issues/39
     y = collect(Int64, 1:5)
     @test_throws ScientificTypes.CoercionError coerce(y, Float64)
-    @test_throws ScientificTypes.CoercionError coerce(y, Textual)
 
     @testset "coersion of Real->OrderedFactor" begin
         v = [0.1, 0.2, 0.2, 0.3, missing, 0.1]
