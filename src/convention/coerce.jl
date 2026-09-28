@@ -18,6 +18,23 @@ coerce(X::AbstractArray, ::Type{T}; kw...) where {T} =
 
 
 # ------------------------------------------------------------------------
+# TEXTUAL
+
+# Arr{T} -> Textual
+function coerce(
+    y::Arr{T},
+    T2::Type{<:Union{Missing,Textual}};
+    verbosity::Int=1,
+    tight::Bool=false,
+    ) where T
+    y = map(y) do η
+        ismissing(η) ? η : string(η)
+    end
+    _check_eltype(y, T2, verbosity)
+    return y
+end
+
+# ------------------------------------------------------------------------
 # FINITE
 
 # Supported types for CategoricalArray{T} under CategoricalArrays 0.9:
@@ -125,6 +142,7 @@ function coerce(y::Arr{T}, T2::Type{<:Union{Missing,C}};
 end
 
 ## ARRAY OF ANY
+
 # Note: in the categorical case, we don't care, because we broadcast anyway.
 # see CArr --> C above.
 #
